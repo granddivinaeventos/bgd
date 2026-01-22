@@ -73,15 +73,19 @@ body {
 
 header h1 {
     font-family: 'Cinzel', serif;
-    font-size: 2.5rem;
+    /* O segredo: a fonte vai de 1.2rem no celular até 2.5rem no PC automaticamente */
+    font-size: clamp(1.2rem, 6vw, 2.5rem); 
     color: var(--color-gold-hover);
     letter-spacing: 2px;
     margin-bottom: 0.5rem;
     text-shadow: 2px 2px 4px rgba(0,0,0,0.8);
     text-align: center;
     line-height: 1.2;
-    /* NO PC: Força o título a nunca quebrar */
+    
+    /* Força linha única em qualquer dispositivo */
     white-space: nowrap !important;
+    width: 100%;
+    display: block;
 }
 
 header p {
@@ -527,12 +531,13 @@ header p {
       header h1 { 
         /* NO MOBILE: Permite que o texto ocupe duas linhas */
         white-space: nowrap !important; 
-        font-size: 1.8rem; 
         line-height: 1.1; 
         margin-bottom: 0.5rem;
         max-width: 500px; /* Força a quebra no lugar certo */
         margin-left: auto;
         margin-right: auto;
+        font-size: clamp(1rem, 7vw, 1.8rem) !important; /* Ajuste fino para telas pequenas */
+        padding: 0 10px; /* Evita que as letras encostem no vidro do celular */
     }
     
     /* Ativa a quebra de linha entre 'DIVINA' e 'EVENTOS' no celular */
@@ -541,7 +546,8 @@ header p {
     }
 
    .container {
-        max-width: 500px; /* No celular ele pode voltar a ser estreito */
+        width: 100%;
+        max-width: 100%; /* Libera espaço total para o título se esticar */
     }
     
     /* Modal Mobile */
