@@ -529,25 +529,35 @@ header p {
     }
 
       header h1 { 
-        /* NO MOBILE: Permite que o texto ocupe duas linhas */
+        /* Mantém em uma linha só */
         white-space: nowrap !important; 
-        line-height: 1.1; 
+        
+        /* O SEGREDO: Diminui a fonte proporcionalmente à largura da tela */
+        /* 5.5vw significa 5.5% da largura do visor */
+        font-size: 5.5vw !important; 
+        
+        line-height: 1.2; 
         margin-bottom: 0.5rem;
-        max-width: 500px; /* Força a quebra no lugar certo */
-        margin-left: auto;
-        margin-right: auto;
-        font-size: clamp(1rem, 7vw, 1.8rem) !important; /* Ajuste fino para telas pequenas */
-        padding: 0 10px; /* Evita que as letras encostem no vidro do celular */
+        width: 100%;
+        text-align: center;
+        display: block;
+        
+        /* Remove paddings ou larguras máximas que espremem o texto */
+        max-width: none !important;
+        padding: 0 5px; 
     }
     
-    /* Ativa a quebra de linha entre 'DIVINA' e 'EVENTOS' no celular */
-    .mobile-break {
-        display: none; /* Ativa o <br> no celular */
+    /* Garante que o container não limite o crescimento do título */
+    .container {
+        width: 100% !important;
+        max-width: 100% !important;
+        padding-left: 0;
+        padding-right: 0;
     }
 
-   .container {
-        width: 100%;
-        max-width: 100%; /* Libera espaço total para o título se esticar */
+    /* Esconde a quebra de linha definitivamente */
+    .mobile-break {
+        display: none !important;
     }
     
     /* Modal Mobile */
