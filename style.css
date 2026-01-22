@@ -527,17 +527,17 @@ header p {
       header h1 { 
         /* NO MOBILE: Permite que o texto ocupe duas linhas */
         white-space: nowrap !important; 
-        font-size: 2rem; 
+        font-size: 1.8rem; 
         line-height: 1.1; 
         margin-bottom: 0.5rem;
-        max-width: 300px; /* Força a quebra no lugar certo */
+        max-width: 500px; /* Força a quebra no lugar certo */
         margin-left: auto;
         margin-right: auto;
     }
     
     /* Ativa a quebra de linha entre 'DIVINA' e 'EVENTOS' no celular */
     .mobile-break {
-        display: none !important; /* Ativa o <br> no celular */
+        display: none; /* Ativa o <br> no celular */
     }
 
    .container {
