@@ -57,10 +57,11 @@ body {
 /* =========================================
    3. HOME (TITULO E BOTÕES)
    ========================================= */
+/* Aumente o container para o título ter espaço lateral no PC */
 .container {
     text-align: center;
     width: 95%;
-    max-width: 900px;
+    max-width: 900px; /* Aumentado para o nome Grand Divina caber */
     z-index: 10;
     display: flex;
     flex-direction: column;
@@ -79,9 +80,8 @@ header h1 {
     text-shadow: 2px 2px 4px rgba(0,0,0,0.8);
     text-align: center;
     line-height: 1.2;
-    /* Força uma linha única no computador */
+    /* NO PC: Força o título a nunca quebrar */
     white-space: nowrap !important;
-    display: inline-block;
 }
 
 header p {
@@ -524,14 +524,13 @@ header p {
         padding-bottom: 100px;
     }
 
-   header h1 { 
-        font-size: 2.1rem; /* Ajuste leve para caber melhor em telas estreitas */
-        line-height: 1.1; 
-        margin-bottom: 0.5rem; 
-        /* Permite que o texto quebre no celular */
+      header h1 { 
+        /* NO MOBILE: Permite que o texto ocupe duas linhas */
         white-space: normal !important; 
-        width: 100%;
-        max-width: 320px; /* Limita a largura para forçar a quebra no ponto certo */
+        font-size: 2rem; 
+        line-height: 1.1; 
+        margin-bottom: 0.5rem;
+        max-width: 300px; /* Força a quebra no lugar certo */
         margin-left: auto;
         margin-right: auto;
     }
@@ -539,6 +538,10 @@ header p {
     /* Ativa a quebra de linha entre 'DIVINA' e 'EVENTOS' no celular */
     .mobile-break {
         display: block !important; /* Ativa o <br> no celular */
+    }
+
+   .container {
+        max-width: 500px; /* No celular ele pode voltar a ser estreito */
     }
     
     /* Modal Mobile */
