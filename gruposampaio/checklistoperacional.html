@@ -20,7 +20,7 @@
 
 <style>
 *, *::before, *::after { box-sizing: border-box; }
-:root{--bg:#000;--card:#111;--border:#222;--text:#fff;--accent:#fff;--red:#e74c3c;--green:#2ecc71;}
+:root{--bg:#000;--card:#111;--border:#222;--text:#fff;--accent:#fff;--red:#e74c3c;--green:#2ecc71;--blue:#0A84FF;--purple:#5E5CE6;}
 body{background:var(--bg);color:var(--text);font-family:'Segoe UI',sans-serif;margin:0;padding:20px 20px 120px;}
 .container{max-width:800px;margin:auto;}
 
@@ -41,18 +41,23 @@ body{background:var(--bg);color:var(--text);font-family:'Segoe UI',sans-serif;ma
 
 .btn-group{display:flex;gap:10px}
 .btn-opt{flex:1;background:#1a1a1a;border:1px solid var(--border);color:#666;padding:12px;cursor:pointer;border-radius:4px;font-weight:bold;transition:all .2s;text-align:center;}
-/* Classes visuais para quando o botão está marcado */
 .active-sim{background:var(--green);color:#fff;border-color:var(--green)}
 .active-nao{background:var(--red);color:#fff;border-color:var(--red)}
 
 .justificativa-container{display:none;margin-top:15px;padding:15px;background:#1a0a0a;border-radius:5px;border:1px solid #400}
 .input-obs{width:100%;padding:12px;background:#000;border:1px solid #444;color:#fff;margin-bottom:10px;border-radius:4px;}
 
-/* CÂMERA */
+/* BOTÕES DE FOTO (CÂMERA E GALERIA) */
 .input-file-wrapper{margin-top:10px;border-top:1px dashed #333;padding-top:10px;text-align:center;}
-.btn-camera{width:100%;background:#0A84FF;color:#fff;border:none;padding:12px;border-radius:6px;font-weight:bold;font-size:0.9rem;cursor:pointer;display:flex;align-items:center;justify-content:center;gap:8px;}
+.photo-buttons {display: flex; gap: 10px; justify-content: center; margin-bottom: 10px;}
+
+.btn-camera{flex:1; background:var(--blue); color:#fff; border:none; padding:12px; border-radius:6px; font-weight:bold; font-size:0.85rem; cursor:pointer; display:flex; align-items:center; justify-content:center; gap:5px;}
 .btn-camera:active{background:#0066cc;}
-.img-preview{max-width:100%; max-height:300px; margin-top:15px; border-radius:8px; display:none; border:1px solid #333; object-fit:contain; margin-left:auto; margin-right:auto;}
+
+.btn-gallery{flex:1; background:var(--purple); color:#fff; border:none; padding:12px; border-radius:6px; font-weight:bold; font-size:0.85rem; cursor:pointer; display:flex; align-items:center; justify-content:center; gap:5px;}
+.btn-gallery:active{background:#4845b5;}
+
+.img-preview{max-width:100%; max-height:300px; margin-top:10px; border-radius:8px; display:none; border:1px solid #333; object-fit:contain; margin-left:auto; margin-right:auto;}
 .btn-remove-foto{background:transparent;color:var(--red);border:1px solid var(--red);padding:8px;border-radius:4px;margin-top:10px;width:100%;font-weight:bold;cursor:pointer;display:none;}
 
 input[type="text"],select{width:100%;padding:15px;background:#111;border:1px solid #333;color:#fff;margin-bottom:15px;border-radius:5px;}
@@ -90,7 +95,7 @@ input[type="radio"]{display:none;}
 
 /* PDF Mode */
 .pdf-mode {background-color: var(--bg) !important;padding: 20px !important;}
-.pdf-mode .btn-clear, .pdf-mode .btn-camera, .pdf-mode .btn-remove-foto { display: none !important; }
+.pdf-mode .btn-clear, .pdf-mode .btn-camera, .pdf-mode .btn-gallery, .pdf-mode .btn-remove-foto { display: none !important; }
 .pdf-mode #audit-timer-info { display: block !important; margin-bottom: 20px; padding: 15px; background: #111; border: 1px solid #333; border-radius: 8px; }
 </style>
 </head>
@@ -347,7 +352,13 @@ perguntas.forEach((p, i) => {
       
       <div class="input-file-wrapper">
         <label style="font-size:0.7rem;color:#aaa;">ANEXAR FOTO (OPCIONAL):</label><br>
-        <button type="button" class="btn-camera" onclick="openCamera(${i})">📷 TIRAR FOTO AQUI</button>
+        <div class="photo-buttons">
+            <button type="button" class="btn-camera" onclick="openCamera(${i})">📷 CÂMERA</button>
+            <button type="button" class="btn-gallery" onclick="document.getElementById('gallery-${i}').click()">🖼️ GALERIA</button>
+        </div>
+        
+        <input type="file" id="gallery-${i}" accept="image/*" style="display:none" onchange="processGalleryFile(${i}, this)">
+
         <img id="preview-${i}" class="img-preview" src="" alt="Pré-visualização da imagem" />
         <button type="button" id="remove-foto-${i}" class="btn-remove-foto" onclick="removeFoto(${i})">🗑️ REMOVER FOTO</button>
       </div>
@@ -366,7 +377,7 @@ function responder(index, isSim){
     btnSim.classList.add('active-sim');
     btnNao.classList.remove('active-nao');
     container.style.display = 'none';
-    txtArea.value = ""; // Limpa a caixa de texto para evitar erro de validação fantasma
+    txtArea.value = ""; 
   }else{
     btnNao.classList.add('active-nao');
     btnSim.classList.remove('active-sim');
@@ -374,6 +385,51 @@ function responder(index, isSim){
   }
 }
 
+// ===================================
+// SISTEMA DE GALERIA (COM COMPRESSÃO)
+// ===================================
+function processGalleryFile(index, input) {
+    if (input.files && input.files[0]) {
+        const file = input.files[0];
+        const reader = new FileReader();
+        
+        reader.onload = function(e) {
+            const img = new Image();
+            img.onload = function() {
+                // Criar canvas para redimensionar (evitar arquivo gigante)
+                const canvas = document.createElement('canvas');
+                let w = img.width;
+                let h = img.height;
+                
+                // Redimensionar para max 800px (Seguro para PDF)
+                const maxSize = 800;
+                if (w > h) { if (w > maxSize) { h *= maxSize / w; w = maxSize; } } 
+                else { if (h > maxSize) { w *= maxSize / h; h = maxSize; } }
+                
+                canvas.width = w;
+                canvas.height = h;
+                const ctx = canvas.getContext('2d');
+                ctx.drawImage(img, 0, 0, w, h);
+                
+                // Comprimir para WebP 0.6
+                const dataUrl = canvas.toDataURL('image/webp', 0.6);
+                
+                // Mostrar preview
+                const preview = document.getElementById(`preview-${index}`);
+                preview.src = dataUrl;
+                preview.style.display = 'block';
+                document.getElementById(`remove-foto-${index}`).style.display = 'block';
+                activeQuestionIndex = index; // Armazena índice ativo
+            }
+            img.src = e.target.result;
+        }
+        reader.readAsDataURL(file);
+    }
+}
+
+// ===================================
+// SISTEMA DE CÂMERA AO VIVO
+// ===================================
 async function openCamera(index) {
   activeQuestionIndex = index;
   const modal = document.getElementById('camera-modal');
@@ -413,11 +469,14 @@ function removeFoto(index) {
   document.getElementById(`preview-${index}`).src = '';
   document.getElementById(`preview-${index}`).style.display = 'none';
   document.getElementById(`remove-foto-${index}`).style.display = 'none';
+  // Limpa o input de arquivo caso seja galeria, pra poder selecionar o mesmo se quiser
+  const fileInput = document.getElementById(`gallery-${index}`);
+  if(fileInput) fileInput.value = "";
 }
 
-// ===============================================
-// RESTAURADO 100% DO SEU ARQUIVO ORIGINAL
-// ===============================================
+// ===================================
+// ASSINATURA (CORRIGIDA E TESTADA)
+// ===================================
 function setupCanvas(id){
   const c = document.getElementById(id);
   const ctx = c.getContext("2d", { willReadFrequently: true });
@@ -434,7 +493,7 @@ function setupCanvas(id){
     desenhando = true;
     c.setPointerCapture(e.pointerId);
     ctx.lineWidth = 2; ctx.lineCap = "round"; ctx.lineJoin = "round"; ctx.strokeStyle = "#000";
-    const r = c.getBoundingClientRect(); // <--- O cálculo que faltava
+    const r = c.getBoundingClientRect(); 
     ctx.beginPath(); ctx.moveTo(e.clientX - r.left, e.clientY - r.top);
     e.preventDefault();
   }, { passive: false });
@@ -463,7 +522,6 @@ function canvasEstaVazio(id){
   return c.toDataURL() === blank.toDataURL();
 }
 setupCanvas("sig-auditor"); setupCanvas("sig-gerente");
-// ===============================================
 
 const form = document.getElementById('auditForm');
 form.onsubmit = async function(e){
