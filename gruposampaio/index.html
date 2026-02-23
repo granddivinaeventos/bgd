@@ -4,6 +4,7 @@
 <meta charset="UTF-8" />
 <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no" />
 <title>Acesso Restrito</title>
+<link rel="icon" type="image/png" href="gs.png">
 
 <style>
 *, *::before, *::after { box-sizing: border-box; }
@@ -122,13 +123,13 @@ button:active {
 <body>
 
 <div class="security-card">
-  <div class="icon-lock">🔒</div>
+  <div class="icon-lock"></div>
   <h2>Área Restrita</h2>
-  <p>Acesso exclusivo para auditores e diretoria.<br>Insira a chave mestre.</p>
+  <p>Acesso de auditores e diretoria.<br>Insira a senha.</p>
 
   <input type="password" id="master-pass" placeholder="••••••••" onkeyup="checkEnter(event)">
   
-  <button onclick="validarAcesso()">DESBLOQUEAR</button>
+  <button onclick="validarAcesso()">PROSSEGUIR</button>
 </div>
 
 <script>
