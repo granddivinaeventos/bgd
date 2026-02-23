@@ -7,11 +7,11 @@
 <script>
   // 1. Bloqueio: Se a pessoa não digitou a senha no início, é expulsa
   if (sessionStorage.getItem("gs_acesso_liberado") !== "SIM") {
-    window.location.replace("/gruposampaio/"); // Volta pra tela do cadeado
+    window.location.replace("./"); // Volta pra tela do cadeado
   }
   
   // 2. Máscara: Apaga o nome da página e congela a URL mostrando só a pasta principal
-  window.history.replaceState({}, '', '/gruposampaio/');
+  window.history.replaceState({}, '', './');
 </script>
 <link rel="icon" type="image/png" href="gs.png">
 
@@ -134,7 +134,7 @@ input[type="radio"]{display:none;}
     <p class="welcome-sub">Controle de Qualidade & Segurança Alimentar.</p>
     <div class="welcome-actions">
       <button class="btn-primary" id="btn-start" type="button">INICIAR AUDITORIA</button>
-      <button class="btn-ghost" type="button" onclick="window.location.href='index.html'">VOLTAR AO MENU</button>
+      <button class="btn-ghost" type="button" onclick="window.location.replace('./')">VOLTAR AO MENU</button>
     </div>
   </div>
 </div>
@@ -158,8 +158,8 @@ input[type="radio"]{display:none;}
 
     <div class="card" style="border-color:#555">
       <label style="font-size:0.8rem;color:#aaa">DADOS DA AUDITORIA</label><br><br>
-      <input type="text" name="Auditor_Nome" id="nome-auditor" placeholder="NOME DO AUDITOR" required />
-      <select name="Unidade_Loja" id="unidade-loja" required>
+      <input type="text" id="nome-auditor" placeholder="NOME DO AUDITOR" required />
+      <select id="unidade-loja" required>
         <option value="">SELECIONE A UNIDADE</option>
         <option>Divina - Cidade</option>
         <option>Divina - Meireles</option>
@@ -192,9 +192,9 @@ input[type="radio"]{display:none;}
 
     <div class="card">
       <table style="width:100%; color:#fff; font-size:0.9rem;">
-        <tr><td>Pontuação:</td><td style="text-align:right;"><input type="text" name="Pontuacao_Total" id="score-total" readonly style="border:none; background:transparent; text-align:right; font-weight:bold; width:auto; padding:0; margin:0;" /></td></tr>
-        <tr><td>Percentual:</td><td style="text-align:right;"><input type="text" name="Percentual_Final" id="score-percent" readonly style="border:none; background:transparent; text-align:right; font-weight:bold; width:auto; padding:0; margin:0;" /></td></tr>
-        <tr><td>Selo:</td><td style="text-align:right;"><input type="text" name="Resultado_Selo" id="score-seal" readonly style="border:none; background:transparent; text-align:right; font-weight:bold; width:auto; padding:0; margin:0;" /></td></tr>
+        <tr><td>Pontuação:</td><td style="text-align:right;"><input type="text" id="score-total" readonly style="border:none; background:transparent; text-align:right; font-weight:bold; width:auto; padding:0; margin:0;" /></td></tr>
+        <tr><td>Percentual:</td><td style="text-align:right;"><input type="text" id="score-percent" readonly style="border:none; background:transparent; text-align:right; font-weight:bold; width:auto; padding:0; margin:0;" /></td></tr>
+        <tr><td>Selo:</td><td style="text-align:right;"><input type="text" id="score-seal" readonly style="border:none; background:transparent; text-align:right; font-weight:bold; width:auto; padding:0; margin:0;" /></td></tr>
       </table>
     </div>
 
@@ -208,8 +208,6 @@ input[type="radio"]{display:none;}
 let auditStartTime = null;
 let cameraStream = null;
 let activeQuestionIndex = null;
-let activeFieldName = null;
-const capturedPhotos = {}; // Guarda os blobs das fotos para enviar no formulário
 
 // --- LOGO DINÂMICO ---
 const brandLogos = { divina: "divina.png", opy: "opy.png", cheppitos: "cheppitos.png", fornelle: "fornelle.png" };
@@ -352,27 +350,25 @@ perguntas.forEach((p, i) => {
   c.className = "card";
   const badgeClass = p.w === 3 ? "badge-3" : (p.w === 2 ? "badge-2" : "badge-1");
   const labelPeso = p.w === 3 ? "CRÍTICO (Peso 3)" : (p.w === 2 ? "Peso 2" : "Peso 1");
-  const fieldName = `[${p.a}] Q${i+1}`;
 
   c.innerHTML = `
     <div class="q-header"><span>${p.cat}</span><span class="badge ${badgeClass}">${labelPeso}</span></div>
     <div class="q-text">${p.p}</div>
-    <input type="hidden" name="P_${i}_Enunciado" value="${p.p}">
     <div class="btn-group">
-      <input type="radio" name="${fieldName}" id="sim-${i}" value="SIM" onchange="responder(${i}, true)">
+      <input type="radio" id="sim-${i}" value="SIM" onchange="responder(${i}, true)">
       <label for="sim-${i}" class="btn-opt">SIM</label>
-      <input type="radio" name="${fieldName}" id="nao-${i}" value="NÃO" onchange="responder(${i}, false)">
+      <input type="radio" id="nao-${i}" value="NÃO" onchange="responder(${i}, false)">
       <label for="nao-${i}" class="btn-opt">NÃO</label>
     </div>
     <div id="obs-${i}" class="justificativa-container">
       <label style="font-size:0.7rem;color:#f00;display:block;margin-bottom:5px;">EXPLICAÇÃO OBRIGATÓRIA:</label>
-      <textarea name="OBS_${fieldName}" class="input-obs" placeholder="Descreva a não conformidade..."></textarea>
+      <textarea id="ta-${i}" class="input-obs" placeholder="Descreva a não conformidade..."></textarea>
       
       <div class="input-file-wrapper">
         <label style="font-size:0.7rem;color:#aaa;">ANEXAR FOTO (OPCIONAL):</label><br>
-        <button type="button" class="btn-camera" onclick="openCamera(${i}, '${fieldName}')">📷 TIRAR FOTO AQUI</button>
+        <button type="button" class="btn-camera" onclick="openCamera(${i})">📷 TIRAR FOTO AQUI</button>
         <img id="preview-${i}" class="img-preview" src="" alt="Pré-visualização da imagem" />
-        <button type="button" id="remove-foto-${i}" class="btn-remove-foto" onclick="removeFoto(${i}, '${fieldName}')">🗑️ REMOVER FOTO</button>
+        <button type="button" id="remove-foto-${i}" class="btn-remove-foto" onclick="removeFoto(${i})">🗑️ REMOVER FOTO</button>
       </div>
     </div>
   `;
@@ -387,30 +383,25 @@ function responder(index, isSim){
     btnSim.classList.add('active-sim');
     btnNao.classList.remove('active-nao');
     container.style.display = 'none';
-    container.querySelector('textarea').required = false;
   }else{
     btnNao.classList.add('active-nao');
     btnSim.classList.remove('active-sim');
     container.style.display = 'block';
-    container.querySelector('textarea').required = true;
   }
 }
 
-/* ====== SISTEMA DE CÂMERA IN-APP E COMPRESSÃO (WEBP/AVIF) ====== */
-async function openCamera(index, fieldName) {
+/* ====== SISTEMA DE CÂMERA (A foto fica apenas visual no PDF, não é enviada solta) ====== */
+async function openCamera(index) {
   activeQuestionIndex = index;
-  activeFieldName = fieldName;
   const modal = document.getElementById('camera-modal');
   const video = document.getElementById('camera-video');
   modal.style.display = 'flex';
 
   try {
-    cameraStream = await navigator.mediaDevices.getUserMedia({
-      video: { facingMode: 'environment' }
-    });
+    cameraStream = await navigator.mediaDevices.getUserMedia({ video: { facingMode: 'environment' } });
     video.srcObject = cameraStream;
   } catch (err) {
-    alert("Permissão de câmera negada ou recurso indisponível no dispositivo. Verifique as configurações do aplicativo.");
+    alert("Permissão de câmera negada ou recurso indisponível.");
     closeCamera();
   }
 }
@@ -436,13 +427,7 @@ function takePhoto() {
   const ctx = canvas.getContext('2d');
   ctx.drawImage(video, 0, 0, w, h);
 
-  // Conversão rápida que evita fechamento por falta de memória (OOM)
   const dataUrl = canvas.toDataURL('image/webp', 0.6); 
-
-  fetch(dataUrl).then(res => res.blob()).then(blob => {
-    capturedPhotos["FOTO_" + activeFieldName] = blob;
-  });
-
   const preview = document.getElementById(`preview-${activeQuestionIndex}`);
   preview.src = dataUrl;
   preview.style.display = 'block';
@@ -451,8 +436,8 @@ function takePhoto() {
   closeCamera();
 }
 
-function removeFoto(index, fieldName) {
-  delete capturedPhotos["FOTO_" + fieldName];
+function removeFoto(index) {
+  document.getElementById(`preview-${index}`).src = '';
   document.getElementById(`preview-${index}`).style.display = 'none';
   document.getElementById(`remove-foto-${index}`).style.display = 'none';
 }
@@ -471,52 +456,54 @@ function setupCanvas(id){
   limparCanvas(id);
   let desenhando = false;
   c.addEventListener("pointerdown", (e) => {
-    desenhando = true;
-    c.setPointerCapture(e.pointerId);
+    desenhando = true; c.setPointerCapture(e.pointerId);
     ctx.lineWidth = 2; ctx.lineCap = "round"; ctx.lineJoin = "round"; ctx.strokeStyle = "#000";
     const r = c.getBoundingClientRect();
-    ctx.beginPath(); ctx.moveTo(e.clientX - r.left, e.clientY - r.top);
-    e.preventDefault();
+    ctx.beginPath(); ctx.moveTo(e.clientX - r.left, e.clientY - r.top); e.preventDefault();
   }, { passive: false });
   c.addEventListener("pointermove", (e) => {
     if(!desenhando) return;
     const r = c.getBoundingClientRect();
-    ctx.lineTo(e.clientX - r.left, e.clientY - r.top);
-    ctx.stroke();
-    e.preventDefault();
+    ctx.lineTo(e.clientX - r.left, e.clientY - r.top); ctx.stroke(); e.preventDefault();
   }, { passive: false });
   c.addEventListener("pointerup", () => desenhando = false);
   c.addEventListener("pointercancel", () => desenhando = false);
 }
 function limparCanvas(id){
-  const c = document.getElementById(id);
-  const ctx = c.getContext("2d");
+  const c = document.getElementById(id); const ctx = c.getContext("2d");
   ctx.save(); ctx.setTransform(1, 0, 0, 1, 0, 0); ctx.fillStyle = "#ffffff";
   ctx.fillRect(0, 0, c.width, c.height); ctx.restore(); ctx.beginPath(); 
 }
 function canvasEstaVazio(id){
-  const c = document.getElementById(id);
-  const blank = document.createElement('canvas');
-  blank.width = c.width; blank.height = c.height;
-  const ctx = blank.getContext("2d");
+  const c = document.getElementById(id); const blank = document.createElement('canvas');
+  blank.width = c.width; blank.height = c.height; const ctx = blank.getContext("2d");
   ctx.fillStyle = "#ffffff"; ctx.fillRect(0, 0, blank.width, blank.height);
   return c.toDataURL() === blank.toDataURL();
 }
 setupCanvas("sig-auditor"); setupCanvas("sig-gerente");
-function canvasToBlob(canvasId) {
-    return new Promise((resolve) => {
-        document.getElementById(canvasId).toBlob((blob) => resolve(blob), 'image/jpeg', 0.9);
-    });
-}
 
-// --- GERAÇÃO PDF ---
+// --- GERAÇÃO PDF E ENVIO LIMPO ---
 const form = document.getElementById('auditForm');
 form.onsubmit = async function(e){
   e.preventDefault(); 
+  
+  // Validações
+  if(document.getElementById('nome-auditor').value.trim() === "" || document.getElementById('unidade-loja').value === "") {
+      alert("Preencha o nome do auditor e a unidade."); return false;
+  }
+  
   const totalP = perguntas.length;
   const respondidas = document.querySelectorAll('input[type="radio"]:checked').length;
   if(respondidas < totalP){ alert(`Responda todas as perguntas.`); return false; }
-  if(canvasEstaVazio('sig-auditor') || canvasEstaVazio('sig-gerente')){ alert("Assinaturas obrigatórias."); return false; }
+  
+  // Exige explicação se marcou NÃO
+  for(let i=0; i<totalP; i++) {
+      if(document.getElementById(`nao-${i}`).checked && document.getElementById(`ta-${i}`).value.trim() === "") {
+          alert(`Você marcou NÃO na pergunta ${i+1} mas não escreveu a justificativa.`); return false;
+      }
+  }
+
+  if(canvasEstaVazio('sig-auditor') || canvasEstaVazio('sig-gerente')){ alert("As duas assinaturas são obrigatórias."); return false; }
 
   const btnSubmit = document.getElementById('btn-submit');
   btnSubmit.innerText = "GERANDO PDF... (Aguarde)";
@@ -533,18 +520,20 @@ form.onsubmit = async function(e){
     document.getElementById('lbl-end-time').innerText = auditEndTime.toLocaleString('pt-BR');
     document.getElementById('lbl-duration').innerText = `${minutos} minutos e ${segundos} segundos`;
 
-    // --- Lógica das Notas (Padrão Operacional SIM/NÃO) ---
+    // --- Lógica das Notas ---
     let pontosPossiveis = 0, pontosObtidos = 0;
     perguntas.forEach((p, i) => {
       pontosPossiveis += p.w;
-      if(document.getElementById(`sim-${i}`) && document.getElementById(`sim-${i}`).checked) pontosObtidos += p.w;
+      if(document.getElementById(`sim-${i}`).checked) pontosObtidos += p.w;
     });
     const percentual = ((pontosObtidos / pontosPossiveis) * 100).toFixed(1);
     let selo = percentual >= 89 ? "SELO A (APROVADO)" : (percentual >= 70 ? "SELO B (ATENÇÃO)" : "SELO C (REPROVADO)");
+    
     document.getElementById('score-total').value = `${pontosObtidos} / ${pontosPossiveis}`;
     document.getElementById('score-percent').value = `${percentual}%`;
     document.getElementById('score-seal').value = selo;
 
+    // Repassa os textos para os textareas no visual do PDF
     document.querySelectorAll('textarea').forEach(ta => ta.textContent = ta.value);
     document.querySelectorAll('input[type="text"]').forEach(inp => inp.setAttribute('value', inp.value));
     document.querySelectorAll('select').forEach(sel => { if(sel.selectedIndex >= 0) sel.options[sel.selectedIndex].setAttribute('selected', 'selected'); });
@@ -554,7 +543,7 @@ form.onsubmit = async function(e){
     pdfContainer.classList.add('pdf-mode'); // Deixa o bloco de tempo visível no PDF
     btnSubmit.style.display = 'none';
 
-    // PDF Leve para o celular não fechar o app
+    // PDF Leve para o celular
     const pdfOptions = {
       margin: 10, filename: 'Relatorio_Auditoria.pdf', image: { type: 'jpeg', quality: 0.80 },
       html2canvas: { scale: 1.0, useCORS: true, scrollY: 0, backgroundColor: '#000' },
@@ -566,25 +555,40 @@ form.onsubmit = async function(e){
     pdfContainer.classList.remove('pdf-mode');
     btnSubmit.style.display = 'block';
 
-    const formData = new FormData(form);
-    formData.append("Assinatura_Auditor", await canvasToBlob('sig-auditor'), "assinatura_auditor.jpg");
-    formData.append("Assinatura_Gerente", await canvasToBlob('sig-gerente'), "assinatura_gerente.jpg");
-    formData.append("Relatorio_PDF", pdfBlob, "Relatorio_Auditoria.pdf");
+    // ==========================================
+    // CRIAÇÃO DO NOVO PACOTE LIMPO (ANTIBLOQUEIO)
+    // ==========================================
+    const formData = new FormData();
     
+    // Anexar apenas os dados vitais em texto para o e-mail não ficar gigante
+    formData.append("Auditor", document.getElementById('nome-auditor').value);
+    formData.append("Unidade", document.getElementById('unidade-loja').value);
+    formData.append("Duracao_Total", `${minutos}m ${segundos}s`);
     formData.append("Horario_Inicio", auditStartTime.toLocaleString('pt-BR'));
     formData.append("Horario_Termino", auditEndTime.toLocaleString('pt-BR'));
-    formData.append("Duracao_Total", `${minutos}m ${segundos}s`);
 
-    // Anexa as fotos tiradas internamente
-    for (const [key, blob] of Object.entries(capturedPhotos)) {
-        formData.append(key, blob, `${key}.webp`);
-    }
+    // Anexar APENAS o PDF (As fotos e as assinaturas já estão "impressas" visualmente dentro dele)
+    formData.append("Relatorio_PDF", pdfBlob, "Relatorio_Auditoria.pdf");
 
+    // Envio para o Formspree
     const response = await fetch(form.action, { method: 'POST', body: formData, headers: { 'Accept': 'application/json' }});
-    if (response.ok) { alert("Auditoria enviada!"); window.scrollTo(0,0); window.location.reload(); } 
-    else { alert("Erro de servidor."); }
+    
+    if (response.ok) { 
+        alert("Auditoria enviada com sucesso!"); 
+        window.scrollTo(0,0); 
+        window.location.reload(); 
+    } else { 
+        // Agora o código pega exatamente qual foi o erro que o Formspree devolveu
+        try {
+            const errorData = await response.json();
+            alert("Erro na entrega! O Formspree recusou o envio: " + (errorData.error || response.status));
+        } catch(e) {
+            alert("Erro na entrega! O servidor recusou a conexão. Código do Erro: " + response.status);
+        }
+    }
   } catch (error) {
     alert("Erro ao gerar PDF no seu dispositivo.");
+    console.error(error);
   } finally {
     btnSubmit.innerText = "ENVIAR AUDITORIA";
     btnSubmit.disabled = false;
