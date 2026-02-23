@@ -366,7 +366,7 @@ function responder(index, isSim){
     btnSim.classList.add('active-sim');
     btnNao.classList.remove('active-nao');
     container.style.display = 'none';
-    txtArea.value = ""; // Limpa o texto se mudar para SIM para evitar erro de validação fantasma
+    txtArea.value = ""; // Limpa a caixa de texto para evitar erro de validação fantasma
   }else{
     btnNao.classList.add('active-nao');
     btnSim.classList.remove('active-sim');
@@ -415,30 +415,55 @@ function removeFoto(index) {
   document.getElementById(`remove-foto-${index}`).style.display = 'none';
 }
 
+// ===============================================
+// RESTAURADO 100% DO SEU ARQUIVO ORIGINAL
+// ===============================================
 function setupCanvas(id){
-  const c = document.getElementById(id); const ctx = c.getContext("2d");
+  const c = document.getElementById(id);
+  const ctx = c.getContext("2d", { willReadFrequently: true });
   const ratio = Math.max(window.devicePixelRatio || 1, 1);
   const rect = c.getBoundingClientRect();
-  c.width = Math.round(rect.width * ratio); c.height = Math.round(rect.height * ratio);
-  c.style.width = rect.width + "px"; c.style.height = rect.height + "px";
+  c.width  = Math.round(rect.width  * ratio);
+  c.height = Math.round(rect.height * ratio);
+  c.style.width = rect.width + "px";
+  c.style.height = rect.height + "px";
   ctx.setTransform(ratio, 0, 0, ratio, 0, 0);
-  ctx.fillStyle = "#fff"; ctx.fillRect(0,0,c.width,c.height); // Garante fundo branco
+  limparCanvas(id);
   let desenhando = false;
-  c.addEventListener("pointerdown", (e) => { desenhando = true; c.setPointerCapture(e.pointerId); ctx.lineWidth = 2; ctx.lineCap = "round"; ctx.strokeStyle = "#000"; ctx.beginPath(); ctx.moveTo(e.clientX - rect.left, e.clientY - rect.top); e.preventDefault(); });
-  c.addEventListener("pointermove", (e) => { if(!desenhando) return; ctx.lineTo(e.clientX - rect.left, e.clientY - rect.top); ctx.stroke(); e.preventDefault(); });
+  c.addEventListener("pointerdown", (e) => {
+    desenhando = true;
+    c.setPointerCapture(e.pointerId);
+    ctx.lineWidth = 2; ctx.lineCap = "round"; ctx.lineJoin = "round"; ctx.strokeStyle = "#000";
+    const r = c.getBoundingClientRect(); // <--- O cálculo que faltava
+    ctx.beginPath(); ctx.moveTo(e.clientX - r.left, e.clientY - r.top);
+    e.preventDefault();
+  }, { passive: false });
+  c.addEventListener("pointermove", (e) => {
+    if(!desenhando) return;
+    const r = c.getBoundingClientRect();
+    ctx.lineTo(e.clientX - r.left, e.clientY - r.top);
+    ctx.stroke();
+    e.preventDefault();
+  }, { passive: false });
   c.addEventListener("pointerup", () => desenhando = false);
+  c.addEventListener("pointercancel", () => desenhando = false);
 }
 function limparCanvas(id){
-  const c = document.getElementById(id); const ctx = c.getContext("2d");
-  ctx.save(); ctx.setTransform(1, 0, 0, 1, 0, 0); ctx.fillStyle = "#fff"; ctx.fillRect(0, 0, c.width, c.height); ctx.restore(); ctx.beginPath(); 
+  const c = document.getElementById(id);
+  const ctx = c.getContext("2d");
+  ctx.save(); ctx.setTransform(1, 0, 0, 1, 0, 0); ctx.fillStyle = "#ffffff";
+  ctx.fillRect(0, 0, c.width, c.height); ctx.restore(); ctx.beginPath(); 
 }
 function canvasEstaVazio(id){
-  const c = document.getElementById(id); const blank = document.createElement('canvas');
-  blank.width = c.width; blank.height = c.height; const ctx = blank.getContext("2d");
-  ctx.fillStyle = "#fff"; ctx.fillRect(0, 0, blank.width, blank.height);
+  const c = document.getElementById(id);
+  const blank = document.createElement('canvas');
+  blank.width = c.width; blank.height = c.height;
+  const ctx = blank.getContext("2d");
+  ctx.fillStyle = "#ffffff"; ctx.fillRect(0, 0, blank.width, blank.height);
   return c.toDataURL() === blank.toDataURL();
 }
 setupCanvas("sig-auditor"); setupCanvas("sig-gerente");
+// ===============================================
 
 const form = document.getElementById('auditForm');
 form.onsubmit = async function(e){
@@ -450,7 +475,6 @@ form.onsubmit = async function(e){
   if(respondidas < totalP){ alert(`Responda todas as perguntas.`); return false; }
   
   for(let i=0; i<totalP; i++) {
-      // Validação corrigida: verifica se o botão NÃO (que tem ID especifico) está marcado
       if(document.getElementById(`nao-${i}`).checked && document.getElementById(`ta-${i}`).value.trim() === "") {
           alert(`Justifique o NÃO na pergunta ${i+1}.`); return false;
       }
