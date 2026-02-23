@@ -5,13 +5,13 @@
 <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no" />
 <title>Checklist Divina - Grupo Sampaio</title>
 <script>
-  // 1. Verifica se a pessoa passou pela tela de senha (tem o crachá)
+  // 1. Bloqueio: Se a pessoa não digitou a senha no início, é expulsa
   if (sessionStorage.getItem("gs_acesso_liberado") !== "SIM") {
-    window.location.replace("index.html");
+    window.location.replace("/gruposampaio/"); // Volta pra tela do cadeado
   }
   
-  // 2. Apaga o nome do arquivo da barra de endereços (deixa só a pasta raiz)
-  window.history.replaceState({}, '', '/gruposampaio');
+  // 2. Máscara: Apaga o nome da página e congela a URL mostrando só a pasta principal
+  window.history.replaceState({}, '', '/gruposampaio/');
 </script>
 
 <meta http-equiv="Cache-Control" content="no-cache, no-store, must-revalidate" />
