@@ -5,12 +5,9 @@
 <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no" />
 <title>Controle de Qualidade - Grupo Sampaio</title>
 <script>
-  // 1. Bloqueio: Se a pessoa não digitou a senha no início, é expulsa
   if (sessionStorage.getItem("gs_acesso_liberado") !== "SIM") {
-    window.location.replace("./"); // Volta pra tela do cadeado
+    window.location.replace("./"); 
   }
-  
-  // 2. Máscara: Apaga o nome da página e congela a URL mostrando só a pasta principal
   window.history.replaceState({}, '', './');
 </script>
 <link rel="icon" type="image/png" href="gs.png">
@@ -44,13 +41,14 @@ body{background:var(--bg);color:var(--text);font-family:'Segoe UI',sans-serif;ma
 
 .btn-group{display:flex;gap:10px}
 .btn-opt{flex:1;background:#1a1a1a;border:1px solid var(--border);color:#666;padding:12px;cursor:pointer;border-radius:4px;font-weight:bold;transition:all .2s;text-align:center;}
+/* Classes visuais para quando o botão está marcado */
 .active-sim{background:var(--green);color:#fff;border-color:var(--green)}
 .active-nao{background:var(--red);color:#fff;border-color:var(--red)}
 
 .justificativa-container{display:none;margin-top:15px;padding:15px;background:#1a0a0a;border-radius:5px;border:1px solid #400}
 .input-obs{width:100%;padding:12px;background:#000;border:1px solid #444;color:#fff;margin-bottom:10px;border-radius:4px;}
 
-/* BOTÃO DE CÂMERA E PREVIEW */
+/* CÂMERA */
 .input-file-wrapper{margin-top:10px;border-top:1px dashed #333;padding-top:10px;text-align:center;}
 .btn-camera{width:100%;background:#0A84FF;color:#fff;border:none;padding:12px;border-radius:6px;font-weight:bold;font-size:0.9rem;cursor:pointer;display:flex;align-items:center;justify-content:center;gap:8px;}
 .btn-camera:active{background:#0066cc;}
@@ -67,28 +65,17 @@ input[type="text"],select{width:100%;padding:15px;background:#111;border:1px sol
 .btn-clear{background:#333;color:#fff;border:none;padding:8px 15px;font-size:.7rem;margin-top:8px;border-radius:4px;cursor:pointer;}
 input[type="radio"]{display:none;}
 
-/* ===== MODAL DA CÂMERA IN-APP ===== */
-.camera-overlay {
-  position:fixed;inset:0;z-index:999999;background:#000;
-  display:none;flex-direction:column;align-items:center;justify-content:center;
-}
-.camera-video-container {
-  width:100%;flex:1;background:#000;display:flex;align-items:center;justify-content:center;overflow:hidden;
-}
+/* MODAL CÂMERA */
+.camera-overlay {position:fixed;inset:0;z-index:999999;background:#000;display:none;flex-direction:column;align-items:center;justify-content:center;}
+.camera-video-container {width:100%;flex:1;background:#000;display:flex;align-items:center;justify-content:center;overflow:hidden;}
 #camera-video { width:100%; max-height:100%; object-fit:cover; }
-.camera-controls {
-  width:100%;padding:20px;background:#111;display:flex;justify-content:space-around;align-items:center;padding-bottom:40px;
-}
-.btn-cam-capture {
-  width:70px;height:70px;border-radius:50%;background:#fff;border:4px solid #aaa;cursor:pointer;outline:none;
-}
-.btn-cam-capture:active { background:#ccc; transform:scale(0.95); }
+.camera-controls {width:100%;padding:20px;background:#111;display:flex;justify-content:space-around;align-items:center;padding-bottom:40px;}
+.btn-cam-capture {width:70px;height:70px;border-radius:50%;background:#fff;border:4px solid #aaa;cursor:pointer;outline:none;}
 .btn-cam-cancel { color:#fff;background:transparent;border:none;font-size:1rem;font-weight:bold;padding:10px; }
 
-/* ===== TIMESTAMPS INVISÍVEIS (SÓ APARECEM NO PDF) ===== */
 #audit-timer-info { display: none; }
 
-/* ===== WELCOME ===== */
+/* WELCOME */
 .welcome-overlay{position:fixed;inset:0;z-index:9999;background:rgba(0,0,0,.9);display:flex;align-items:center;justify-content:center;padding:18px;}
 .welcome-card{width:min(720px, 100%);background:linear-gradient(180deg,#0f0f0f,#0a0a0a);border:1px solid #222;border-radius:14px;padding:22px;}
 .welcome-top{display:flex;align-items:center;justify-content:center;gap:10px;margin-bottom:12px;flex-wrap:wrap;}
@@ -117,7 +104,8 @@ input[type="radio"]{display:none;}
   <div class="camera-controls">
     <button class="btn-cam-cancel" onclick="closeCamera()">CANCELAR</button>
     <button class="btn-cam-capture" onclick="takePhoto()"></button>
-    <div style="width:70px;"></div> </div>
+    <div style="width:70px;"></div> 
+  </div>
 </div>
 
 <div id="welcome" class="welcome-overlay">
@@ -204,12 +192,11 @@ input[type="radio"]{display:none;}
 </div>
 
 <script>
-// --- VARIÁVEIS GLOBAIS DE CONTROLE ---
 let auditStartTime = null;
 let cameraStream = null;
 let activeQuestionIndex = null;
+const capturedPhotos = {}; 
 
-// --- LOGO DINÂMICO ---
 const brandLogos = { divina: "divina.png", opy: "opy.png", cheppitos: "cheppitos.png", fornelle: "fornelle.png" };
 const unidadeSelect = document.getElementById("unidade-loja");
 const brandLogoEl = document.getElementById("brandLogo");
@@ -232,13 +219,11 @@ unidadeSelect.addEventListener("change", (e) => {
   }
 });
 
-// --- WELCOME E INÍCIO DO TEMPO ---
 document.getElementById("btn-start").addEventListener("click", () => {
   document.getElementById("welcome").classList.add("hidden");
-  auditStartTime = new Date(); // Registra a hora exata que começou
+  auditStartTime = new Date(); 
 });
 
-// --- PERGUNTAS ORIGINAIS (OPERACIONAL) ---
 const perguntas = [
   { a: "1.1 SETOR FRITURA", cat: "EQUIPAMENTOS/UTENSÍLIOS", w: 1, p: "As fritadeiras estão em bom estado de conservação e funcionamento? (Termostato, Piloto, Tampas)" },
   { a: "1.1 SETOR FRITURA", cat: "EQUIPAMENTOS/UTENSÍLIOS", w: 1, p: "O sistema de exaustão encontra-se em bom estado de conservação e funcionamento? (Dutos não possuem gordura visível escorrendo interno e externo, filtros corta-chama das coifas estão em uso e em bom estado, etc.)?" },
@@ -339,15 +324,10 @@ let currentA = "";
 
 perguntas.forEach((p, i) => {
   if(p.a !== currentA){
-    const h = document.createElement("div");
-    h.className = "section-h";
-    h.innerText = p.a;
-    content.appendChild(h);
-    currentA = p.a;
+    const h = document.createElement("div"); h.className = "section-h"; h.innerText = p.a;
+    content.appendChild(h); currentA = p.a;
   }
-
-  const c = document.createElement("div");
-  c.className = "card";
+  const c = document.createElement("div"); c.className = "card";
   const badgeClass = p.w === 3 ? "badge-3" : (p.w === 2 ? "badge-2" : "badge-1");
   const labelPeso = p.w === 3 ? "CRÍTICO (Peso 3)" : (p.w === 2 ? "Peso 2" : "Peso 1");
 
@@ -355,9 +335,10 @@ perguntas.forEach((p, i) => {
     <div class="q-header"><span>${p.cat}</span><span class="badge ${badgeClass}">${labelPeso}</span></div>
     <div class="q-text">${p.p}</div>
     <div class="btn-group">
-      <input type="radio" id="sim-${i}" value="SIM" onchange="responder(${i}, true)">
+      <input type="radio" name="q_${i}" id="sim-${i}" value="SIM" onchange="responder(${i}, true)">
       <label for="sim-${i}" class="btn-opt">SIM</label>
-      <input type="radio" id="nao-${i}" value="NÃO" onchange="responder(${i}, false)">
+      
+      <input type="radio" name="q_${i}" id="nao-${i}" value="NÃO" onchange="responder(${i}, false)">
       <label for="nao-${i}" class="btn-opt">NÃO</label>
     </div>
     <div id="obs-${i}" class="justificativa-container">
@@ -379,10 +360,13 @@ function responder(index, isSim){
   const container = document.getElementById(`obs-${index}`);
   const btnSim = document.querySelector(`label[for="sim-${index}"]`);
   const btnNao = document.querySelector(`label[for="nao-${index}"]`);
+  const txtArea = document.getElementById(`ta-${index}`);
+
   if(isSim){
     btnSim.classList.add('active-sim');
     btnNao.classList.remove('active-nao');
     container.style.display = 'none';
+    txtArea.value = ""; // Limpa o texto se mudar para SIM para evitar erro de validação fantasma
   }else{
     btnNao.classList.add('active-nao');
     btnSim.classList.remove('active-sim');
@@ -390,49 +374,38 @@ function responder(index, isSim){
   }
 }
 
-/* ====== SISTEMA DE CÂMERA (A foto fica apenas visual no PDF, não é enviada solta) ====== */
 async function openCamera(index) {
   activeQuestionIndex = index;
   const modal = document.getElementById('camera-modal');
   const video = document.getElementById('camera-video');
   modal.style.display = 'flex';
-
   try {
     cameraStream = await navigator.mediaDevices.getUserMedia({ video: { facingMode: 'environment' } });
     video.srcObject = cameraStream;
   } catch (err) {
-    alert("Permissão de câmera negada ou recurso indisponível.");
+    alert("Erro na câmera: " + err.message);
     closeCamera();
   }
 }
 
 function closeCamera() {
-  if (cameraStream) {
-    cameraStream.getTracks().forEach(track => track.stop());
-    cameraStream = null;
-  }
+  if (cameraStream) { cameraStream.getTracks().forEach(track => track.stop()); cameraStream = null; }
   document.getElementById('camera-modal').style.display = 'none';
 }
 
 function takePhoto() {
   const video = document.getElementById('camera-video');
   const canvas = document.createElement('canvas');
-  
-  let w = video.videoWidth;
-  let h = video.videoHeight;
-  if (w > h) { if (w > 600) { h *= 600 / w; w = 600; } } 
-  else { if (h > 600) { w *= 600 / h; h = 600; } }
-  
+  let w = video.videoWidth, h = video.videoHeight;
+  if (w > h) { if (w > 600) { h *= 600 / w; w = 600; } } else { if (h > 600) { w *= 600 / h; h = 600; } }
   canvas.width = w; canvas.height = h;
   const ctx = canvas.getContext('2d');
   ctx.drawImage(video, 0, 0, w, h);
-
   const dataUrl = canvas.toDataURL('image/webp', 0.6); 
   const preview = document.getElementById(`preview-${activeQuestionIndex}`);
   preview.src = dataUrl;
   preview.style.display = 'block';
   document.getElementById(`remove-foto-${activeQuestionIndex}`).style.display = 'block';
-
   closeCamera();
 }
 
@@ -442,110 +415,84 @@ function removeFoto(index) {
   document.getElementById(`remove-foto-${index}`).style.display = 'none';
 }
 
-// --- CANVAS ASSINATURA ---
 function setupCanvas(id){
-  const c = document.getElementById(id);
-  const ctx = c.getContext("2d", { willReadFrequently: true });
+  const c = document.getElementById(id); const ctx = c.getContext("2d");
   const ratio = Math.max(window.devicePixelRatio || 1, 1);
   const rect = c.getBoundingClientRect();
-  c.width  = Math.round(rect.width  * ratio);
-  c.height = Math.round(rect.height * ratio);
-  c.style.width = rect.width + "px";
-  c.style.height = rect.height + "px";
+  c.width = Math.round(rect.width * ratio); c.height = Math.round(rect.height * ratio);
+  c.style.width = rect.width + "px"; c.style.height = rect.height + "px";
   ctx.setTransform(ratio, 0, 0, ratio, 0, 0);
-  limparCanvas(id);
+  ctx.fillStyle = "#fff"; ctx.fillRect(0,0,c.width,c.height); // Garante fundo branco
   let desenhando = false;
-  c.addEventListener("pointerdown", (e) => {
-    desenhando = true; c.setPointerCapture(e.pointerId);
-    ctx.lineWidth = 2; ctx.lineCap = "round"; ctx.lineJoin = "round"; ctx.strokeStyle = "#000";
-    const r = c.getBoundingClientRect();
-    ctx.beginPath(); ctx.moveTo(e.clientX - r.left, e.clientY - r.top); e.preventDefault();
-  }, { passive: false });
-  c.addEventListener("pointermove", (e) => {
-    if(!desenhando) return;
-    const r = c.getBoundingClientRect();
-    ctx.lineTo(e.clientX - r.left, e.clientY - r.top); ctx.stroke(); e.preventDefault();
-  }, { passive: false });
+  c.addEventListener("pointerdown", (e) => { desenhando = true; c.setPointerCapture(e.pointerId); ctx.lineWidth = 2; ctx.lineCap = "round"; ctx.strokeStyle = "#000"; ctx.beginPath(); ctx.moveTo(e.clientX - rect.left, e.clientY - rect.top); e.preventDefault(); });
+  c.addEventListener("pointermove", (e) => { if(!desenhando) return; ctx.lineTo(e.clientX - rect.left, e.clientY - rect.top); ctx.stroke(); e.preventDefault(); });
   c.addEventListener("pointerup", () => desenhando = false);
-  c.addEventListener("pointercancel", () => desenhando = false);
 }
 function limparCanvas(id){
   const c = document.getElementById(id); const ctx = c.getContext("2d");
-  ctx.save(); ctx.setTransform(1, 0, 0, 1, 0, 0); ctx.fillStyle = "#ffffff";
-  ctx.fillRect(0, 0, c.width, c.height); ctx.restore(); ctx.beginPath(); 
+  ctx.save(); ctx.setTransform(1, 0, 0, 1, 0, 0); ctx.fillStyle = "#fff"; ctx.fillRect(0, 0, c.width, c.height); ctx.restore(); ctx.beginPath(); 
 }
 function canvasEstaVazio(id){
   const c = document.getElementById(id); const blank = document.createElement('canvas');
   blank.width = c.width; blank.height = c.height; const ctx = blank.getContext("2d");
-  ctx.fillStyle = "#ffffff"; ctx.fillRect(0, 0, blank.width, blank.height);
+  ctx.fillStyle = "#fff"; ctx.fillRect(0, 0, blank.width, blank.height);
   return c.toDataURL() === blank.toDataURL();
 }
 setupCanvas("sig-auditor"); setupCanvas("sig-gerente");
 
-// --- GERAÇÃO PDF E ENVIO LIMPO ---
 const form = document.getElementById('auditForm');
 form.onsubmit = async function(e){
   e.preventDefault(); 
   
-  // Validações
-  if(document.getElementById('nome-auditor').value.trim() === "" || document.getElementById('unidade-loja').value === "") {
-      alert("Preencha o nome do auditor e a unidade."); return false;
-  }
-  
+  if(document.getElementById('nome-auditor').value.trim() === "" || document.getElementById('unidade-loja').value === "") { alert("Preencha nome e unidade."); return false; }
   const totalP = perguntas.length;
   const respondidas = document.querySelectorAll('input[type="radio"]:checked').length;
   if(respondidas < totalP){ alert(`Responda todas as perguntas.`); return false; }
   
-  // Exige explicação se marcou NÃO
   for(let i=0; i<totalP; i++) {
+      // Validação corrigida: verifica se o botão NÃO (que tem ID especifico) está marcado
       if(document.getElementById(`nao-${i}`).checked && document.getElementById(`ta-${i}`).value.trim() === "") {
-          alert(`Você marcou NÃO na pergunta ${i+1} mas não escreveu a justificativa.`); return false;
+          alert(`Justifique o NÃO na pergunta ${i+1}.`); return false;
       }
   }
-
-  if(canvasEstaVazio('sig-auditor') || canvasEstaVazio('sig-gerente')){ alert("As duas assinaturas são obrigatórias."); return false; }
+  if(canvasEstaVazio('sig-auditor') || canvasEstaVazio('sig-gerente')){ alert("Assine o documento."); return false; }
 
   const btnSubmit = document.getElementById('btn-submit');
-  btnSubmit.innerText = "GERANDO PDF... (Aguarde)";
+  btnSubmit.innerText = "ENVIANDO...";
   btnSubmit.disabled = true;
 
   try {
-    // --- Lógica do Tempo ---
     const auditEndTime = new Date();
-    const difEmSegundos = Math.floor((auditEndTime - auditStartTime) / 1000);
-    const minutos = Math.floor(difEmSegundos / 60);
-    const segundos = difEmSegundos % 60;
-
+    const dif = Math.floor((auditEndTime - auditStartTime) / 1000);
+    const min = Math.floor(dif / 60); const seg = dif % 60;
+    
     document.getElementById('lbl-start-time').innerText = auditStartTime.toLocaleString('pt-BR');
     document.getElementById('lbl-end-time').innerText = auditEndTime.toLocaleString('pt-BR');
-    document.getElementById('lbl-duration').innerText = `${minutos} minutos e ${segundos} segundos`;
+    document.getElementById('lbl-duration').innerText = `${min}m ${seg}s`;
 
-    // --- Lógica das Notas ---
-    let pontosPossiveis = 0, pontosObtidos = 0;
+    let ptsPossiveis = 0, ptsObtidos = 0;
     perguntas.forEach((p, i) => {
-      pontosPossiveis += p.w;
-      if(document.getElementById(`sim-${i}`).checked) pontosObtidos += p.w;
+      ptsPossiveis += p.w;
+      if(document.getElementById(`sim-${i}`).checked) ptsObtidos += p.w;
     });
-    const percentual = ((pontosObtidos / pontosPossiveis) * 100).toFixed(1);
-    let selo = percentual >= 89 ? "SELO A (APROVADO)" : (percentual >= 70 ? "SELO B (ATENÇÃO)" : "SELO C (REPROVADO)");
+    const perc = ((ptsObtidos / ptsPossiveis) * 100).toFixed(1);
+    let selo = perc >= 89 ? "SELO A (APROVADO)" : (perc >= 70 ? "SELO B (ATENÇÃO)" : "SELO C (REPROVADO)");
     
-    document.getElementById('score-total').value = `${pontosObtidos} / ${pontosPossiveis}`;
-    document.getElementById('score-percent').value = `${percentual}%`;
+    document.getElementById('score-total').value = `${ptsObtidos} / ${ptsPossiveis}`;
+    document.getElementById('score-percent').value = `${perc}%`;
     document.getElementById('score-seal').value = selo;
 
-    // Repassa os textos para os textareas no visual do PDF
     document.querySelectorAll('textarea').forEach(ta => ta.textContent = ta.value);
     document.querySelectorAll('input[type="text"]').forEach(inp => inp.setAttribute('value', inp.value));
     document.querySelectorAll('select').forEach(sel => { if(sel.selectedIndex >= 0) sel.options[sel.selectedIndex].setAttribute('selected', 'selected'); });
 
     window.scrollTo(0, 0);
     const pdfContainer = document.getElementById('pdf-container');
-    pdfContainer.classList.add('pdf-mode'); // Deixa o bloco de tempo visível no PDF
+    pdfContainer.classList.add('pdf-mode'); 
     btnSubmit.style.display = 'none';
 
-    // PDF Leve para o celular
     const pdfOptions = {
-      margin: 10, filename: 'Relatorio_Auditoria.pdf', image: { type: 'jpeg', quality: 0.80 },
+      margin: 5, filename: 'Relatorio_Auditoria.pdf', image: { type: 'jpeg', quality: 0.85 },
       html2canvas: { scale: 1.0, useCORS: true, scrollY: 0, backgroundColor: '#000' },
       jsPDF: { unit: 'mm', format: 'a4', orientation: 'portrait' }
     };
@@ -555,40 +502,22 @@ form.onsubmit = async function(e){
     pdfContainer.classList.remove('pdf-mode');
     btnSubmit.style.display = 'block';
 
-    // ==========================================
-    // CRIAÇÃO DO NOVO PACOTE LIMPO (ANTIBLOQUEIO)
-    // ==========================================
     const formData = new FormData();
-    
-    // Anexar apenas os dados vitais em texto para o e-mail não ficar gigante
     formData.append("Auditor", document.getElementById('nome-auditor').value);
     formData.append("Unidade", document.getElementById('unidade-loja').value);
-    formData.append("Duracao_Total", `${minutos}m ${segundos}s`);
-    formData.append("Horario_Inicio", auditStartTime.toLocaleString('pt-BR'));
-    formData.append("Horario_Termino", auditEndTime.toLocaleString('pt-BR'));
+    formData.append("Duracao", `${min}m ${seg}s`);
+    formData.append("Arquivo", pdfBlob, "Relatorio_Auditoria.pdf");
 
-    // Anexar APENAS o PDF (As fotos e as assinaturas já estão "impressas" visualmente dentro dele)
-    formData.append("Relatorio_PDF", pdfBlob, "Relatorio_Auditoria.pdf");
-
-    // Envio para o Formspree
     const response = await fetch(form.action, { method: 'POST', body: formData, headers: { 'Accept': 'application/json' }});
     
     if (response.ok) { 
-        alert("Auditoria enviada com sucesso!"); 
-        window.scrollTo(0,0); 
-        window.location.reload(); 
+        alert("Enviado com sucesso!"); window.scrollTo(0,0); window.location.reload(); 
     } else { 
-        // Agora o código pega exatamente qual foi o erro que o Formspree devolveu
-        try {
-            const errorData = await response.json();
-            alert("Erro na entrega! O Formspree recusou o envio: " + (errorData.error || response.status));
-        } catch(e) {
-            alert("Erro na entrega! O servidor recusou a conexão. Código do Erro: " + response.status);
-        }
+        try { const err = await response.json(); alert("Erro: " + (err.error || response.status)); } 
+        catch(e) { alert("Erro de envio: " + response.status); }
     }
   } catch (error) {
-    alert("Erro ao gerar PDF no seu dispositivo.");
-    console.error(error);
+    alert("Erro geral: " + error.message);
   } finally {
     btnSubmit.innerText = "ENVIAR AUDITORIA";
     btnSubmit.disabled = false;
