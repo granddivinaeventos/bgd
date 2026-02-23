@@ -1,0 +1,421 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no" />
+
+<meta http-equiv="Cache-Control" content="no-cache, no-store, must-revalidate" />
+<meta http-equiv="Pragma" content="no-cache" />
+<meta http-equiv="Expires" content="0" />
+
+<title>Hub Premium - Grupo Sampaio</title>
+
+<style>
+*, *::before, *::after { box-sizing: border-box; }
+
+:root {
+  --bg-deep: #000000;
+  --glass-bg: rgba(30, 30, 35, 0.65);
+  --glass-border: rgba(255, 255, 255, 0.12);
+  --text-primary: #ffffff;
+  --text-secondary: #a1a1a6;
+  --accent-blue: #0A84FF;
+  --red-ios: #FF453A;
+  --font-stack: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
+}
+
+body {
+  background: var(--bg-deep);
+  color: var(--text-primary);
+  font-family: var(--font-stack);
+  margin: 0;
+  overflow: hidden;
+  height: 100%; 
+  width: 100%;
+  text-transform: uppercase; 
+}
+
+/* ==========================================
+   TELA DE BLOQUEIO OFFLINE
+   ========================================== */
+#offline-screen {
+  position: fixed; inset: 0; z-index: 999999;
+  background: #000; display: none; flex-direction: column; align-items: center; justify-content: center;
+  text-align: center; padding: 20px;
+}
+#offline-screen h3 { color: #fff; margin-bottom: 10px; font-size: 1.5rem; letter-spacing: 2px; }
+#offline-screen p { color: var(--text-secondary); font-size: 0.9rem; line-height: 1.5; }
+.wifi-icon { font-size: 3rem; margin-bottom: 20px; color: var(--red-ios); }
+
+/* ==========================================
+   FUNDO APPLE WALLPAPER
+   ========================================== */
+.apple-wallpaper {
+  position: fixed; inset: 0; z-index: -1; background-color: #000; overflow: hidden;
+  transform: translateZ(0);
+}
+.apple-wallpaper.paused .orb { animation-play-state: paused !important; }
+
+.orb {
+  position: absolute; border-radius: 50%; filter: blur(100px); opacity: 0.6;
+  animation: drift 20s infinite alternate cubic-bezier(0.5, 0, 0.5, 1);
+  will-change: transform; 
+}
+.orb-1 { background: #0A84FF; width: 400px; height: 400px; top: -10%; left: -10%; animation-duration: 25s; }
+.orb-2 { background: #5E5CE6; width: 350px; height: 350px; bottom: -15%; right: -10%; animation-duration: 22s; }
+.orb-3 { background: #FF375F; width: 300px; height: 300px; top: 30%; left: 40%; opacity: 0.3; animation-duration: 28s; }
+
+@keyframes drift {
+  0% { transform: translate(0, 0) scale(1); }
+  50% { transform: translate(50px, 50px) scale(1.05); }
+  100% { transform: translate(-50px, -50px) scale(0.95); }
+}
+
+/* ==========================================
+   ANIMAÇÕES GERAIS
+   ========================================== */
+@keyframes fadeScaleUp {
+  from { opacity: 0; transform: scale(0.92); filter: blur(10px); }
+  to { opacity: 1; transform: scale(1); filter: blur(0); }
+}
+@keyframes float {
+  0%, 100% { transform: translateY(0px); }
+  50% { transform: translateY(-10px); }
+}
+@keyframes shakeX {
+  0%, 100% { transform: translateX(0); }
+  15%, 45%, 75% { transform: translateX(-6px); }
+  30%, 60%, 90% { transform: translateX(6px); }
+}
+
+/* ==========================================
+   UTILITÁRIOS DE VIDRO
+   ========================================== */
+.glass-panel {
+  background: var(--glass-bg);
+  backdrop-filter: blur(25px) saturate(180%); 
+  -webkit-backdrop-filter: blur(25px) saturate(180%);
+  border: 1px solid var(--glass-border);
+  box-shadow: 0 25px 50px -12px rgba(0, 0, 0, 0.5);
+  overflow: hidden; isolation: isolate; border-radius: 24px;
+  transform: translateZ(0); 
+}
+
+/* ==========================================
+   TELA DE ABERTURA
+   ========================================== */
+#splash-screen {
+  position: fixed; inset: 0; z-index: 10000;
+  background: rgba(0,0,0,0.5); backdrop-filter: blur(10px); -webkit-backdrop-filter: blur(10px);
+  display: flex; flex-direction: column; align-items: center; justify-content: center;
+  transition: all 0.8s cubic-bezier(0.65, 0, 0.35, 1);
+}
+#splash-screen.hidden { opacity: 0; visibility: hidden; transform: scale(1.1); filter: blur(20px); }
+.splash-content-wrapper { animation: float 6s ease-in-out infinite; text-align: center; }
+.splash-logos { display: flex; gap: 20px; align-items: center; justify-content: center; flex-wrap: wrap; }
+.splash-logos img { height: 45px; max-width: 130px; object-fit: contain; filter: drop-shadow(0 10px 20px rgba(0,0,0,0.5)); }
+.splash-title { 
+  margin-top: 40px; font-size: 1.6rem; font-weight: 800; letter-spacing: 2px;
+  background: linear-gradient(to right, #fff, #a1a1a6); -webkit-background-clip: text; -webkit-text-fill-color: transparent;
+}
+.splash-tap {
+  position: absolute; bottom: 50px; width: 100%; text-align: center;
+  font-size: 0.85rem; color: var(--text-secondary); letter-spacing: 3px;
+  opacity: 0.7; animation: pulse 3s infinite ease-in-out; cursor: pointer;
+}
+@keyframes pulse { 50% { opacity: 0.3; } }
+
+/* ==========================================
+   CONTEÚDO PRINCIPAL (HUB)
+   ========================================== */
+#main-content {
+  display: flex; align-items: center; justify-content: center; min-height: 100vh;
+  padding: 20px; opacity: 0; visibility: hidden;
+}
+#main-content.active { animation: fadeScaleUp 0.9s cubic-bezier(0.2, 0.8, 0.2, 1) forwards; visibility: visible; }
+.hub-card { width: min(680px, 100%); padding: 40px 30px; }
+.hub-header { text-align: center; margin-bottom: 40px; }
+.hub-header h2 { margin: 0; font-size: 1.5rem; font-weight: 800; letter-spacing: 1px; }
+.hub-header p { color: var(--text-secondary); font-size: 0.9rem; line-height: 1.5; margin-top: 12px; letter-spacing: 1px; }
+
+/* BOTÕES DE MENU */
+.menu-list { display: flex; flex-direction: column; gap: 18px; }
+.btn-menu {
+  display: flex; align-items: center; justify-content: space-between;
+  width: 100%; padding: 25px 30px; border-radius: 18px; 
+  border: 1px solid rgba(255,255,255,0.05); background: rgba(255,255,255,0.03); 
+  color: var(--text-primary); font-family: var(--font-stack);
+  font-weight: 700; font-size: 1rem; letter-spacing: 2px;
+  cursor: pointer; transition: all 0.3s ease; position: relative; overflow: hidden;
+}
+.btn-menu::before {
+  content: ''; position: absolute; top: 0; left: -100%; width: 100%; height: 100%;
+  background: linear-gradient(90deg, transparent, rgba(255,255,255,0.1), transparent);
+  transition: 0.5s;
+}
+.btn-menu:hover::before { left: 100%; }
+.btn-menu:hover { 
+  background: rgba(255,255,255,0.08); border-color: rgba(255,255,255,0.2);
+  transform: scale(1.02); box-shadow: 0 10px 30px -10px rgba(0,0,0,0.5);
+}
+.btn-menu:active { transform: scale(0.98); }
+.btn-menu .title { flex: 1; text-align: left; }
+.btn-menu .arrow { 
+  color: var(--text-secondary); font-size: 1.1rem; 
+  background: rgba(255,255,255,0.1); padding: 8px; border-radius: 50%;
+  transition: 0.3s;
+}
+.btn-menu:hover .arrow { background: var(--accent-blue); color: white; }
+
+/* RODAPÉ E BOTÃO DE RECARREGAR */
+.footer-note { margin-top: 40px; text-align: center; color: var(--text-secondary); font-size: 0.75rem; font-weight: 700; letter-spacing: 2px; opacity: 0.6;}
+
+.reload-wrapper { text-align: center; margin-top: 10px; }
+.btn-reload {
+  background: transparent; border: none; color: var(--text-secondary);
+  cursor: pointer; opacity: 0.3; transition: all 0.4s ease;
+  padding: 10px; display: inline-flex; align-items: center; justify-content: center;
+}
+.btn-reload:hover, .btn-reload:active {
+  opacity: 1; color: var(--text-primary); transform: rotate(180deg);
+}
+
+/* ==========================================
+   MODAL DE SENHA
+   ========================================== */
+.modal-overlay {
+  position: fixed; inset: 0; z-index: 9999;
+  background: rgba(0,0,0,0.6); backdrop-filter: blur(15px); -webkit-backdrop-filter: blur(15px);
+  display: none; align-items: center; justify-content: center; padding: 20px;
+  opacity: 0; transition: all 0.4s ease;
+  will-change: opacity; 
+}
+.modal-overlay.show { display: flex; opacity: 1; }
+.modal-content {
+  width: 100%; max-width: 400px; text-align: center; padding: 40px 30px;
+  transform: scale(0.9) translateY(20px); transition: all 0.4s cubic-bezier(0.2, 0.8, 0.2, 1);
+  box-shadow: 0 40px 80px rgba(0,0,0,0.6);
+  will-change: transform; 
+}
+.modal-overlay.show .modal-content { transform: scale(1) translateY(0); }
+.modal-content h4 { margin: 0 0 10px; font-size: 1.3rem; letter-spacing: 1px; font-weight: 800; }
+.modal-content p { font-size: 0.85rem; color: var(--text-secondary); margin-bottom: 30px; letter-spacing: 1px; }
+
+.input-wrapper { position: relative; width: 100%; margin-bottom: 25px; }
+.modal-content input {
+  width: 100%; padding: 20px; background: rgba(0,0,0,0.2); border: 2px solid var(--glass-border);
+  color: var(--text-primary); border-radius: 14px; font-size: 1.2rem;
+  text-align: center; letter-spacing: 6px; transition: all 0.3s; font-family: monospace; 
+}
+.modal-content input:focus { outline: none; border-color: var(--accent-blue); background: rgba(0,0,0,0.4); }
+.modal-content input.error { border-color: var(--red-ios); animation: shakeX 0.5s; color: var(--red-ios); }
+
+.modal-btns { display: flex; gap: 15px; }
+.btn-modal { 
+  flex: 1; padding: 18px; border-radius: 14px; font-weight: 800; letter-spacing: 1px; text-transform: uppercase;
+  cursor: pointer; transition: all 0.2s; font-size: 0.9rem; font-family: var(--font-stack);
+}
+.btn-cancel { border: none; background: rgba(255,255,255,0.05); color: var(--text-secondary); }
+.btn-cancel:hover { background: rgba(255,255,255,0.1); color: #fff; }
+.btn-confirm { border: none; background: var(--accent-blue); color: white; box-shadow: 0 4px 15px rgba(10, 132, 255, 0.3); }
+.btn-confirm:hover { background: #0071e3; transform: translateY(-2px); box-shadow: 0 8px 25px rgba(10, 132, 255, 0.5); }
+.btn-confirm:active { transform: translateY(1px); }
+
+/* ==========================================
+   AJUSTES PARA CELULAR (RESPONSIVIDADE)
+   ========================================== */
+@media (max-width: 600px) {
+  .hub-card { padding: 30px 20px; }
+  .hub-header h2 { font-size: 1.3rem; }
+  .btn-menu { padding: 20px 15px; font-size: 0.85rem; letter-spacing: 1px; }
+  .modal-content { padding: 30px 20px; }
+  .modal-content input { padding: 16px; font-size: 1rem; letter-spacing: 4px; }
+  .btn-modal { padding: 15px; font-size: 0.8rem; }
+  .apple-wallpaper .orb { filter: blur(70px); }
+  .glass-panel { backdrop-filter: blur(15px) saturate(180%); -webkit-backdrop-filter: blur(15px) saturate(180%); }
+}
+</style>
+</head>
+<body>
+
+<div id="offline-screen">
+  <div class="wifi-icon">⚠️</div>
+  <h3>SEM CONEXÃO</h3>
+  <p>Verifique sua internet.<br>O sistema de auditoria requer rede para funcionar.</p>
+</div>
+
+<div class="apple-wallpaper" id="bg-wallpaper">
+  <div class="orb orb-1"></div>
+  <div class="orb orb-2"></div>
+  <div class="orb orb-3"></div>
+</div>
+
+<div id="splash-screen" onclick="entrarNoHub()">
+  <div class="splash-content-wrapper">
+    <div class="splash-logos">
+        <img src="divina.png" alt="Divina" onerror="this.style.display='none'" />
+        <img src="opy.png" alt="Opy" onerror="this.style.display='none'" />
+        <img src="cheppitos.png" alt="Cheppitos" onerror="this.style.display='none'" />
+        <img src="fornelle.png" alt="Fornelle" onerror="this.style.display='none'" />
+    </div>
+    <div class="splash-title">Grupo Sampaio</div>
+  </div>
+  <div class="splash-tap">Toque para iniciar</div>
+</div>
+
+<div id="main-content">
+  <div class="hub-card glass-panel">
+    <div class="hub-header">
+      <h2>Auditoria & Qualidade</h2>
+      <p>Central de controle e operações.</p>
+    </div>
+
+    <div class="menu-list" id="menu-list-container"></div>
+
+    <div class="footer-note">SISTEMA INTEGRADO • 2026</div>
+    
+    <div class="reload-wrapper">
+      <button class="btn-reload" onclick="window.location.reload(true)" aria-label="Recarregar">
+        <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+          <polyline points="23 4 23 10 17 10"></polyline>
+          <path d="M20.49 15a9 9 0 1 1-2.12-9.36L23 10"></path>
+        </svg>
+      </button>
+    </div>
+  </div>
+</div>
+
+<div id="password-modal" class="modal-overlay">
+  <div class="modal-content glass-panel">
+    <h4 id="modal-title">Acesso Restrito</h4>
+    <p>Digite a credencial de acesso para este setor.</p>
+    
+    <div class="input-wrapper">
+      <input type="password" id="pass-input" placeholder="••••••••" onkeyup="checkEnter(event)" />
+    </div>
+    
+    <div class="modal-btns">
+      <button class="btn-modal btn-cancel" onclick="fecharModal()">Cancelar</button>
+      <button class="btn-modal btn-confirm" onclick="validarSenha()">Acessar</button>
+    </div>
+  </div>
+</div>
+
+<script>
+/* ==========================================
+   SISTEMA DE DETECÇÃO DE INTERNET (OFFLINE)
+   ========================================== */
+function checkConnection() {
+  const offlineScreen = document.getElementById('offline-screen');
+  if (navigator.onLine) {
+    offlineScreen.style.display = 'none';
+  } else {
+    offlineScreen.style.display = 'flex';
+  }
+}
+window.addEventListener('online', checkConnection);
+window.addEventListener('offline', checkConnection);
+checkConnection(); 
+
+/* ==========================================
+   CONFIGURAÇÃO DOS MÓDULOS
+   ========================================== */
+const questionarios = [
+  { 
+    id: "operacional",
+    nome: "Controle Qualidade", 
+    arquivo: "checklistoperacional.html", 
+    senha: "@Qualidade01"
+  },
+  { 
+    id: "divina",
+    nome: "Controle Operações", 
+    arquivo: "checklistdivina.html", 
+    senha: "@Operações01"
+  }
+];
+
+let checklistSelecionado = null;
+const bgWallpaper = document.getElementById('bg-wallpaper');
+
+function entrarNoHub() {
+  const splash = document.getElementById('splash-screen');
+  const main = document.getElementById('main-content');
+  
+  splash.classList.add('hidden'); 
+  document.body.style.overflow = 'auto';
+  
+  setTimeout(() => {
+    splash.style.display = 'none';
+    main.classList.add('active');
+  }, 700);
+}
+
+function renderizarMenu() {
+  const container = document.getElementById('menu-list-container');
+  container.innerHTML = '';
+
+  questionarios.forEach((q, index) => {
+    const btn = document.createElement('div'); 
+    btn.className = 'btn-menu';
+    btn.style.animation = `fadeScaleUp 0.5s ease forwards ${index * 0.1}s`;
+    btn.style.opacity = '0'; 
+    btn.onclick = () => abrirModal(q);
+    
+    btn.innerHTML = `
+      <span class="title">${q.nome}</span>
+      <span class="arrow">➔</span>
+    `;
+    container.appendChild(btn);
+  });
+}
+
+const modal = document.getElementById('password-modal');
+const inputSenha = document.getElementById('pass-input');
+const modalTitle = document.getElementById('modal-title');
+
+function abrirModal(questionario) {
+  checklistSelecionado = questionario;
+  modalTitle.innerText = questionario.nome;
+  modal.classList.add('show');
+  inputSenha.value = ''; 
+  inputSenha.classList.remove('error');
+  
+  bgWallpaper.classList.add('paused');
+  
+  setTimeout(() => inputSenha.focus(), 100); 
+}
+
+function fecharModal() {
+  modal.classList.remove('show');
+  bgWallpaper.classList.remove('paused');
+  setTimeout(() => { checklistSelecionado = null; }, 400);
+}
+
+function validarSenha() {
+  if (!checklistSelecionado) return;
+
+  if (inputSenha.value === checklistSelecionado.senha) {
+    inputSenha.style.borderColor = "var(--accent-blue)";
+    inputSenha.style.color = "var(--accent-blue)";
+    setTimeout(() => {
+        window.location.replace(checklistSelecionado.arquivo);
+    }, 300);
+    
+  } else {
+    inputSenha.classList.remove('error');
+    void inputSenha.offsetWidth; 
+    inputSenha.classList.add('error');
+    inputSenha.value = '';
+    inputSenha.focus();
+    if (navigator.vibrate) navigator.vibrate(200);
+  }
+}
+
+function checkEnter(event) { if (event.key === "Enter") validarSenha(); }
+
+window.onload = renderizarMenu;
+</script>
+
+</body>
+</html>

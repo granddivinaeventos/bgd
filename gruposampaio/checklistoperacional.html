@@ -1,0 +1,587 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no" />
+<title>Auditoria Grupo Sampaio</title>
+
+<meta http-equiv="Cache-Control" content="no-cache, no-store, must-revalidate" />
+<meta http-equiv="Pragma" content="no-cache" />
+<meta http-equiv="Expires" content="0" />
+
+<script src="https://cdnjs.cloudflare.com/ajax/libs/html2pdf.js/0.10.1/html2pdf.bundle.min.js"></script>
+
+<style>
+*, *::before, *::after { box-sizing: border-box; }
+:root{--bg:#000;--card:#111;--border:#222;--text:#fff;--accent:#fff;--red:#e74c3c;--green:#2ecc71;}
+body{background:var(--bg);color:var(--text);font-family:'Segoe UI',sans-serif;margin:0;padding:20px 20px 120px;}
+.container{max-width:800px;margin:auto;}
+
+/* HEADER */
+.header{text-align:center;padding:20px 0;border-bottom:1px solid var(--border);margin-bottom:20px;}
+.brand-slot{display:flex;align-items:center;justify-content:center;gap:14px;margin-bottom:12px;min-height:56px;}
+.brand-logo{max-height:52px;max-width:220px;object-fit:contain;opacity:0;transition:opacity .35s ease;}
+.brand-logo.show{opacity:1;}
+
+.section-h{background:#1a1a1a;padding:12px;font-size:.85rem;color:#aaa;text-transform:uppercase;margin:30px 0 15px;border-left:4px solid var(--accent);font-weight:bold;}
+.card{background:var(--card);border:1px solid var(--border);padding:20px;margin-bottom:15px;border-radius:8px;}
+.q-header{display:flex;justify-content:space-between;margin-bottom:10px;font-size:.75rem;color:#666;text-transform:uppercase;}
+.q-text{font-size:.95rem;margin-bottom:15px;line-height:1.4;}
+.badge{padding:2px 6px;border-radius:4px;font-weight:bold;}
+.badge-1{background:#222;color:#888;}
+.badge-2{background:#333;color:#aaa;border:1px solid #555;}
+.badge-3{background:#400;color:#ffaaaa;border:1px solid var(--red);}
+
+.btn-group{display:flex;gap:10px}
+.btn-opt{flex:1;background:#1a1a1a;border:1px solid var(--border);color:#666;padding:12px;cursor:pointer;border-radius:4px;font-weight:bold;transition:all .2s;text-align:center;}
+.active-sim{background:var(--green);color:#fff;border-color:var(--green)}
+.active-nao{background:var(--red);color:#fff;border-color:var(--red)}
+
+.justificativa-container{display:none;margin-top:15px;padding:15px;background:#1a0a0a;border-radius:5px;border:1px solid #400}
+.input-obs{width:100%;padding:12px;background:#000;border:1px solid #444;color:#fff;margin-bottom:10px;border-radius:4px;}
+
+/* BOTÃO DE CÂMERA E PREVIEW */
+.input-file-wrapper{margin-top:10px;border-top:1px dashed #333;padding-top:10px;text-align:center;}
+.btn-camera{width:100%;background:#0A84FF;color:#fff;border:none;padding:12px;border-radius:6px;font-weight:bold;font-size:0.9rem;cursor:pointer;display:flex;align-items:center;justify-content:center;gap:8px;}
+.btn-camera:active{background:#0066cc;}
+.img-preview{max-width:100%; max-height:300px; margin-top:15px; border-radius:8px; display:none; border:1px solid #333; object-fit:contain; margin-left:auto; margin-right:auto;}
+.btn-remove-foto{background:transparent;color:var(--red);border:1px solid var(--red);padding:8px;border-radius:4px;margin-top:10px;width:100%;font-weight:bold;cursor:pointer;display:none;}
+
+input[type="text"],select{width:100%;padding:15px;background:#111;border:1px solid #333;color:#fff;margin-bottom:15px;border-radius:5px;}
+
+.btn-finish{width:100%;padding:22px;background:#fff;color:#000;border:none;font-weight:bold;font-size:1rem;border-radius:8px;margin-top:15px;cursor:pointer;}
+.btn-finish:disabled{background:#666;cursor:not-allowed;}
+
+.footer{text-align:center;margin-top:40px;color:#444;font-size:.7rem;letter-spacing:2px}
+.signature-pad{background:#fff;border-radius:4px;width:100%;height:150px;touch-action:none;border:2px solid #333;}
+.btn-clear{background:#333;color:#fff;border:none;padding:8px 15px;font-size:.7rem;margin-top:8px;border-radius:4px;cursor:pointer;}
+input[type="radio"]{display:none;}
+
+/* ===== MODAL DA CÂMERA IN-APP ===== */
+.camera-overlay {
+  position:fixed;inset:0;z-index:999999;background:#000;
+  display:none;flex-direction:column;align-items:center;justify-content:center;
+}
+.camera-video-container {
+  width:100%;flex:1;background:#000;display:flex;align-items:center;justify-content:center;overflow:hidden;
+}
+#camera-video { width:100%; max-height:100%; object-fit:cover; }
+.camera-controls {
+  width:100%;padding:20px;background:#111;display:flex;justify-content:space-around;align-items:center;padding-bottom:40px;
+}
+.btn-cam-capture {
+  width:70px;height:70px;border-radius:50%;background:#fff;border:4px solid #aaa;cursor:pointer;outline:none;
+}
+.btn-cam-capture:active { background:#ccc; transform:scale(0.95); }
+.btn-cam-cancel { color:#fff;background:transparent;border:none;font-size:1rem;font-weight:bold;padding:10px; }
+
+/* ===== TIMESTAMPS INVISÍVEIS (SÓ APARECEM NO PDF) ===== */
+#audit-timer-info { display: none; }
+
+/* ===== WELCOME ===== */
+.welcome-overlay{position:fixed;inset:0;z-index:9999;background:rgba(0,0,0,.9);display:flex;align-items:center;justify-content:center;padding:18px;}
+.welcome-card{width:min(720px, 100%);background:linear-gradient(180deg,#0f0f0f,#0a0a0a);border:1px solid #222;border-radius:14px;padding:22px;}
+.welcome-top{display:flex;align-items:center;justify-content:center;gap:10px;margin-bottom:12px;flex-wrap:wrap;}
+.welcome-logos{display:flex;gap:10px;align-items:center;justify-content:center;flex-wrap:wrap;}
+.welcome-logos img{height:32px;max-width:120px;object-fit:contain;opacity:.9;}
+.welcome-title{margin:8px 0 0;text-align:center;font-size:1.1rem;letter-spacing:1px;}
+.welcome-sub{margin:8px 0 16px;text-align:center;color:#9a9a9a;font-size:.85rem;line-height:1.45;}
+.welcome-actions{display:flex;gap:12px;justify-content:center;flex-wrap:wrap;}
+.btn-primary{padding:14px 18px;border-radius:10px;border:none;background:#fff;color:#000;font-weight:800;cursor:pointer;}
+.btn-ghost{padding:14px 18px;border-radius:10px;border:1px solid #333;background:transparent;color:#ddd;font-weight:700;cursor:pointer;}
+.hidden{display:none !important;}
+
+/* PDF Mode */
+.pdf-mode {background-color: var(--bg) !important;padding: 20px !important;}
+.pdf-mode .btn-clear, .pdf-mode .btn-camera, .pdf-mode .btn-remove-foto { display: none !important; }
+.pdf-mode #audit-timer-info { display: block !important; margin-bottom: 20px; padding: 15px; background: #111; border: 1px solid #333; border-radius: 8px; }
+</style>
+</head>
+
+<body>
+
+<div id="camera-modal" class="camera-overlay">
+  <div class="camera-video-container">
+    <video id="camera-video" autoplay playsinline></video>
+  </div>
+  <div class="camera-controls">
+    <button class="btn-cam-cancel" onclick="closeCamera()">CANCELAR</button>
+    <button class="btn-cam-capture" onclick="takePhoto()"></button>
+    <div style="width:70px;"></div> </div>
+</div>
+
+<div id="welcome" class="welcome-overlay">
+  <div class="welcome-card">
+    <div class="welcome-top">
+      <div class="welcome-logos">
+        <img src="divina.png" alt="Divina" onerror="this.style.display='none'" />
+        <img src="opy.png" alt="Opy" onerror="this.style.display='none'" />
+        <img src="cheppitos.png" alt="Cheppitos" onerror="this.style.display='none'" />
+        <img src="fornelle.png" alt="Fornelle" onerror="this.style.display='none'" />
+      </div>
+    </div>
+    <h3 class="welcome-title">AUDITORIA OPERACIONAL</h3>
+    <p class="welcome-sub">Controle de Qualidade & Segurança Alimentar.</p>
+    <div class="welcome-actions">
+      <button class="btn-primary" id="btn-start" type="button">INICIAR AUDITORIA</button>
+      <button class="btn-ghost" type="button" onclick="window.location.href='index.html'">VOLTAR AO MENU</button>
+    </div>
+  </div>
+</div>
+
+<div class="container" id="pdf-container">
+
+  <div class="header">
+    <div class="brand-slot"><img id="brandLogo" class="brand-logo" src="" alt="" onerror="this.style.display='none'" /></div>
+    <h2>AUDITORIA OPERACIONAL</h2>
+    <p style="color:#666;font-size:.7rem;letter-spacing:2px">CONTROLE DE QUALIDADE</p>
+  </div>
+
+  <form id="auditForm" action="https://formspree.io/f/xdadqvpr">
+
+    <div id="audit-timer-info">
+      <h4 style="margin-top:0; color:#aaa; font-size:0.8rem; text-transform:uppercase;">Registro de Tempo da Auditoria</h4>
+      <p style="margin:5px 0; font-size:0.9rem;"><strong>Início:</strong> <span id="lbl-start-time">--</span></p>
+      <p style="margin:5px 0; font-size:0.9rem;"><strong>Término:</strong> <span id="lbl-end-time">--</span></p>
+      <p style="margin:5px 0; font-size:0.9rem;"><strong>Duração Total:</strong> <span id="lbl-duration">--</span></p>
+    </div>
+
+    <div class="card" style="border-color:#555">
+      <label style="font-size:0.8rem;color:#aaa">DADOS DA AUDITORIA</label><br><br>
+      <input type="text" name="Auditor_Nome" id="nome-auditor" placeholder="NOME DO AUDITOR" required />
+      <select name="Unidade_Loja" id="unidade-loja" required>
+        <option value="">SELECIONE A UNIDADE</option>
+        <option>Divina - Cidade</option>
+        <option>Divina - Meireles</option>
+        <option>Divina - Itaperi</option>
+        <option>Fornelle - Cidade</option>
+        <option>Cheppitos - Cidade</option>
+        <option>Cheppitos - Rio Mar Kennedy</option>
+        <option>Cheppitos - Rio Mar Fortaleza</option>
+        <option>Cheppitos - Iguatemi</option>
+        <option>Cheppitos - Maracanaú</option>
+        <option>Cheppitos - Benfica</option>
+        <option>Cheppitos - Dom Luís</option>
+        <option>Só Sopa & Açai - Cidade</option>
+      </select>
+    </div>
+
+    <div id="checklist-content"></div>
+
+    <div class="section-h">Validação</div>
+    <div class="card">
+      <p>Assinatura do Auditor</p>
+      <canvas id="sig-auditor" class="signature-pad"></canvas>
+      <button type="button" class="btn-clear" onclick="limparCanvas('sig-auditor')">LIMPAR</button>
+    </div>
+    <div class="card">
+      <p>Assinatura do Gerente</p>
+      <canvas id="sig-gerente" class="signature-pad"></canvas>
+      <button type="button" class="btn-clear" onclick="limparCanvas('sig-gerente')">LIMPAR</button>
+    </div>
+
+    <div class="card">
+      <table style="width:100%; color:#fff; font-size:0.9rem;">
+        <tr><td>Pontuação:</td><td style="text-align:right;"><input type="text" name="Pontuacao_Total" id="score-total" readonly style="border:none; background:transparent; text-align:right; font-weight:bold; width:auto; padding:0; margin:0;" /></td></tr>
+        <tr><td>Percentual:</td><td style="text-align:right;"><input type="text" name="Percentual_Final" id="score-percent" readonly style="border:none; background:transparent; text-align:right; font-weight:bold; width:auto; padding:0; margin:0;" /></td></tr>
+        <tr><td>Selo:</td><td style="text-align:right;"><input type="text" name="Resultado_Selo" id="score-seal" readonly style="border:none; background:transparent; text-align:right; font-weight:bold; width:auto; padding:0; margin:0;" /></td></tr>
+      </table>
+    </div>
+
+    <button type="submit" class="btn-finish" id="btn-submit">ENVIAR AUDITORIA</button>
+  </form>
+  <div class="footer">GRUPO SAMPAIO • 2026</div>
+</div>
+
+<script>
+// --- VARIÁVEIS GLOBAIS DE CONTROLE ---
+let auditStartTime = null;
+let cameraStream = null;
+let activeQuestionIndex = null;
+let activeFieldName = null;
+const capturedPhotos = {}; // Guarda os blobs das fotos para enviar no formulário
+
+// --- LOGO DINÂMICO ---
+const brandLogos = { divina: "divina.png", opy: "opy.png", cheppitos: "cheppitos.png", fornelle: "fornelle.png" };
+const unidadeSelect = document.getElementById("unidade-loja");
+const brandLogoEl = document.getElementById("brandLogo");
+
+unidadeSelect.addEventListener("change", (e) => {
+  const t = (e.target.value || "").toLowerCase();
+  let key = "";
+  if(t.includes("divina")) key = "divina";
+  else if(t.includes("fornelle")) key = "fornelle";
+  else if(t.includes("cheppitos")) key = "cheppitos";
+  else if(t.includes("opy") || t.includes("sopa") || t.includes("açai") || t.includes("acai")) key = "opy";
+  
+  if(key && brandLogos[key]){
+    brandLogoEl.src = brandLogos[key];
+    brandLogoEl.style.display = 'block';
+    setTimeout(() => brandLogoEl.classList.add("show"), 30);
+  } else {
+    brandLogoEl.style.display = 'none';
+    brandLogoEl.classList.remove("show");
+  }
+});
+
+// --- WELCOME E INÍCIO DO TEMPO ---
+document.getElementById("btn-start").addEventListener("click", () => {
+  document.getElementById("welcome").classList.add("hidden");
+  auditStartTime = new Date(); // Registra a hora exata que começou
+});
+
+// --- PERGUNTAS ORIGINAIS (OPERACIONAL) ---
+const perguntas = [
+  { a: "1.1 SETOR FRITURA", cat: "EQUIPAMENTOS/UTENSÍLIOS", w: 1, p: "As fritadeiras estão em bom estado de conservação e funcionamento? (Termostato, Piloto, Tampas)" },
+  { a: "1.1 SETOR FRITURA", cat: "EQUIPAMENTOS/UTENSÍLIOS", w: 1, p: "O sistema de exaustão encontra-se em bom estado de conservação e funcionamento? (Dutos não possuem gordura visível escorrendo interno e externo, filtros corta-chama das coifas estão em uso e em bom estado, etc.)?" },
+  { a: "1.1 SETOR FRITURA", cat: "PADRÃO DE PRODUTO", w: 1, p: "Possui todas as matérias-primas necessárias para o setor?" },
+  { a: "1.1 SETOR FRITURA", cat: "ITEM CRÍTICO", w: 3, p: "Garante a qualidade da gordura em uso nas fritadeiras?" },
+  { a: "1.1 SETOR FRITURA", cat: "PADRÃO DE PRODUTO", w: 2, p: "Garante a qualidade final das frituras, respeitando as principais características do produto?" },
+  { a: "1.1 SETOR FRITURA", cat: "PADRÃO DE PRODUTO", w: 1, p: "Possui e utiliza as embalagens em quantidade suficiente para o horário e a montagem do pedido realizada de forma correta?" },
+
+  { a: "1.2 SETOR PRATOS EXECUTIVOS", cat: "EQUIPAMENTOS/UTENSÍLIOS", w: 1, p: "Possui e utiliza todos os utensílios padrão do setor e os mesmos encontram-se em bom estado de conservação?" },
+  { a: "1.2 SETOR PRATOS EXECUTIVOS", cat: "EQUIPAMENTOS/UTENSÍLIOS", w: 1, p: "Chapa encontra-se em bom estado de conservação?" },
+  { a: "1.2 SETOR PRATOS EXECUTIVOS", cat: "EQUIPAMENTOS/UTENSÍLIOS", w: 1, p: "Forno encontra-se em bom estado de conservação e funcionamento?" },
+  { a: "1.2 SETOR PRATOS EXECUTIVOS", cat: "PADRÃO DE PRODUTO", w: 2, p: "Respeita a montagem dos Pratos Executivos (sequência, procedimentos e gramatura) conforme receituário." },
+  { a: "1.2 SETOR PRATOS EXECUTIVOS", cat: "PADRÃO DE PRODUTO", w: 1, p: "Possui embalagens em quantidade suficiente para o horário e a montagem do pedido realizada de forma correta." },
+
+  { a: "1.3 ÁREA CHURRASQUEIRA", cat: "EQUIPAMENTOS/UTENSÍLIOS", w: 1, p: "Possui e utiliza todos os utensílios padrão do setor e os mesmos encontram-se em bom estado de conservação?" },
+  { a: "1.3 ÁREA CHURRASQUEIRA", cat: "AMBIENTE", w: 1, p: "O LOCAL E OS EQUIPAMENTOS SE ENCONTRAM LIMPOS E ORGANIZADOS?" },
+  { a: "1.3 ÁREA CHURRASQUEIRA", cat: "ESTRUTURA", w: 1, p: "TETO, PISO, CHURRASQUEIRA, PAREDES ESTÃO EM BOM ESTADO DE CONSERVAÇÃO?" },
+  { a: "1.3 ÁREA CHURRASQUEIRA", cat: "BOAS PRÁTICAS", w: 1, p: "Os produtos estão acondicionados em embalagens fechadas, e em temperatura adequada e quando abertas, encontram-se armazenados em recipientes que os protejam de contaminação." },
+
+  { a: "1.4 SETOR PIZZA", cat: "EQUIPAMENTOS/UTENSÍLIOS", w: 1, p: "Possui e utiliza todos os utensílios padrão do setor e os mesmos encontram-se em bom estado de conservação." },
+  { a: "1.4 SETOR PIZZA", cat: "PADRÃO DE PRODUTO", w: 1, p: "Possui todas as matérias-primas necessárias para o setor." },
+  { a: "1.4 SETOR PIZZA", cat: "PADRÃO DE PRODUTO", w: 2, p: "Respeita a montagem das pizzas (sequência, procedimentos e gramatura) conforme receituário." },
+  { a: "1.4 SETOR PIZZA", cat: "PADRÃO DE PRODUTO", w: 1, p: "Possui embalagens em quantidade suficiente para o horário e a montagem do pedido realizada de forma correta." },
+
+  { a: "1.5 SETOR SALADAS", cat: "PADRÃO DE PRODUTO", w: 1, p: "Possui todas as matérias-primas necessárias para o setor." },
+  { a: "1.5 SETOR SALADAS", cat: "PADRÃO DE PRODUTO", w: 2, p: "Respeita a montagem das saladas(sequência, procedimentos e gramatura) conforme receituário." },
+  { a: "1.5 SETOR SALADAS", cat: "PADRÃO DE PRODUTO", w: 1, p: "Possui e utiliza as embalagens em quantidade suficiente para o horário e a montagem do pedido realizada de forma correta." },
+
+  { a: "1.6 SETOR SUCO E SOBREMESA (BAR)", cat: "EQUIPAMENTOS/UTENSÍLIOS", w: 1, p: "Possui e utiliza todos os utensílios padrão do setor e os mesmos encontram-se em bom estado de conservação." },
+  { a: "1.6 SETOR SUCO E SOBREMESA (BAR)", cat: "EQUIPAMENTOS/UTENSÍLIOS", w: 1, p: "Liquidificador se encontra-se em bom estado de conservação." },
+  { a: "1.6 SETOR SUCO E SOBREMESA (BAR)", cat: "EQUIPAMENTOS/UTENSÍLIOS", w: 1, p: "Post Mix se encontra-se em bom estado de conservação." },
+  { a: "1.6 SETOR SUCO E SOBREMESA (BAR)", cat: "EQUIPAMENTOS/UTENSÍLIOS", w: 1, p: "Choppeira se encontra-se em bom estado de conservação." },
+  { a: "1.6 SETOR SUCO E SOBREMESA (BAR)", cat: "PADRÃO DE PRODUTO", w: 1, p: "Possui todas as matérias-primas necessárias para o setor." },
+  { a: "1.6 SETOR SUCO E SOBREMESA (BAR)", cat: "PADRÃO DE PRODUTO", w: 2, p: "Respeita a montagem dos sucos (procedimentos e gramatura) conforme receituário." },
+  { a: "1.6 SETOR SUCO E SOBREMESA (BAR)", cat: "PADRÃO DE PRODUTO", w: 2, p: "Respeita a montagem das sobremesas (sequência, procedimentos e gramatura) conforme receituário." },
+  { a: "1.6 SETOR SUCO E SOBREMESA (BAR)", cat: "PADRÃO DE PRODUTO", w: 1, p: "Possui e utiliza embalagens em quantidade suficiente para o horário e a montagem do pedido realizada de forma correta." },
+
+  { a: "QUALIDADE DE INSUMOS", cat: "PADRÃO DE PRODUTO", w: 1, p: "Em Geral todos os produtos estão saindo, para todos os canais de vendas, de acordo com o PADRÃO DE QUALIDADE? (Coloração, sabor, Apresentação Final)" },
+
+  { a: "2.1 MANIPULADORES", cat: "BOAS PRÁTICAS", w: 1, p: "Os funcionários encontram-se asseados, sem barba ou bigode, com mãos limpas, unhas curtas, sem esmalte ou adornos. Não apresentam lesões ou sintomas de doenças aparente." },
+  { a: "2.1 MANIPULADORES", cat: "BOAS PRÁTICAS", w: 1, p: "Presente na cozinha pia exclusiva para higiene de mãos abastecida com sabonete bactericida e papel 100% celulose (não reciclado) ou secador de mãos com saída de ar limpa. Papeleiras e saboneteiras presentes e em bom estado de conservação. As mãos são lavadas ao entrarem na cozinha e a cada troca de atividade." },
+  { a: "2.1 MANIPULADORES", cat: "BOAS PRÁTICAS", w: 1, p: "Equipe de cozinha encontra-se com uniformes limpos e íntegros, e utilizam os equipamentos de proteção individual inclusive casaco térmico, quando necessários." },
+  { a: "2.1 MANIPULADORES", cat: "BOAS PRÁTICAS", w: 1, p: "Utilizam touca sempre que adentram as instalações e luvas nas funções obrigatórias." },
+  { a: "2.1 MANIPULADORES", cat: "BOAS PRÁTICAS", w: 1, p: "Há toucas e aventais descartáveis disponíveis para visitantes e são utilizados pelos mesmos." },
+
+  { a: "2.2 RECEPÇÃO DE MERCADORIAS", cat: "BOAS PRÁTICAS", w: 1, p: "Realiza a verificação de temperatura, rotulagem e acondiciona as mercadorias de acordo com a temperatura (resfriado, congelado e seco)? Os produtos perecíveis não permanecem em temperatura acima do recomendado na área do recebimento?" },
+  { a: "2.2 RECEPÇÃO DE MERCADORIAS", cat: "BOAS PRÁTICAS", w: 1, p: "Existem paletes em quantidade suficiente para acondicionamento de produtos na recepção ou em qualquer área que seja necessário. Possui carrinho para descarregamento de mercadoria em quantidade suficiente e em bom estado de conservação." },
+
+  { a: "2.3 ACONDICIONAMENTO DE PRODUTOS", cat: "ITEM CRÍTICO", w: 3, p: "Todos os alimentos resfriados estão acondicionados em temperaturas de 0°C a 4°C, nas geladeiras e em temperatura de até 10°C nas divisórias." },
+  { a: "2.3 ACONDICIONAMENTO DE PRODUTOS", cat: "ITEM CRÍTICO", w: 3, p: "Todos os alimentos congelados estão acondicionados em temperaturas de -12 °C . Respeita a capacidade de acondicionamento do equipamento." },
+  { a: "2.3 ACONDICIONAMENTO DE PRODUTOS", cat: "BOAS PRÁTICAS", w: 1, p: "Os produtos estão acondicionados em embalagens fechadas, e quando abertas, encontram-se armazenados em recipientes que os point projeta de contaminação. Não se verifica a presença de tabuleiros com fubá do dia anterior." },
+  { a: "2.3 ACONDICIONAMENTO DE PRODUTOS", cat: "BOAS PRÁTICAS", w: 1, p: "As etiquetas e placas de fracionamento estão preenchidas para os respectivos produtos. Etiquetas estão devidamente coladas junto embalagem ou recipiente dos mesmos. O controle do fracionamento e validade dos produtos após abertos é realizado." },
+  { a: "2.3 ACONDICIONAMENTO DE PRODUTOS", cat: "BOAS PRÁTICAS", w: 1, p: "O estoque seco encontra-se com os alimentos e embalagens dispostos em paletes ou prateleiras, acima de 25 cm do piso e afastados da parede em 10 cm no mínimo. Respeitam a distância de 60cm do teto. As embalagens para viagem e utensílios estão protegidos em sacos ou caixas plásticas fechados." },
+  { a: "2.3 ACONDICIONAMENTO DE PRODUTOS", cat: "BOAS PRÁTICAS", w: 1, p: "Todos os produtos da loja são organizados por validades e o PVPS é respeitado pelos funcionários." },
+
+  { a: "2.4 PRÉ-PREPARO", cat: "BOAS PRÁTICAS", w: 1, p: "Hortifrutis estão sendo higienizados conforme procedimento? São higienizados em recipiente apropriado, exclusivo e identificado? Possui adesivo com nível de água da KALYKIM?" },
+  { a: "2.4 PRÉ-PREPARO", cat: "BOAS PRÁTICAS", w: 1, p: "Não se verificam itens e ações que propiciem contaminação cruzada, tais como abrir lixeiras com as mãos, utilizar sacolas de plástico para alimentos, possuir objetos de madeira nas áreas, utilizar panos alvejados para higienização de bancadas, possuir recipiente com detergente diluído e esponja imersa, utilizar tábuas de corte de forma Incorreta..." },
+
+  { a: "2.5 HIGIENE", cat: "LIMPEZA", w: 1, p: "A loja possui todos os produtos de limpeza para garantir a limpeza das áreas e higiene pessoal dos colaboradores? (Produtos conforme plano de limpeza). Os produtos de limpeza são homologados?" },
+  { a: "2.5 HIGIENE", cat: "EQUIPAMENTOS/UTENSÍLIOS", w: 1, p: "Possui utensílios de limpeza separados por setor/cor e em quantidade suficiente." },
+  { a: "2.5 HIGIENE", cat: "LIMPEZA", w: 1, p: "Os pisos, paredes, azulejos, rodapés, portas, batentes, telas, janelas, luminárias, tomadas, protetores de lâmpadas e tetos encontram-se limpos. Os ralos encontram-se limpos e fechados." },
+  { a: "2.5 HIGIENE", cat: "LIMPEZA", w: 1, p: "As caixas plásticas, estrados e lixeiras em geral encontram-se limpos. Lixeiras providas de sacos de lixo." },
+  { a: "2.5 HIGIENE", cat: "LIMPEZA", w: 1, p: "Utensílios de Cozinha e Copa/Churrasqueira: Panelas, Conchas, tábuas, Facas, recipientes plásticos, conchas, colheres, assadeiras, cubas, Braseiros, encontram-se limpos e higienizados." },
+  { a: "2.5 HIGIENE", cat: "LIMPEZA", w: 1, p: "As câmaras fria e congelada estão limpas, organizadas não propiciando contaminação, desbloqueadas, com prateleiras limpas, em acúmulo de água, gelo ou resíduos no piso, grades de proteção de hélice e dreno. Protetor de lâmpadas limpos." },
+  { a: "2.5 HIGIENE", cat: "LIMPEZA", w: 1, p: "As áreas encontram-se com equipamentos e bancadas devidamente limpos e higienizados?" },
+  { a: "2.5 HIGIENE", cat: "LIMPEZA", w: 1, p: "A área de Montagem dos Pratos verifica-se limpa e organizada, adotam o sistema sujou limpou durante o processo." },
+  { a: "2.5 HIGIENE", cat: "LIMPEZA", w: 1, p: "A área da pizza está devidamente limpa, bancada, suportes, geladeira, prateleiras limpos e higienizados no fechamento e conforme o sistema sujou limpou." },
+  { a: "2.5 HIGIENE", cat: "LIMPEZA", w: 1, p: "A área da fritura encontra-se limpa e foi higienizada no fechamento e conforme o sistema sujou limpou." },
+  { a: "2.5 HIGIENE", cat: "LIMPEZA", w: 1, p: "A área do fogão encontra-se limpa e foram higienizados no fechamento adotando o sistema sujou limpou." },
+  { a: "2.5 HIGIENE", cat: "LIMPEZA", w: 1, p: "O Bar está devidamente limpo, as geladeiras, freezeres, liquidificadores, bancadas, prateleiras, post mix estão limpos e higienizados no fechamento e conforme o sistema sujou limpou. A máquina de gelo encontra-se limpa, em local apropriado." },
+  { a: "2.5 HIGIENE", cat: "LIMPEZA", w: 1, p: "O estoque encontra-se limpo e organizado, com estoque de alimentos e embalagens separados fisicamente do estoque de limpeza e utensílios de limpeza. Não verifica-se objetos em desuso." },
+  { a: "2.5 HIGIENE", cat: "LIMPEZA", w: 1, p: "Área de lavagem organizada e limpa. Pia, escorredores, prateleiras, sifão e máquina de lavar limpos. A loja possui ponto de água quente para higienização dos utensílios." },
+  { a: "2.5 HIGIENE", cat: "LIMPEZA", w: 1, p: "Possui recipiente próprio e identificado para o descarte da gordura queimada. Mesmo encontra-se em boas condições de higiene." },
+  { a: "2.5 HIGIENE", cat: "LIMPEZA", w: 1, p: "A área externa está sem presença de objetos em desuso, livre de lixo ou objetos que acumulem água ou sirvam de abrigo para pragas." },
+  { a: "2.5 HIGIENE", cat: "ITEM CRÍTICO", w: 3, p: "Loja encontra-se isenta de pragas ou vestígios que indiquem sua presença." },
+
+  { a: "2.6 MANUTENÇÃO", cat: "ESTRUTURA", w: 1, p: "As Instalações hidráulicas e elétricas estão em bom estado de conservação. (ausência de entupimento, vazamento, interditada para economia de água em qualquer setor da loja. Fiação exposta, ausência de espelhos cegos)." },
+  { a: "2.6 MANUTENÇÃO", cat: "ESTRUTURA", w: 1, p: "Os pisos, rejuntes, paredes, rodapés, portas, batentes da cozinha e bar estão em bom estado de conservação. Todas as portas em contato com áreas externas possuem vedação inferior e molas." },
+  { a: "2.6 MANUTENÇÃO", cat: "ESTRUTURA", w: 1, p: "As telas, janelas, ralos e teto da cozinha e Bar, em bom estado de conservação. Não há lâmpadas queimadas e possuem proteção anti queda ou explosão." },
+  { a: "2.6 MANUTENÇÃO", cat: "EQUIPAMENTOS/UTENSÍLIOS", w: 1, p: "As geladeiras e freezers estão em bom estado de conservação (pés, rodinhas, gaxetas, borrachas, trincos, dobradiças, puxadores, portas, dreno, pista fria, protetor do motor). Cubas compatíveis com a pista fria. Máquina de gelo em bom estado de conservação." },
+  { a: "2.6 MANUTENÇÃO", cat: "EQUIPAMENTOS/UTENSÍLIOS", w: 1, p: "A loja possui caixas, estrados e lixeiras em quantidades suficientes e em bom estado de conservação." },
+  { a: "2.6 MANUTENÇÃO", cat: "EQUIPAMENTOS/UTENSÍLIOS", w: 1, p: "O termômetro e a balança encontram-se em bom estado e com a calibração adequada." },
+
+  { a: "BANHEIROS DE CLIENTES", cat: "LIMPEZA", w: 1, p: "Os banheiros encontram-se limpos: piso, azulejos, portas, janelas, pias, vasos, mictórios, lixeiras, etc.? As papeleiras e saboneteiras abastecidas e lixeiras sem excesso de resíduo/papel?" },
+  { a: "BANHEIROS DE CLIENTES", cat: "ESTRUTURA", w: 1, p: "Os vasos/assentos, mictórios, válvulas, pias, torneiras, lixeiras, papeleiras/secadores, saboneteiras, trocador estão em bom estado de conservação e funcionamento?." },
+  { a: "BANHEIROS DE CLIENTES", cat: "ESTRUTURA", w: 1, p: "Os banheiros estão em bom estado de conservação: piso, paredes, janelas, portas, fechaduras, teto, luminárias, lâmpadas e saídas de ar e espelhos?" },
+
+  { a: "3. ÁREAS DE ATENDIMENTO", cat: "LIMPEZA", w: 1, p: "Mesas, cadeiras, aparadores, balcão de atendimento, salão, caixas, piso, janelas, portas e vidros limpos?" },
+  { a: "3. ÁREAS DE ATENDIMENTO", cat: "EQUIPAMENTOS/UTENSÍLIOS", w: 1, p: "Mesas, cadeiras, aparadores, balcão de atendimento, salão, caixas, piso, janelas, portas e vidros em bom estado de conservação?" },
+  { a: "3. ÁREAS DE ATENDIMENTO", cat: "ESTRUTURA", w: 1, p: "Teto em bom estado de conservação e iIluminação adequada com ausência de lâmpadas queimadas?" },
+
+  { a: "3. PRODUTO VENCIDO [PV]", cat: "ITEM CRÍTICO", w: 3, p: "Ausência de qualquer produto VENCIDO em qualquer setor do Restaurante, e não encontrado em outras avaliações realizadas dentro do mês." },
+  { a: "3.2 PRODUTO NÃO HOMOLOGADO [PNH]", cat: "ITEM CRÍTICO", w: 3, p: "Utiliza produtos adquiridos da Central de Produção para o preparo dos produtos (insumos produzidos e distribuídos)." }
+];
+
+const content = document.getElementById("checklist-content");
+let currentA = "";
+
+perguntas.forEach((p, i) => {
+  if(p.a !== currentA){
+    const h = document.createElement("div");
+    h.className = "section-h";
+    h.innerText = p.a;
+    content.appendChild(h);
+    currentA = p.a;
+  }
+
+  const c = document.createElement("div");
+  c.className = "card";
+  const badgeClass = p.w === 3 ? "badge-3" : (p.w === 2 ? "badge-2" : "badge-1");
+  const labelPeso = p.w === 3 ? "CRÍTICO (Peso 3)" : (p.w === 2 ? "Peso 2" : "Peso 1");
+  const fieldName = `[${p.a}] Q${i+1}`;
+
+  c.innerHTML = `
+    <div class="q-header"><span>${p.cat}</span><span class="badge ${badgeClass}">${labelPeso}</span></div>
+    <div class="q-text">${p.p}</div>
+    <input type="hidden" name="P_${i}_Enunciado" value="${p.p}">
+    <div class="btn-group">
+      <input type="radio" name="${fieldName}" id="sim-${i}" value="SIM" onchange="responder(${i}, true)">
+      <label for="sim-${i}" class="btn-opt">SIM</label>
+      <input type="radio" name="${fieldName}" id="nao-${i}" value="NÃO" onchange="responder(${i}, false)">
+      <label for="nao-${i}" class="btn-opt">NÃO</label>
+    </div>
+    <div id="obs-${i}" class="justificativa-container">
+      <label style="font-size:0.7rem;color:#f00;display:block;margin-bottom:5px;">EXPLICAÇÃO OBRIGATÓRIA:</label>
+      <textarea name="OBS_${fieldName}" class="input-obs" placeholder="Descreva a não conformidade..."></textarea>
+      
+      <div class="input-file-wrapper">
+        <label style="font-size:0.7rem;color:#aaa;">ANEXAR FOTO (OPCIONAL):</label><br>
+        <button type="button" class="btn-camera" onclick="openCamera(${i}, '${fieldName}')">📷 TIRAR FOTO AQUI</button>
+        <img id="preview-${i}" class="img-preview" src="" alt="Pré-visualização da imagem" />
+        <button type="button" id="remove-foto-${i}" class="btn-remove-foto" onclick="removeFoto(${i}, '${fieldName}')">🗑️ REMOVER FOTO</button>
+      </div>
+    </div>
+  `;
+  content.appendChild(c);
+});
+
+function responder(index, isSim){
+  const container = document.getElementById(`obs-${index}`);
+  const btnSim = document.querySelector(`label[for="sim-${index}"]`);
+  const btnNao = document.querySelector(`label[for="nao-${index}"]`);
+  if(isSim){
+    btnSim.classList.add('active-sim');
+    btnNao.classList.remove('active-nao');
+    container.style.display = 'none';
+    container.querySelector('textarea').required = false;
+  }else{
+    btnNao.classList.add('active-nao');
+    btnSim.classList.remove('active-sim');
+    container.style.display = 'block';
+    container.querySelector('textarea').required = true;
+  }
+}
+
+/* ====== SISTEMA DE CÂMERA IN-APP E COMPRESSÃO (WEBP/AVIF) ====== */
+async function openCamera(index, fieldName) {
+  activeQuestionIndex = index;
+  activeFieldName = fieldName;
+  const modal = document.getElementById('camera-modal');
+  const video = document.getElementById('camera-video');
+  modal.style.display = 'flex';
+
+  try {
+    cameraStream = await navigator.mediaDevices.getUserMedia({
+      video: { facingMode: 'environment' }
+    });
+    video.srcObject = cameraStream;
+  } catch (err) {
+    alert("Permissão de câmera negada ou recurso indisponível no dispositivo. Verifique as configurações do aplicativo.");
+    closeCamera();
+  }
+}
+
+function closeCamera() {
+  if (cameraStream) {
+    cameraStream.getTracks().forEach(track => track.stop());
+    cameraStream = null;
+  }
+  document.getElementById('camera-modal').style.display = 'none';
+}
+
+function takePhoto() {
+  const video = document.getElementById('camera-video');
+  const canvas = document.createElement('canvas');
+  
+  let w = video.videoWidth;
+  let h = video.videoHeight;
+  if (w > h) { if (w > 600) { h *= 600 / w; w = 600; } } 
+  else { if (h > 600) { w *= 600 / h; h = 600; } }
+  
+  canvas.width = w; canvas.height = h;
+  const ctx = canvas.getContext('2d');
+  ctx.drawImage(video, 0, 0, w, h);
+
+  // Conversão rápida que evita fechamento por falta de memória (OOM)
+  const dataUrl = canvas.toDataURL('image/webp', 0.6); 
+
+  fetch(dataUrl).then(res => res.blob()).then(blob => {
+    capturedPhotos["FOTO_" + activeFieldName] = blob;
+  });
+
+  const preview = document.getElementById(`preview-${activeQuestionIndex}`);
+  preview.src = dataUrl;
+  preview.style.display = 'block';
+  document.getElementById(`remove-foto-${activeQuestionIndex}`).style.display = 'block';
+
+  closeCamera();
+}
+
+function removeFoto(index, fieldName) {
+  delete capturedPhotos["FOTO_" + fieldName];
+  document.getElementById(`preview-${index}`).style.display = 'none';
+  document.getElementById(`remove-foto-${index}`).style.display = 'none';
+}
+
+// --- CANVAS ASSINATURA ---
+function setupCanvas(id){
+  const c = document.getElementById(id);
+  const ctx = c.getContext("2d", { willReadFrequently: true });
+  const ratio = Math.max(window.devicePixelRatio || 1, 1);
+  const rect = c.getBoundingClientRect();
+  c.width  = Math.round(rect.width  * ratio);
+  c.height = Math.round(rect.height * ratio);
+  c.style.width = rect.width + "px";
+  c.style.height = rect.height + "px";
+  ctx.setTransform(ratio, 0, 0, ratio, 0, 0);
+  limparCanvas(id);
+  let desenhando = false;
+  c.addEventListener("pointerdown", (e) => {
+    desenhando = true;
+    c.setPointerCapture(e.pointerId);
+    ctx.lineWidth = 2; ctx.lineCap = "round"; ctx.lineJoin = "round"; ctx.strokeStyle = "#000";
+    const r = c.getBoundingClientRect();
+    ctx.beginPath(); ctx.moveTo(e.clientX - r.left, e.clientY - r.top);
+    e.preventDefault();
+  }, { passive: false });
+  c.addEventListener("pointermove", (e) => {
+    if(!desenhando) return;
+    const r = c.getBoundingClientRect();
+    ctx.lineTo(e.clientX - r.left, e.clientY - r.top);
+    ctx.stroke();
+    e.preventDefault();
+  }, { passive: false });
+  c.addEventListener("pointerup", () => desenhando = false);
+  c.addEventListener("pointercancel", () => desenhando = false);
+}
+function limparCanvas(id){
+  const c = document.getElementById(id);
+  const ctx = c.getContext("2d");
+  ctx.save(); ctx.setTransform(1, 0, 0, 1, 0, 0); ctx.fillStyle = "#ffffff";
+  ctx.fillRect(0, 0, c.width, c.height); ctx.restore(); ctx.beginPath(); 
+}
+function canvasEstaVazio(id){
+  const c = document.getElementById(id);
+  const blank = document.createElement('canvas');
+  blank.width = c.width; blank.height = c.height;
+  const ctx = blank.getContext("2d");
+  ctx.fillStyle = "#ffffff"; ctx.fillRect(0, 0, blank.width, blank.height);
+  return c.toDataURL() === blank.toDataURL();
+}
+setupCanvas("sig-auditor"); setupCanvas("sig-gerente");
+function canvasToBlob(canvasId) {
+    return new Promise((resolve) => {
+        document.getElementById(canvasId).toBlob((blob) => resolve(blob), 'image/jpeg', 0.9);
+    });
+}
+
+// --- GERAÇÃO PDF ---
+const form = document.getElementById('auditForm');
+form.onsubmit = async function(e){
+  e.preventDefault(); 
+  const totalP = perguntas.length;
+  const respondidas = document.querySelectorAll('input[type="radio"]:checked').length;
+  if(respondidas < totalP){ alert(`Responda todas as perguntas.`); return false; }
+  if(canvasEstaVazio('sig-auditor') || canvasEstaVazio('sig-gerente')){ alert("Assinaturas obrigatórias."); return false; }
+
+  const btnSubmit = document.getElementById('btn-submit');
+  btnSubmit.innerText = "GERANDO PDF... (Aguarde)";
+  btnSubmit.disabled = true;
+
+  try {
+    // --- Lógica do Tempo ---
+    const auditEndTime = new Date();
+    const difEmSegundos = Math.floor((auditEndTime - auditStartTime) / 1000);
+    const minutos = Math.floor(difEmSegundos / 60);
+    const segundos = difEmSegundos % 60;
+
+    document.getElementById('lbl-start-time').innerText = auditStartTime.toLocaleString('pt-BR');
+    document.getElementById('lbl-end-time').innerText = auditEndTime.toLocaleString('pt-BR');
+    document.getElementById('lbl-duration').innerText = `${minutos} minutos e ${segundos} segundos`;
+
+    // --- Lógica das Notas (Padrão Operacional SIM/NÃO) ---
+    let pontosPossiveis = 0, pontosObtidos = 0;
+    perguntas.forEach((p, i) => {
+      pontosPossiveis += p.w;
+      if(document.getElementById(`sim-${i}`) && document.getElementById(`sim-${i}`).checked) pontosObtidos += p.w;
+    });
+    const percentual = ((pontosObtidos / pontosPossiveis) * 100).toFixed(1);
+    let selo = percentual >= 89 ? "SELO A (APROVADO)" : (percentual >= 70 ? "SELO B (ATENÇÃO)" : "SELO C (REPROVADO)");
+    document.getElementById('score-total').value = `${pontosObtidos} / ${pontosPossiveis}`;
+    document.getElementById('score-percent').value = `${percentual}%`;
+    document.getElementById('score-seal').value = selo;
+
+    document.querySelectorAll('textarea').forEach(ta => ta.textContent = ta.value);
+    document.querySelectorAll('input[type="text"]').forEach(inp => inp.setAttribute('value', inp.value));
+    document.querySelectorAll('select').forEach(sel => { if(sel.selectedIndex >= 0) sel.options[sel.selectedIndex].setAttribute('selected', 'selected'); });
+
+    window.scrollTo(0, 0);
+    const pdfContainer = document.getElementById('pdf-container');
+    pdfContainer.classList.add('pdf-mode'); // Deixa o bloco de tempo visível no PDF
+    btnSubmit.style.display = 'none';
+
+    // PDF Leve para o celular não fechar o app
+    const pdfOptions = {
+      margin: 10, filename: 'Relatorio_Auditoria.pdf', image: { type: 'jpeg', quality: 0.80 },
+      html2canvas: { scale: 1.0, useCORS: true, scrollY: 0, backgroundColor: '#000' },
+      jsPDF: { unit: 'mm', format: 'a4', orientation: 'portrait' }
+    };
+    
+    const pdfBlob = await html2pdf().set(pdfOptions).from(pdfContainer).output('blob');
+
+    pdfContainer.classList.remove('pdf-mode');
+    btnSubmit.style.display = 'block';
+
+    const formData = new FormData(form);
+    formData.append("Assinatura_Auditor", await canvasToBlob('sig-auditor'), "assinatura_auditor.jpg");
+    formData.append("Assinatura_Gerente", await canvasToBlob('sig-gerente'), "assinatura_gerente.jpg");
+    formData.append("Relatorio_PDF", pdfBlob, "Relatorio_Auditoria.pdf");
+    
+    formData.append("Horario_Inicio", auditStartTime.toLocaleString('pt-BR'));
+    formData.append("Horario_Termino", auditEndTime.toLocaleString('pt-BR'));
+    formData.append("Duracao_Total", `${minutos}m ${segundos}s`);
+
+    // Anexa as fotos tiradas internamente
+    for (const [key, blob] of Object.entries(capturedPhotos)) {
+        formData.append(key, blob, `${key}.webp`);
+    }
+
+    const response = await fetch(form.action, { method: 'POST', body: formData, headers: { 'Accept': 'application/json' }});
+    if (response.ok) { alert("Auditoria enviada!"); window.scrollTo(0,0); window.location.reload(); } 
+    else { alert("Erro de servidor."); }
+  } catch (error) {
+    alert("Erro ao gerar PDF no seu dispositivo.");
+  } finally {
+    btnSubmit.innerText = "ENVIAR AUDITORIA";
+    btnSubmit.disabled = false;
+    btnSubmit.style.display = 'block';
+    document.getElementById('pdf-container').classList.remove('pdf-mode');
+  }
+};
+</script>
+</body>
+</html>

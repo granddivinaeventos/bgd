@@ -1,0 +1,595 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+<title>Checklist Divina - Grupo Sampaio</title>
+
+<script src="https://cdnjs.cloudflare.com/ajax/libs/html2pdf.js/0.10.1/html2pdf.bundle.min.js"></script>
+
+<style>
+:root{--bg:#000;--card:#111;--border:#222;--text:#fff;--accent:#fff;--red:#e74c3c;--green:#2ecc71;--yellow:#f1c40f;--gray:#555;}
+body{background:var(--bg);color:var(--text);font-family:'Segoe UI',sans-serif;margin:0;padding:20px 20px 120px;}
+.container{max-width:800px;margin:auto;}
+
+/* HEADER + LOGO DINÂMICO */
+.header{text-align:center;padding:20px 0;border-bottom:1px solid var(--border);margin-bottom:20px;}
+.brand-slot{
+  display:flex;align-items:center;justify-content:center;gap:14px;
+  margin-bottom:12px;min-height:56px;
+}
+.brand-logo{
+  max-height:52px;max-width:220px;object-fit:contain;
+  opacity:0;transition:opacity .35s ease;
+  filter: drop-shadow(0 6px 16px rgba(0,0,0,.45));
+}
+.brand-logo.show{opacity:1;}
+
+.section-h{background:#1a1a1a;padding:12px;font-size:.85rem;color:#aaa;text-transform:uppercase;margin:30px 0 15px;border-left:4px solid var(--accent);letter-spacing:1px;font-weight:bold;}
+.card{background:var(--card);border:1px solid var(--border);padding:20px;margin-bottom:15px;border-radius:8px;}
+.q-header{display:flex;justify-content:space-between;margin-bottom:10px;font-size:.75rem;color:#666;text-transform:uppercase;}
+.q-text{font-size:.95rem;margin-bottom:15px;line-height:1.4;}
+.badge{padding:2px 6px;border-radius:4px;font-weight:bold;}
+.badge-1{background:#222;color:#888;}
+.badge-2{background:#333;color:#aaa;border:1px solid #555;}
+.badge-3{background:#400;color:#ffaaaa;border:1px solid var(--red);}
+
+.btn-group{display:flex;gap:8px}
+.btn-opt{flex:1;background:#1a1a1a;border:1px solid var(--border);color:#666;padding:12px 5px;cursor:pointer;border-radius:4px;font-weight:bold;transition:all .2s;text-align:center;font-size:0.8rem;}
+.opt-c.active{background:var(--green);color:#fff;border-color:var(--green)}
+.opt-nc.active{background:var(--red);color:#fff;border-color:var(--red)}
+.opt-na.active{background:var(--gray);color:#fff;border-color:var(--gray)}
+
+.justificativa-container{display:none;margin-top:15px;padding:15px;background:#1a0a0a;border-radius:5px;border:1px solid #400}
+.input-obs{width:100%;padding:12px;background:#000;border:1px solid #444;color:#fff;margin-bottom:10px;border-radius:4px;box-sizing:border-box;}
+.input-file-wrapper{margin-top:10px;border-top:1px dashed #333;padding-top:10px;}
+.img-preview{max-width:100%; margin-top:15px; border-radius:8px; display:none; border:1px solid #333;}
+
+input[type="text"],select{width:100%;padding:15px;background:#111;border:1px solid #333;color:#fff;margin-bottom:15px;border-radius:5px;box-sizing:border-box;}
+
+.btn-finish{width:100%;padding:22px;background:#fff;color:#000;border:none;font-weight:bold;font-size:1rem;border-radius:8px;margin-top:15px;cursor:pointer;transition:background .2s;}
+.btn-finish:hover{background:#ddd;}
+.btn-finish:disabled{background:#666;cursor:not-allowed;}
+
+.footer{text-align:center;margin-top:40px;color:#444;font-size:.7rem;letter-spacing:2px}
+
+.signature-pad{background:#fff;border-radius:4px;width:100%;height:150px;touch-action:none;border:2px solid #333;}
+.btn-clear{background:#333;color:#fff;border:none;padding:8px 15px;font-size:.7rem;margin-top:8px;border-radius:4px;cursor:pointer;}
+
+/* Hidden inputs logic */
+input[type="radio"]{display:none;}
+
+/* ===== TELA DE BOAS-VINDAS (WELCOME) ===== */
+.welcome-overlay{
+  position:fixed;inset:0;z-index:9999;
+  background:rgba(0,0,0,.85);
+  backdrop-filter: blur(8px);
+  display:flex;align-items:center;justify-content:center;
+  padding:18px;
+}
+.welcome-card{
+  width:min(720px, 100%);
+  background:linear-gradient(180deg,#0f0f0f,#0a0a0a);
+  border:1px solid #222;
+  border-radius:14px;
+  padding:22px;
+  box-shadow:0 18px 50px rgba(0,0,0,.85);
+}
+.welcome-top{
+  display:flex;align-items:center;justify-content:center;gap:10px;
+  margin-bottom:12px;
+  flex-wrap:wrap;
+}
+.welcome-logos{
+  display:flex;gap:10px;align-items:center;justify-content:center;flex-wrap:wrap;
+  opacity:.95;
+}
+.welcome-logos img{
+  height:35px;max-width:120px;object-fit:contain;
+  filter: drop-shadow(0 6px 16px rgba(0,0,0,.4));
+  opacity:.9;
+}
+.welcome-title{
+  margin:8px 0 0;
+  text-align:center;
+  font-size:1.1rem;
+  letter-spacing:1px;
+}
+.welcome-sub{
+  margin:8px 0 25px;
+  text-align:center;
+  color:#9a9a9a;
+  font-size:.85rem;
+  line-height:1.45;
+}
+.welcome-actions{display:flex;gap:12px;justify-content:center;flex-wrap:wrap;}
+.btn-primary{
+  padding:14px 18px;border-radius:10px;border:1px solid #fff;
+  background:#fff;color:#000;font-weight:800;cursor:pointer;
+}
+.btn-ghost{
+  padding:14px 18px;border-radius:10px;border:1px solid #333;
+  background:transparent;color:#ddd;font-weight:700;cursor:pointer;
+}
+.btn-primary:active,.btn-ghost:active{transform:translateY(1px)}
+.small-note{margin-top:20px;text-align:center;color:#666;font-size:.72rem;letter-spacing:1px}
+.hidden{display:none !important;}
+
+/* Regras específicas para o gerador de PDF */
+.pdf-mode {
+  background-color: var(--bg) !important;
+  padding: 20px !important;
+}
+.pdf-mode .btn-clear { display: none !important; }
+.pdf-mode .input-file-wrapper input { display: none !important; }
+</style>
+</head>
+
+<body>
+
+<div id="welcome" class="welcome-overlay">
+  <div class="welcome-card">
+    <div class="welcome-top">
+      <div class="welcome-logos">
+        <img src="divina.png" alt="Divina" onerror="this.style.display='none'" />
+        </div>
+    </div>
+
+    <h3 class="welcome-title">CHECKLIST OPERACIONAL DIVINA</h3>
+    <p class="welcome-sub">
+      Auditoria de Padrão, Qualidade e Estrutura.<br />
+      Responda a todas as perguntas assinalando "Conforme", "Não Conforme" ou "N/A". Não conformidades exigem justificativa e foto.
+    </p>
+
+    <div class="welcome-actions">
+      <button class="btn-primary" id="btn-start" type="button">INICIAR AUDITORIA</button>
+      <button class="btn-ghost" type="button" onclick="window.location.href='index.html'">VOLTAR AO HUB</button>
+    </div>
+
+    <div class="small-note">GRUPO SAMPAIO • 2026</div>
+  </div>
+</div>
+
+<div class="container" id="pdf-container">
+
+  <div class="header">
+    <div class="brand-slot">
+      <img id="brandLogo" class="brand-logo show" src="divina.png" alt="Divina Restaurante" onerror="this.style.display='none'" />
+    </div>
+
+    <h2>AUDITORIA DIVINA RESTAURANTE</h2>
+    <p style="color:#666;font-size:.7rem;letter-spacing:2px">PADRÃO DE PRODUÇÃO & CONTROLE DE QUALIDADE</p>
+  </div>
+
+  <form id="auditForm" action="https://formspree.io/f/xdadqvpr">
+
+    <div class="card" style="border-color:#555">
+      <label style="font-size:0.8rem;color:#aaa">DADOS DA AUDITORIA</label><br><br>
+
+      <input type="text" name="Auditor_Nome" id="nome-auditor" placeholder="NOME DO AUDITOR" required />
+
+      <select name="Unidade_Loja" id="unidade-loja" required>
+        <option value="">SELECIONE A UNIDADE DIVINA</option>
+        <option value="Divina Meireles">Divina - Meireles</option>
+        <option value="Divina Serrinha">Divina - Serrinha</option>
+        <option value="Divina Cidade">Divina - Cidade</option>
+      </select>
+      
+      <select name="Turno" required>
+        <option value="">TURNO DA AUDITORIA</option>
+        <option value="Almoço">Almoço</option>
+        <option value="Jantar">Jantar</option>
+        <option value="Integral">Integral</option>
+      </select>
+    </div>
+
+    <div id="checklist-content"></div>
+
+    <div class="section-h">Validação & Assinaturas</div>
+
+    <div class="card">
+      <p>Assinatura do Auditor</p>
+      <canvas id="sig-auditor" class="signature-pad"></canvas>
+      <button type="button" class="btn-clear" onclick="limparCanvas('sig-auditor')">LIMPAR</button>
+    </div>
+
+    <div class="card">
+      <p>Assinatura do Gerente da Unidade</p>
+      <canvas id="sig-gerente" class="signature-pad"></canvas>
+      <button type="button" class="btn-clear" onclick="limparCanvas('sig-gerente')">LIMPAR</button>
+    </div>
+
+    <div class="card">
+      <table style="width:100%; color:#fff; font-size:0.9rem;">
+        <tr>
+           <td>Pontuação Final:</td>
+           <td style="text-align:right;"><input type="text" name="Pontuacao_Total" id="score-total" readonly style="border:none; background:transparent; text-align:right; color:#fff; font-weight:bold; width:auto; padding:0; margin:0;" /></td>
+        </tr>
+        <tr>
+           <td>Aproveitamento (N/A ignorado):</td>
+           <td style="text-align:right;"><input type="text" name="Percentual_Final" id="score-percent" readonly style="border:none; background:transparent; text-align:right; color:#fff; font-weight:bold; width:auto; padding:0; margin:0;" /></td>
+        </tr>
+        <tr>
+           <td>Selo Final:</td>
+           <td style="text-align:right;"><input type="text" name="Resultado_Selo" id="score-seal" readonly style="border:none; background:transparent; text-align:right; color:#fff; font-weight:bold; width:auto; padding:0; margin:0;" /></td>
+        </tr>
+      </table>
+    </div>
+
+    <button type="submit" class="btn-finish" id="btn-submit">FINALIZAR E ENVIAR AUDITORIA</button>
+  </form>
+
+  <div class="footer">GRUPO SAMPAIO • 2026</div>
+</div>
+
+<script>
+/* ====== TELA DE BOAS-VINDAS ====== */
+const welcome = document.getElementById("welcome");
+document.getElementById("btn-start").addEventListener("click", () => {
+  welcome.classList.add("hidden");
+  const first = document.getElementById("nome-auditor");
+  if(first) first.focus();
+});
+
+/* ====== PREVIEW DE IMAGENS ====== */
+function previewImage(input, index) {
+  const preview = document.getElementById(`preview-${index}`);
+  if (input.files && input.files[0]) {
+    const reader = new FileReader();
+    reader.onload = function(e) {
+      preview.src = e.target.result;
+      preview.style.display = 'block';
+    }
+    reader.readAsDataURL(input.files[0]);
+  } else {
+    preview.src = "";
+    preview.style.display = 'none';
+  }
+}
+
+/* ====== PERGUNTAS EXTRAÍDAS DA PLANILHA ====== */
+const perguntas = [
+  // SEÇÃO 2
+  { a: "2 - COZINHA | PADRÃO DE PRODUÇÃO & FICHA TÉCNICA", cat: "PRODUÇÃO", w: 1, p: "2.1 - O líder de cozinha orienta e cobra o uso rigoroso das fichas técnicas oficiais da Divina?" },
+  { a: "2 - COZINHA | PADRÃO DE PRODUÇÃO & FICHA TÉCNICA", cat: "PRODUÇÃO", w: 1, p: "2.2 - As porções servidas estão dentro do padrão de peso estabelecido?" },
+  { a: "2 - COZINHA | PADRÃO DE PRODUÇÃO & FICHA TÉCNICA", cat: "PRODUÇÃO", w: 1, p: "2.3 - Existe balança disponível e funcionando para conferência diária de porcionamento?" },
+  { a: "2 - COZINHA | PADRÃO DE PRODUÇÃO & FICHA TÉCNICA", cat: "PRODUÇÃO", w: 1, p: "2.4 - A equipe conhece e segue o padrão de montagem dos pratos (apresentação, ponto da carne e finalização)?" },
+  { a: "2 - COZINHA | PADRÃO DE PRODUÇÃO & FICHA TÉCNICA", cat: "PRODUÇÃO", w: 1, p: "2.5 - Existe controle efetivo para evitar desperdício de proteínas (picanha e cortes nobres)?" },
+  { a: "2 - COZINHA | PADRÃO DE PRODUÇÃO & FICHA TÉCNICA", cat: "PRODUÇÃO", w: 1, p: "2.6 - O pré-preparo é planejado conforme histórico de vendas, evitando excesso ou falta?" },
+  { a: "2 - COZINHA | PADRÃO DE PRODUÇÃO & FICHA TÉCNICA", cat: "PRODUÇÃO", w: 1, p: "2.7 - Existe registro de pré-preparo e controle de reaproveitamento seguro?" },
+  { a: "2 - COZINHA | PADRÃO DE PRODUÇÃO & FICHA TÉCNICA", cat: "PRODUÇÃO", w: 1, p: "2.8 - Os produtos estão sendo corretamente porcionados (batata, peixe, camarão e outros)?" },
+
+  // SEÇÃO 3
+  { a: "3 – CONTROLE DE TEMPERATURA & EQUIPAMENTOS", cat: "EQUIPAMENTOS", w: 1, p: "3.1 - As fritadeiras estão operando na temperatura padrão estabelecida?" },
+  { a: "3 – CONTROLE DE TEMPERATURA & EQUIPAMENTOS", cat: "EQUIPAMENTOS", w: 1, p: "3.2 - Os fornos estão calibrados e com registro de aferição?" },
+  { a: "3 – CONTROLE DE TEMPERATURA & EQUIPAMENTOS", cat: "EQUIPAMENTOS", w: 1, p: "3.3 - As câmaras de congelados operam entre -23°C e -18°C?" },
+  { a: "3 – CONTROLE DE TEMPERATURA & EQUIPAMENTOS", cat: "EQUIPAMENTOS", w: 1, p: "3.4 - As geladeiras operam entre 0°C e 4°C?" },
+  { a: "3 – CONTROLE DE TEMPERATURA & EQUIPAMENTOS", cat: "EQUIPAMENTOS", w: 1, p: "3.5 - A câmara de resfriados está dentro do padrão?" },
+  { a: "3 – CONTROLE DE TEMPERATURA & EQUIPAMENTOS", cat: "EQUIPAMENTOS", w: 1, p: "3.6 - Existe planilha de controle de temperatura preenchida diariamente?" },
+  { a: "3 – CONTROLE DE TEMPERATURA & EQUIPAMENTOS", cat: "EQUIPAMENTOS", w: 1, p: "3.7 - Impressoras dos setores estão funcionando corretamente?" },
+  { a: "3 – CONTROLE DE TEMPERATURA & EQUIPAMENTOS", cat: "EQUIPAMENTOS", w: 1, p: "3.8 - Coifas e sistema de exaustão estão limpos e funcionando?" },
+  { a: "3 – CONTROLE DE TEMPERATURA & EQUIPAMENTOS", cat: "EQUIPAMENTOS", w: 1, p: "3.9 - Pias possuem torneiras funcionando, sabonete bactericida e papel toalha?" },
+  { a: "3 – CONTROLE DE TEMPERATURA & EQUIPAMENTOS", cat: "EQUIPAMENTOS", w: 1, p: "3.10 - Os equipamentos possuem manutenção preventiva atualizada?" },
+
+  // SEÇÃO 4
+  { a: "4 – ESTOQUE, ETIQUETAGEM & PVPS", cat: "ESTOQUE", w: 1, p: "4.1 - Todos os produtos fracionados estão corretamente etiquetados (nome, data, validade e responsável)?" },
+  { a: "4 – ESTOQUE, ETIQUETAGEM & PVPS", cat: "ESTOQUE", w: 1, p: "4.2 - O sistema PVPS (Primeiro que Vence, Primeiro que Sai) está sendo respeitado?" },
+  { a: "4 – ESTOQUE, ETIQUETAGEM & PVPS", cat: "ESTOQUE", w: 1, p: "4.3 - As carnes possuem procedência de fornecedores homologados?" },
+  { a: "4 – ESTOQUE, ETIQUETAGEM & PVPS", cat: "ESTOQUE", w: 1, p: "4.4 - O estoque está organizado por categoria?" },
+  { a: "4 – ESTOQUE, ETIQUETAGEM & PVPS", cat: "ESTOQUE", w: 1, p: "4.5 - Produtos estão armazenados fora do chão e afastados da parede?" },
+  { a: "4 – ESTOQUE, ETIQUETAGEM & PVPS", cat: "ESTOQUE", w: 1, p: "4.6 - Existe controle de perdas e descarte registrado?" },
+  { a: "4 – ESTOQUE, ETIQUETAGEM & PVPS", cat: "ESTOQUE", w: 1, p: "4.7 - O volume abastecido está coerente com a projeção de vendas?" },
+
+  // SEÇÃO 5
+  { a: "5 – LIMPEZA & ORGANIZAÇÃO – COZINHA", cat: "LIMPEZA", w: 1, p: "5.1 - O piso está limpo e seco?" },
+  { a: "5 – LIMPEZA & ORGANIZAÇÃO – COZINHA", cat: "LIMPEZA", w: 1, p: "5.2 - Existe limpeza adequada sob equipamentos pesados?" },
+  { a: "5 – LIMPEZA & ORGANIZAÇÃO – COZINHA", cat: "LIMPEZA", w: 1, p: "5.3 - Geladeiras e freezers estão limpos interna e externamente?" },
+  { a: "5 – LIMPEZA & ORGANIZAÇÃO – COZINHA", cat: "LIMPEZA", w: 1, p: "5.4 - Bancadas estão higienizadas corretamente?" },
+  { a: "5 – LIMPEZA & ORGANIZAÇÃO – COZINHA", cat: "LIMPEZA", w: 1, p: "5.5 - Luminárias e telas de proteção estão limpas?" },
+  { a: "5 – LIMPEZA & ORGANIZAÇÃO – COZINHA", cat: "LIMPEZA", w: 1, p: "5.6 - Ralos limpos e sem odores?" },
+  { a: "5 – LIMPEZA & ORGANIZAÇÃO – COZINHA", cat: "LIMPEZA", w: 1, p: "5.7 - Lixeiras com tampa, pedal e identificação correta?" },
+  { a: "5 – LIMPEZA & ORGANIZAÇÃO – COZINHA", cat: "LIMPEZA", w: 1, p: "5.8 - Separação correta entre lixo orgânico e reciclável?" },
+  { a: "5 – LIMPEZA & ORGANIZAÇÃO – COZINHA", cat: "ITEM CRÍTICO", w: 3, p: "5.9 - Ausência de insetos ou vestígios de pragas?" }, // Mantive peso 3 pois é regra de vigilância sanitária crítica
+
+  // SEÇÃO 6
+  { a: "6 – BAR", cat: "OPERAÇÃO", w: 1, p: "6.1 - Geladeiras do bar operam a -4°C?" },
+  { a: "6 – BAR", cat: "OPERAÇÃO", w: 1, p: "6.2 - Organização interna do bar por categoria?" },
+  { a: "6 – BAR", cat: "OPERAÇÃO", w: 1, p: "6.3 - Etiquetas de fracionamento e validade aplicadas corretamente?" },
+  { a: "6 – BAR", cat: "OPERAÇÃO", w: 1, p: "6.4 - Copos higienizados e armazenados corretamente?" },
+  { a: "6 – BAR", cat: "OPERAÇÃO", w: 1, p: "6.5 - Máquina de gelo e pegador de gelo limpos e exclusivos?" },
+  { a: "6 – BAR", cat: "OPERAÇÃO", w: 1, p: "6.6 - Estoque de bebidas organizado e sem garrafas fora do padrão?" },
+
+  // SEÇÃO 7
+  { a: "7 – SALÃO, BANHEIROS & ÁREA EXTERNA", cat: "AMBIENTE", w: 1, p: "7.1 - Salão limpo, organizado e visualmente agradável?" },
+  { a: "7 – SALÃO, BANHEIROS & ÁREA EXTERNA", cat: "AMBIENTE", w: 1, p: "7.2 - Atendimento cordial e postura profissional da equipe?" },
+  { a: "7 – SALÃO, BANHEIROS & ÁREA EXTERNA", cat: "AMBIENTE", w: 1, p: "7.3 - Banheiros limpos, abastecidos e sem odores?" },
+  { a: "7 – SALÃO, BANHEIROS & ÁREA EXTERNA", cat: "AMBIENTE", w: 1, p: "7.4 - Fachada, jardim e estacionamento limpos e conservados?" },
+  { a: "7 – SALÃO, BANHEIROS & ÁREA EXTERNA", cat: "AMBIENTE", w: 1, p: "7.5 - Iluminação interna e externa funcionando corretamente?" },
+  { a: "7 – SALÃO, BANHEIROS & ÁREA EXTERNA", cat: "AMBIENTE", w: 1, p: "7.6 - A unidade está preparada para receber clientes com excelência hoje?" }
+];
+
+/* ====== GERAÇÃO DO HTML DAS PERGUNTAS ====== */
+const content = document.getElementById("checklist-content");
+let currentA = "";
+
+perguntas.forEach((p, i) => {
+  if(p.a !== currentA){
+    const h = document.createElement("div");
+    h.className = "section-h";
+    h.innerText = p.a;
+    content.appendChild(h);
+    currentA = p.a;
+  }
+
+  const c = document.createElement("div");
+  c.className = "card";
+
+  const badgeClass = p.w === 3 ? "badge-3" : "badge-1";
+  const labelPeso = p.w === 3 ? "CRÍTICO (Peso 3)" : "Padrão (Peso 1)";
+  const fieldName = `[${p.a}] Q${i+1}`;
+
+  c.innerHTML = `
+    <div class="q-header">
+      <span>${p.cat}</span>
+      <span class="badge ${badgeClass}">${labelPeso}</span>
+    </div>
+    <div class="q-text">${p.p}</div>
+
+    <input type="hidden" name="P_${i}_Enunciado" value="${p.p}">
+
+    <div class="btn-group">
+      <input type="radio" name="${fieldName}" id="c-${i}" value="CONFORME" onchange="responder(${i}, 'C')">
+      <label for="c-${i}" class="btn-opt opt-c">CONFORME</label>
+
+      <input type="radio" name="${fieldName}" id="nc-${i}" value="NÃO CONFORME" onchange="responder(${i}, 'NC')">
+      <label for="nc-${i}" class="btn-opt opt-nc">NÃO CONF.</label>
+
+      <input type="radio" name="${fieldName}" id="na-${i}" value="NÃO SE APLICA" onchange="responder(${i}, 'NA')">
+      <label for="na-${i}" class="btn-opt opt-na">N/A</label>
+    </div>
+
+    <div id="obs-${i}" class="justificativa-container">
+      <label style="font-size:0.7rem;color:#f00;display:block;margin-bottom:5px;">EXPLICAÇÃO OBRIGATÓRIA DA NÃO CONFORMIDADE:</label>
+      <textarea name="OBS_${fieldName}" class="input-obs" placeholder="Descreva o problema encontrado..."></textarea>
+
+      <div class="input-file-wrapper">
+        <label style="font-size:0.7rem;color:#aaa;">ANEXAR FOTO (OBRIGATÓRIO PARA NÃO CONFORME):</label><br>
+        <input type="file" name="FOTO_${fieldName}" accept="image/*" capture="environment" style="font-size:0.8rem;color:#fff;" onchange="previewImage(this, ${i})">
+        <img id="preview-${i}" class="img-preview" src="" alt="Pré-visualização" />
+      </div>
+    </div>
+  `;
+  content.appendChild(c);
+});
+
+/* ====== CONTROLE VISUAL (3 OPÇÕES) ====== */
+function responder(index, valor){
+  const container = document.getElementById(`obs-${index}`);
+  const btnC = document.querySelector(`label[for="c-${index}"]`);
+  const btnNC = document.querySelector(`label[for="nc-${index}"]`);
+  const btnNA = document.querySelector(`label[for="na-${index}"]`);
+
+  // Reseta todos
+  btnC.classList.remove('active');
+  btnNC.classList.remove('active');
+  btnNA.classList.remove('active');
+
+  if(valor === 'C') {
+    btnC.classList.add('active');
+    container.style.display = 'none';
+    container.querySelector('textarea').required = false;
+  } else if(valor === 'NC') {
+    btnNC.classList.add('active');
+    container.style.display = 'block';
+    container.querySelector('textarea').required = true; // Exige justificativa
+  } else if(valor === 'NA') {
+    btnNA.classList.add('active');
+    container.style.display = 'none';
+    container.querySelector('textarea').required = false;
+  }
+}
+
+/* ====== CANVAS ASSINATURA ====== */
+function setupCanvas(id){
+  const c = document.getElementById(id);
+  const ctx = c.getContext("2d", { willReadFrequently: true });
+
+  const ratio = Math.max(window.devicePixelRatio || 1, 1);
+  const rect = c.getBoundingClientRect();
+  c.width  = Math.round(rect.width  * ratio);
+  c.height = Math.round(rect.height * ratio);
+  c.style.width = rect.width + "px";
+  c.style.height = rect.height + "px";
+  ctx.setTransform(ratio, 0, 0, ratio, 0, 0);
+
+  limparCanvas(id);
+
+  let desenhando = false;
+
+  c.addEventListener("pointerdown", (e) => {
+    desenhando = true;
+    c.setPointerCapture(e.pointerId);
+    ctx.lineWidth = 2;
+    ctx.lineCap = "round";
+    ctx.lineJoin = "round";
+    ctx.strokeStyle = "#000";
+
+    const r = c.getBoundingClientRect();
+    const x = e.clientX - r.left;
+    const y = e.clientY - r.top;
+
+    ctx.beginPath();
+    ctx.moveTo(x, y);
+    e.preventDefault();
+  }, { passive: false });
+
+  c.addEventListener("pointermove", (e) => {
+    if(!desenhando) return;
+    const r = c.getBoundingClientRect();
+    const x = e.clientX - r.left;
+    const y = e.clientY - r.top;
+
+    ctx.lineTo(x, y);
+    ctx.stroke();
+    e.preventDefault();
+  }, { passive: false });
+
+  c.addEventListener("pointerup", () => { desenhando = false; });
+  c.addEventListener("pointercancel", () => { desenhando = false; });
+}
+
+function limparCanvas(id){
+  const c = document.getElementById(id);
+  const ctx = c.getContext("2d");
+  ctx.save();
+  ctx.setTransform(1, 0, 0, 1, 0, 0);
+  ctx.fillStyle = "#ffffff";
+  ctx.fillRect(0, 0, c.width, c.height);
+  ctx.restore();
+  ctx.beginPath(); 
+}
+
+function canvasEstaVazio(id){
+  const c = document.getElementById(id);
+  const blank = document.createElement('canvas');
+  blank.width = c.width; 
+  blank.height = c.height;
+  const blankCtx = blank.getContext("2d");
+  blankCtx.fillStyle = "#ffffff";
+  blankCtx.fillRect(0, 0, blank.width, blank.height);
+  return c.toDataURL() === blank.toDataURL();
+}
+
+setupCanvas("sig-auditor");
+setupCanvas("sig-gerente");
+
+function canvasToBlob(canvasId) {
+    return new Promise((resolve) => {
+        document.getElementById(canvasId).toBlob((blob) => {
+            resolve(blob);
+        }, 'image/jpeg', 0.9);
+    });
+}
+
+/* ====== VALIDAÇÃO, CÁLCULO INTELIGENTE E ENVIO ====== */
+const form = document.getElementById('auditForm');
+
+form.onsubmit = async function(e){
+  e.preventDefault(); 
+
+  const totalP = perguntas.length;
+  // Conta todos os radios que foram clicados
+  const respondidas = document.querySelectorAll('input[type="radio"]:checked').length;
+
+  if(respondidas < totalP){
+    alert(`Você respondeu ${respondidas} de ${totalP} perguntas. É obrigatório marcar Conforme, Não Conforme ou N/A em todas.`);
+    return false;
+  }
+
+  if(canvasEstaVazio('sig-auditor') || canvasEstaVazio('sig-gerente')){
+    alert("As duas assinaturas são obrigatórias.");
+    return false;
+  }
+
+  const btnSubmit = document.getElementById('btn-submit');
+  btnSubmit.innerText = "GERANDO PDF E ENVIANDO... (Aguarde alguns segundos)";
+  btnSubmit.disabled = true;
+
+  try {
+    // 1. Cálculo Inteligente (Ignorando N/A)
+    let pontosPossiveis = 0;
+    let pontosObtidos = 0;
+
+    perguntas.forEach((p, i) => {
+      const radioC = document.getElementById(`c-${i}`);
+      const radioNA = document.getElementById(`na-${i}`);
+
+      // Se marcou N/A, a pergunta sai do cálculo (não penaliza nem ajuda a nota)
+      if(radioNA && radioNA.checked) {
+         // Não faz nada
+      } else {
+         pontosPossiveis += p.w;
+         if(radioC && radioC.checked) {
+             pontosObtidos += p.w;
+         }
+      }
+    });
+
+    let percentual = 100.0;
+    if (pontosPossiveis > 0) {
+       percentual = ((pontosObtidos / pontosPossiveis) * 100).toFixed(1);
+    }
+
+    let selo = "";
+    if(percentual >= 89) selo = "SELO A (APROVADO)";
+    else if(percentual >= 70) selo = "SELO B (ATENÇÃO)";
+    else selo = "SELO C (REPROVADO)";
+
+    document.getElementById('score-total').value = `${pontosObtidos} pontos obtidos de ${pontosPossiveis} válidos`;
+    document.getElementById('score-percent').value = `${percentual}%`;
+    document.getElementById('score-seal').value = selo;
+
+    // 2. Preparar PDF
+    document.querySelectorAll('textarea').forEach(ta => { ta.textContent = ta.value; });
+    document.querySelectorAll('input[type="text"]').forEach(inp => { inp.setAttribute('value', inp.value); });
+    
+    // Seleciona os dropdowns para aparecerem no PDF
+    document.querySelectorAll('select').forEach(sel => {
+        if(sel.selectedIndex >= 0) {
+            sel.options[sel.selectedIndex].setAttribute('selected', 'selected');
+        }
+    });
+
+    window.scrollTo(0, 0);
+    const pdfContainer = document.getElementById('pdf-container');
+    pdfContainer.classList.add('pdf-mode');
+    btnSubmit.style.display = 'none';
+
+    const pdfOptions = {
+      margin:       10,
+      filename:     'Auditoria_Divina.pdf',
+      image:        { type: 'jpeg', quality: 0.95 },
+      html2canvas:  { scale: 1.5, useCORS: true, scrollY: 0, backgroundColor: '#000' },
+      jsPDF:        { unit: 'mm', format: 'a4', orientation: 'portrait' }
+    };
+    
+    const pdfBlob = await html2pdf().set(pdfOptions).from(pdfContainer).output('blob');
+
+    pdfContainer.classList.remove('pdf-mode');
+    btnSubmit.style.display = 'block';
+
+    // 3. Montar Formspree e anexos
+    const formData = new FormData(form);
+    const blobAuditor = await canvasToBlob('sig-auditor');
+    const blobGerente = await canvasToBlob('sig-gerente');
+    
+    formData.append("Assinatura_Auditor", blobAuditor, "assinatura_auditor.jpg");
+    formData.append("Assinatura_Gerente", blobGerente, "assinatura_gerente.jpg");
+    formData.append("Relatorio_PDF", pdfBlob, "Auditoria_Divina.pdf");
+
+    const response = await fetch(form.action, {
+      method: 'POST',
+      body: formData,
+      headers: { 'Accept': 'application/json' }
+    });
+
+    if (response.ok) {
+      alert("Auditoria da Divina enviada com sucesso!");
+      window.scrollTo(0,0);
+      window.location.reload();
+    } else {
+      alert("Ocorreu um erro ao enviar para a central. Verifique a rede.");
+    }
+  } catch (error) {
+    console.error("Erro:", error);
+    alert("Erro ao processar. Tente novamente.");
+  } finally {
+    btnSubmit.innerText = "FINALIZAR E ENVIAR AUDITORIA";
+    btnSubmit.disabled = false;
+    btnSubmit.style.display = 'block';
+    document.getElementById('pdf-container').classList.remove('pdf-mode');
+  }
+};
+</script>
+</body>
+</html>
