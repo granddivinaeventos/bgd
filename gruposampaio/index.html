@@ -140,19 +140,18 @@ function validarAcesso() {
   const input = document.getElementById('master-pass');
   
   if(input.value === SENHA_MESTRE) {
-    // Se acertar a senha, redireciona para o Menu Principal (que agora se chama hub.html)
+    // 👇 ESSA É A MÁGICA: Cria um "crachá" na memória do celular
+    sessionStorage.setItem("gs_acesso_liberado", "SIM");
+    
+    // Redireciona
     window.location.replace("hub.html");
   } else {
     input.classList.remove('error');
-    void input.offsetWidth; // Reinicia a animação
+    void input.offsetWidth;
     input.classList.add('error');
     input.value = '';
     if(navigator.vibrate) navigator.vibrate([100, 50, 100]);
   }
-}
-
-function checkEnter(event) {
-  if (event.key === "Enter") validarAcesso();
 }
 </script>
 
