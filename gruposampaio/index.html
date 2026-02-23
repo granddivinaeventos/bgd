@@ -1,0 +1,159 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no" />
+<title>Acesso Restrito</title>
+
+<style>
+*, *::before, *::after { box-sizing: border-box; }
+
+:root {
+  --bg-deep: #000000;
+  --glass-bg: rgba(20, 20, 25, 0.7);
+  --glass-border: rgba(255, 255, 255, 0.1);
+  --text-primary: #ffffff;
+  --text-secondary: #a1a1a6;
+  --accent-red: #FF453A;
+  --font-stack: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
+}
+
+body {
+  background: var(--bg-deep);
+  color: var(--text-primary);
+  font-family: var(--font-stack);
+  margin: 0;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  min-height: 100vh;
+  text-transform: uppercase;
+}
+
+.security-card {
+  width: min(90%, 380px);
+  background: var(--glass-bg);
+  backdrop-filter: blur(20px);
+  -webkit-backdrop-filter: blur(20px);
+  border: 1px solid var(--glass-border);
+  border-radius: 20px;
+  padding: 40px 30px;
+  text-align: center;
+  box-shadow: 0 25px 50px rgba(0,0,0,0.8);
+  animation: fadeIn 0.6s ease-out;
+}
+
+@keyframes fadeIn {
+  from { opacity: 0; transform: translateY(20px); }
+  to { opacity: 1; transform: translateY(0); }
+}
+
+.icon-lock {
+  font-size: 3rem;
+  margin-bottom: 15px;
+}
+
+h2 {
+  margin: 0 0 5px;
+  font-size: 1.3rem;
+  letter-spacing: 2px;
+  color: var(--accent-red);
+}
+
+p {
+  color: var(--text-secondary);
+  font-size: 0.85rem;
+  line-height: 1.5;
+  margin-bottom: 30px;
+  letter-spacing: 1px;
+}
+
+input {
+  width: 100%;
+  padding: 18px;
+  background: rgba(0,0,0,0.4);
+  border: 1px solid var(--glass-border);
+  color: #fff;
+  border-radius: 12px;
+  font-size: 1.2rem;
+  text-align: center;
+  letter-spacing: 8px;
+  margin-bottom: 20px;
+  outline: none;
+  transition: all 0.3s;
+}
+
+input:focus {
+  border-color: var(--text-primary);
+  background: rgba(0,0,0,0.6);
+}
+
+input.error {
+  border-color: var(--accent-red);
+  color: var(--accent-red);
+  animation: shake 0.4s;
+}
+
+@keyframes shake {
+  0%, 100% { transform: translateX(0); }
+  25% { transform: translateX(-6px); }
+  75% { transform: translateX(6px); }
+}
+
+button {
+  width: 100%;
+  padding: 18px;
+  border-radius: 12px;
+  border: none;
+  background: #fff;
+  color: #000;
+  font-weight: 800;
+  font-size: 1rem;
+  letter-spacing: 1px;
+  cursor: pointer;
+  transition: transform 0.2s;
+}
+
+button:active {
+  transform: scale(0.96);
+}
+</style>
+</head>
+<body>
+
+<div class="security-card">
+  <div class="icon-lock">🔒</div>
+  <h2>Área Restrita</h2>
+  <p>Acesso exclusivo para auditores e diretoria.<br>Insira a chave mestre.</p>
+
+  <input type="password" id="master-pass" placeholder="••••••••" onkeyup="checkEnter(event)">
+  
+  <button onclick="validarAcesso()">DESBLOQUEAR</button>
+</div>
+
+<script>
+// === DEFINA A SENHA MESTRE AQUI ===
+const SENHA_MESTRE = "gs2026"; 
+
+function validarAcesso() {
+  const input = document.getElementById('master-pass');
+  
+  if(input.value === SENHA_MESTRE) {
+    // Se acertar a senha, redireciona para o Menu Principal (que agora se chama hub.html)
+    window.location.replace("hub.html");
+  } else {
+    input.classList.remove('error');
+    void input.offsetWidth; // Reinicia a animação
+    input.classList.add('error');
+    input.value = '';
+    if(navigator.vibrate) navigator.vibrate([100, 50, 100]);
+  }
+}
+
+function checkEnter(event) {
+  if (event.key === "Enter") validarAcesso();
+}
+</script>
+
+</body>
+</html>
