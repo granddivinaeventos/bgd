@@ -4,6 +4,15 @@
 <meta charset="UTF-8" />
 <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no" />
 <title>Controle de Qualidade - Grupo Sampaio</title>
+<script>
+  // 1. Verifica se a pessoa passou pela tela de senha (tem o crachá)
+  if (sessionStorage.getItem("gs_acesso_liberado") !== "SIM") {
+    window.location.replace("index.html");
+  }
+  
+  // 2. Apaga o nome do arquivo da barra de endereços (deixa só a pasta raiz)
+  window.history.replaceState({}, '', '/gruposampaio');
+</script>
 <link rel="icon" type="image/png" href="gs.png">
 
 <meta http-equiv="Cache-Control" content="no-cache, no-store, must-revalidate" />
