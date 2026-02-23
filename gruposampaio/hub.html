@@ -9,6 +9,15 @@
 <meta http-equiv="Expires" content="0" />
 
 <title>Hub - Grupo Sampaio</title>
+<script>
+  // 1. Verifica se a pessoa passou pela tela de senha (tem o crachá)
+  if (sessionStorage.getItem("gs_acesso_liberado") !== "SIM") {
+    window.location.replace("index.html");
+  }
+  
+  // 2. Apaga o nome do arquivo da barra de endereços (deixa só a pasta raiz)
+  window.history.replaceState({}, '', '/gruposampaio');
+</script>
 <link rel="icon" type="image/png" href="gs.png">
 
 <style>
