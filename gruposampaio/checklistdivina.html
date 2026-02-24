@@ -4,26 +4,35 @@
 <meta charset="UTF-8" />
 <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no" />
 <title>Checklist Divina - Grupo Sampaio</title>
-<script>
-  // 1. Bloqueio: Se a pessoa não digitou a senha no início, é expulsa
-  if (sessionStorage.getItem("gs_acesso_liberado") !== "SIM") {
-    window.location.replace("/gruposampaio/"); // Volta pra tela do cadeado
-  }
-  
-  // 2. Máscara: Apaga o nome da página e congela a URL mostrando só a pasta principal
-  window.history.replaceState({}, '', '/gruposampaio/');
-</script>
 
+<script>
+  if (sessionStorage.getItem("gs_acesso_liberado") !== "SIM") {
+    window.location.replace("./"); 
+  }
+  window.history.replaceState({}, '', './');
+</script>
+<link rel="icon" type="image/png" href="gs.png">
 <meta http-equiv="Cache-Control" content="no-cache, no-store, must-revalidate" />
 <meta http-equiv="Pragma" content="no-cache" />
 <meta http-equiv="Expires" content="0" />
-<link rel="icon" type="image/png" href="gs.png">
 
 <script src="https://cdnjs.cloudflare.com/ajax/libs/html2pdf.js/0.10.1/html2pdf.bundle.min.js"></script>
 
 <style>
 *, *::before, *::after { box-sizing: border-box; }
-:root{--bg:#000;--card:#111;--border:#222;--text:#fff;--accent:#fff;--red:#e74c3c;--green:#2ecc71;--gray:#555;}
+:root{
+    --bg:#000;
+    --card:#111;
+    --border:#222;
+    --text:#fff;
+    --accent:#fff;
+    --red:#e74c3c;
+    --green:#2ecc71;
+    --yellow:#f1c40f;
+    --gray:#555;
+    --blue:#0A84FF;
+    --purple:#5E5CE6;
+}
 body{background:var(--bg);color:var(--text);font-family:'Segoe UI',sans-serif;margin:0;padding:20px 20px 120px;}
 .container{max-width:800px;margin:auto;}
 
@@ -33,7 +42,7 @@ body{background:var(--bg);color:var(--text);font-family:'Segoe UI',sans-serif;ma
 .brand-logo{max-height:52px;max-width:220px;object-fit:contain;opacity:0;transition:opacity .35s ease;}
 .brand-logo.show{opacity:1;}
 
-.section-h{background:#1a1a1a;padding:12px;font-size:.85rem;color:#aaa;text-transform:uppercase;margin:30px 0 15px;border-left:4px solid var(--accent);font-weight:bold;}
+.section-h{background:#1a1a1a;padding:12px;font-size:.85rem;color:#aaa;text-transform:uppercase;margin:30px 0 15px;border-left:4px solid var(--yellow);font-weight:bold;letter-spacing:1px;}
 .card{background:var(--card);border:1px solid var(--border);padding:20px;margin-bottom:15px;border-radius:8px;}
 .q-header{display:flex;justify-content:space-between;margin-bottom:10px;font-size:.75rem;color:#666;text-transform:uppercase;}
 .q-text{font-size:.95rem;margin-bottom:15px;line-height:1.4;}
@@ -41,67 +50,66 @@ body{background:var(--bg);color:var(--text);font-family:'Segoe UI',sans-serif;ma
 .badge-1{background:#222;color:#888;}
 .badge-3{background:#400;color:#ffaaaa;border:1px solid var(--red);}
 
-/* BOTÕES DE 3 OPÇÕES (CONFORME, NÃO CONFORME, N/A) */
+/* BOTÕES DE OPÇÃO (3 Estados) */
 .btn-group{display:flex;gap:8px}
 .btn-opt{flex:1;background:#1a1a1a;border:1px solid var(--border);color:#666;padding:12px 5px;cursor:pointer;border-radius:4px;font-weight:bold;transition:all .2s;text-align:center;font-size:0.8rem;}
 .opt-c.active{background:var(--green);color:#fff;border-color:var(--green)}
 .opt-nc.active{background:var(--red);color:#fff;border-color:var(--red)}
 .opt-na.active{background:var(--gray);color:#fff;border-color:var(--gray)}
 
+/* JUSTIFICATIVA */
 .justificativa-container{display:none;margin-top:15px;padding:15px;background:#1a0a0a;border-radius:5px;border:1px solid #400}
 .input-obs{width:100%;padding:12px;background:#000;border:1px solid #444;color:#fff;margin-bottom:10px;border-radius:4px;}
 
-/* BOTÃO DE CÂMERA E PREVIEW */
-.input-file-wrapper{margin-top:10px;border-top:1px dashed #333;padding-top:10px;text-align:center;}
-.btn-camera{width:100%;background:#0A84FF;color:#fff;border:none;padding:12px;border-radius:6px;font-weight:bold;font-size:0.9rem;cursor:pointer;display:flex;align-items:center;justify-content:center;gap:8px;}
+/* FOTOS (CÂMERA E GALERIA) */
+.input-file-wrapper{margin-top:15px;border-top:1px dashed #333;padding-top:15px;text-align:center;}
+.photo-buttons {display: flex; gap: 10px; justify-content: center; margin-bottom: 10px;}
+
+.btn-camera{flex:1; background:var(--blue); color:#fff; border:none; padding:12px; border-radius:6px; font-weight:bold; font-size:0.85rem; cursor:pointer; display:flex; align-items:center; justify-content:center; gap:5px;}
 .btn-camera:active{background:#0066cc;}
-.img-preview{max-width:100%; max-height:300px; margin-top:15px; border-radius:8px; display:none; border:1px solid #333; object-fit:contain; margin-left:auto; margin-right:auto;}
+
+.btn-gallery{flex:1; background:var(--purple); color:#fff; border:none; padding:12px; border-radius:6px; font-weight:bold; font-size:0.85rem; cursor:pointer; display:flex; align-items:center; justify-content:center; gap:5px;}
+.btn-gallery:active{background:#4845b5;}
+
+.img-preview{max-width:100%; max-height:300px; margin-top:10px; border-radius:8px; display:none; border:1px solid #333; object-fit:contain; margin-left:auto; margin-right:auto;}
 .btn-remove-foto{background:transparent;color:var(--red);border:1px solid var(--red);padding:8px;border-radius:4px;margin-top:10px;width:100%;font-weight:bold;cursor:pointer;display:none;}
 
 input[type="text"],select{width:100%;padding:15px;background:#111;border:1px solid #333;color:#fff;margin-bottom:15px;border-radius:5px;}
 
 .btn-finish{width:100%;padding:22px;background:#fff;color:#000;border:none;font-weight:bold;font-size:1rem;border-radius:8px;margin-top:15px;cursor:pointer;}
 .btn-finish:disabled{background:#666;cursor:not-allowed;}
+
 .footer{text-align:center;margin-top:40px;color:#444;font-size:.7rem;letter-spacing:2px}
 .signature-pad{background:#fff;border-radius:4px;width:100%;height:150px;touch-action:none;border:2px solid #333;}
 .btn-clear{background:#333;color:#fff;border:none;padding:8px 15px;font-size:.7rem;margin-top:8px;border-radius:4px;cursor:pointer;}
 input[type="radio"]{display:none;}
 
-/* ===== MODAL DA CÂMERA IN-APP ===== */
-.camera-overlay {
-  position:fixed;inset:0;z-index:999999;background:#000;
-  display:none;flex-direction:column;align-items:center;justify-content:center;
-}
-.camera-video-container {
-  width:100%;flex:1;background:#000;display:flex;align-items:center;justify-content:center;overflow:hidden;
-}
+/* MODAL CÂMERA */
+.camera-overlay {position:fixed;inset:0;z-index:999999;background:#000;display:none;flex-direction:column;align-items:center;justify-content:center;}
+.camera-video-container {width:100%;flex:1;background:#000;display:flex;align-items:center;justify-content:center;overflow:hidden;}
 #camera-video { width:100%; max-height:100%; object-fit:cover; }
-.camera-controls {
-  width:100%;padding:20px;background:#111;display:flex;justify-content:space-around;align-items:center;padding-bottom:40px;
-}
-.btn-cam-capture {
-  width:70px;height:70px;border-radius:50%;background:#fff;border:4px solid #aaa;cursor:pointer;outline:none;
-}
-.btn-cam-capture:active { background:#ccc; transform:scale(0.95); }
+.camera-controls {width:100%;padding:20px;background:#111;display:flex;justify-content:space-around;align-items:center;padding-bottom:40px;}
+.btn-cam-capture {width:70px;height:70px;border-radius:50%;background:#fff;border:4px solid #aaa;cursor:pointer;outline:none;}
 .btn-cam-cancel { color:#fff;background:transparent;border:none;font-size:1rem;font-weight:bold;padding:10px; }
 
-/* ===== TIMESTAMPS INVISÍVEIS (SÓ APARECEM NO PDF) ===== */
 #audit-timer-info { display: none; }
 
-/* ===== WELCOME ===== */
+/* WELCOME */
 .welcome-overlay{position:fixed;inset:0;z-index:9999;background:rgba(0,0,0,.9);display:flex;align-items:center;justify-content:center;padding:18px;}
 .welcome-card{width:min(720px, 100%);background:linear-gradient(180deg,#0f0f0f,#0a0a0a);border:1px solid #222;border-radius:14px;padding:22px;}
-.welcome-top{display:flex;align-items:center;justify-content:center;margin-bottom:12px;}
+.welcome-top{display:flex;align-items:center;justify-content:center;gap:10px;margin-bottom:12px;flex-wrap:wrap;}
+.welcome-logos{display:flex;gap:10px;align-items:center;justify-content:center;flex-wrap:wrap;}
 .welcome-logos img{height:40px;max-width:150px;object-fit:contain;opacity:.9;}
 .welcome-title{margin:8px 0 0;text-align:center;font-size:1.1rem;letter-spacing:1px;}
 .welcome-sub{margin:8px 0 16px;text-align:center;color:#9a9a9a;font-size:.85rem;line-height:1.45;}
 .welcome-actions{display:flex;gap:12px;justify-content:center;flex-wrap:wrap;}
 .btn-primary{padding:14px 18px;border-radius:10px;border:none;background:#fff;color:#000;font-weight:800;cursor:pointer;}
+.btn-ghost{padding:14px 18px;border-radius:10px;border:1px solid #333;background:transparent;color:#ddd;font-weight:700;cursor:pointer;}
 .hidden{display:none !important;}
 
 /* PDF Mode */
 .pdf-mode {background-color: var(--bg) !important;padding: 20px !important;}
-.pdf-mode .btn-clear, .pdf-mode .btn-camera, .pdf-mode .btn-remove-foto { display: none !important; }
+.pdf-mode .btn-clear, .pdf-mode .btn-camera, .pdf-mode .btn-gallery, .pdf-mode .btn-remove-foto { display: none !important; }
 .pdf-mode #audit-timer-info { display: block !important; margin-bottom: 20px; padding: 15px; background: #111; border: 1px solid #333; border-radius: 8px; }
 </style>
 </head>
@@ -115,18 +123,22 @@ input[type="radio"]{display:none;}
   <div class="camera-controls">
     <button class="btn-cam-cancel" onclick="closeCamera()">CANCELAR</button>
     <button class="btn-cam-capture" onclick="takePhoto()"></button>
-    <div style="width:70px;"></div> </div>
+    <div style="width:70px;"></div> 
+  </div>
 </div>
 
 <div id="welcome" class="welcome-overlay">
   <div class="welcome-card">
     <div class="welcome-top">
-      <div class="welcome-logos"><img src="divina.png" alt="Divina" onerror="this.style.display='none'" /></div>
+      <div class="welcome-logos">
+        <img src="divina.png" alt="Divina" onerror="this.style.display='none'" />
+      </div>
     </div>
     <h3 class="welcome-title">CHECKLIST DIVINA</h3>
     <p class="welcome-sub">Auditoria de Padrão, Qualidade e Estrutura.</p>
     <div class="welcome-actions">
       <button class="btn-primary" id="btn-start" type="button">INICIAR AUDITORIA</button>
+      <button class="btn-ghost" type="button" onclick="window.location.replace('./')">VOLTAR AO MENU</button>
     </div>
   </div>
 </div>
@@ -150,8 +162,8 @@ input[type="radio"]{display:none;}
 
     <div class="card" style="border-color:#555">
       <label style="font-size:0.8rem;color:#aaa">DADOS DA AUDITORIA</label><br><br>
-      <input type="text" name="Auditor_Nome" id="nome-auditor" placeholder="NOME DO AUDITOR" required />
-      <select name="Unidade_Loja" id="unidade-loja" required>
+      <input type="text" id="nome-auditor" placeholder="NOME DO AUDITOR" required />
+      <select id="unidade-loja" required>
         <option value="">SELECIONE A UNIDADE DIVINA</option>
         <option value="Divina Meireles">Divina - Meireles</option>
         <option value="Divina Serrinha">Divina - Serrinha</option>
@@ -167,46 +179,43 @@ input[type="radio"]{display:none;}
 
     <div id="checklist-content"></div>
 
-    <div class="section-h">Validação & Assinaturas</div>
+    <div class="section-h">Validação</div>
     <div class="card">
       <p>Assinatura do Auditor</p>
       <canvas id="sig-auditor" class="signature-pad"></canvas>
       <button type="button" class="btn-clear" onclick="limparCanvas('sig-auditor')">LIMPAR</button>
     </div>
     <div class="card">
-      <p>Assinatura do Gerente da Unidade</p>
+      <p>Assinatura do Gerente</p>
       <canvas id="sig-gerente" class="signature-pad"></canvas>
       <button type="button" class="btn-clear" onclick="limparCanvas('sig-gerente')">LIMPAR</button>
     </div>
 
     <div class="card">
       <table style="width:100%; color:#fff; font-size:0.9rem;">
-        <tr><td>Pontuação Válida:</td><td style="text-align:right;"><input type="text" name="Pontuacao_Total" id="score-total" readonly style="border:none; background:transparent; text-align:right; font-weight:bold; width:auto; padding:0; margin:0;" /></td></tr>
-        <tr><td>Aproveitamento:</td><td style="text-align:right;"><input type="text" name="Percentual_Final" id="score-percent" readonly style="border:none; background:transparent; text-align:right; font-weight:bold; width:auto; padding:0; margin:0;" /></td></tr>
-        <tr><td>Selo Final:</td><td style="text-align:right;"><input type="text" name="Resultado_Selo" id="score-seal" readonly style="border:none; background:transparent; text-align:right; font-weight:bold; width:auto; padding:0; margin:0;" /></td></tr>
+        <tr><td>Pontuação Válida:</td><td style="text-align:right;"><input type="text" id="score-total" readonly style="border:none; background:transparent; text-align:right; font-weight:bold; width:auto; padding:0; margin:0;" /></td></tr>
+        <tr><td>Aproveitamento:</td><td style="text-align:right;"><input type="text" id="score-percent" readonly style="border:none; background:transparent; text-align:right; font-weight:bold; width:auto; padding:0; margin:0;" /></td></tr>
+        <tr><td>Selo Final:</td><td style="text-align:right;"><input type="text" id="score-seal" readonly style="border:none; background:transparent; text-align:right; font-weight:bold; width:auto; padding:0; margin:0;" /></td></tr>
       </table>
     </div>
 
-    <button type="submit" class="btn-finish" id="btn-submit">FINALIZAR E ENVIAR AUDITORIA</button>
+    <button type="submit" class="btn-finish" id="btn-submit">ENVIAR AUDITORIA</button>
   </form>
   <div class="footer">GRUPO SAMPAIO • 2026</div>
 </div>
 
 <script>
-// --- VARIÁVEIS GLOBAIS DE CONTROLE ---
 let auditStartTime = null;
 let cameraStream = null;
 let activeQuestionIndex = null;
-let activeFieldName = null;
-const capturedPhotos = {}; // Guarda os blobs das fotos para enviar no formulário
 
-// --- WELCOME E INÍCIO DO TEMPO ---
+// --- WELCOME ---
 document.getElementById("btn-start").addEventListener("click", () => {
   document.getElementById("welcome").classList.add("hidden");
-  auditStartTime = new Date(); // Registra a hora exata que começou
+  auditStartTime = new Date(); 
 });
 
-// --- PERGUNTAS DA DIVINA ---
+// --- PERGUNTAS DIVINA ---
 const perguntas = [
   { a: "2 - COZINHA | PADRÃO DE PRODUÇÃO & FICHA TÉCNICA", cat: "PRODUÇÃO", w: 1, p: "2.1 - O líder de cozinha orienta e cobra o uso rigoroso das fichas técnicas oficiais da Divina?" },
   { a: "2 - COZINHA | PADRÃO DE PRODUÇÃO & FICHA TÉCNICA", cat: "PRODUÇÃO", w: 1, p: "2.2 - As porções servidas estão dentro do padrão de peso estabelecido?" },
@@ -272,247 +281,278 @@ perguntas.forEach((p, i) => {
   const c = document.createElement("div"); c.className = "card";
   const badgeClass = p.w === 3 ? "badge-3" : "badge-1";
   const labelPeso = p.w === 3 ? "CRÍTICO (Peso 3)" : "Padrão (Peso 1)";
-  const fieldName = `[${p.a}] Q${i+1}`;
 
   c.innerHTML = `
     <div class="q-header"><span>${p.cat}</span><span class="badge ${badgeClass}">${labelPeso}</span></div>
     <div class="q-text">${p.p}</div>
-    <input type="hidden" name="P_${i}_Enunciado" value="${p.p}">
     <div class="btn-group">
-      <input type="radio" name="${fieldName}" id="c-${i}" value="CONFORME" onchange="responder(${i}, 'C')">
+      <input type="radio" name="q_${i}" id="c-${i}" value="C" onchange="responder(${i}, 'C')">
       <label for="c-${i}" class="btn-opt opt-c">CONFORME</label>
-      <input type="radio" name="${fieldName}" id="nc-${i}" value="NÃO CONFORME" onchange="responder(${i}, 'NC')">
+      
+      <input type="radio" name="q_${i}" id="nc-${i}" value="NC" onchange="responder(${i}, 'NC')">
       <label for="nc-${i}" class="btn-opt opt-nc">NÃO CONF.</label>
-      <input type="radio" name="${fieldName}" id="na-${i}" value="NÃO SE APLICA" onchange="responder(${i}, 'NA')">
+      
+      <input type="radio" name="q_${i}" id="na-${i}" value="NA" onchange="responder(${i}, 'NA')">
       <label for="na-${i}" class="btn-opt opt-na">N/A</label>
     </div>
+    
     <div id="obs-${i}" class="justificativa-container">
       <label style="font-size:0.7rem;color:#f00;display:block;margin-bottom:5px;">EXPLICAÇÃO OBRIGATÓRIA:</label>
-      <textarea name="OBS_${fieldName}" class="input-obs" placeholder="Descreva o problema encontrado..."></textarea>
-      
-      <div class="input-file-wrapper">
-        <label style="font-size:0.7rem;color:#aaa;">ANEXAR FOTO (OBRIGATÓRIO PARA NÃO CONFORME):</label><br>
-        <button type="button" class="btn-camera" onclick="openCamera(${i}, '${fieldName}')">📷 TIRAR FOTO AQUI</button>
+      <textarea id="ta-${i}" class="input-obs" placeholder="Descreva o problema encontrado..."></textarea>
+    </div>
+
+    <div class="input-file-wrapper">
+        <label style="font-size:0.7rem;color:#aaa;">EVIDÊNCIA (OBRIGATÓRIO SE NÃO CONFORME):</label><br>
+        <div class="photo-buttons">
+            <button type="button" class="btn-camera" onclick="openCamera(${i})">📷 CÂMERA</button>
+            <button type="button" class="btn-gallery" onclick="document.getElementById('gallery-${i}').click()">🖼️ GALERIA</button>
+        </div>
+        
+        <input type="file" id="gallery-${i}" accept="image/*" style="display:none" onchange="processGalleryFile(${i}, this)">
+
         <img id="preview-${i}" class="img-preview" src="" alt="Pré-visualização" />
-        <button type="button" id="remove-foto-${i}" class="btn-remove-foto" onclick="removeFoto(${i}, '${fieldName}')">🗑️ REMOVER FOTO</button>
-      </div>
+        <button type="button" id="remove-foto-${i}" class="btn-remove-foto" onclick="removeFoto(${i})">🗑️ REMOVER FOTO</button>
     </div>
   `;
   content.appendChild(c);
 });
 
-/* ====== LÓGICA DAS 3 OPÇÕES ====== */
 function responder(index, valor){
   const container = document.getElementById(`obs-${index}`);
   const btnC = document.querySelector(`label[for="c-${index}"]`);
   const btnNC = document.querySelector(`label[for="nc-${index}"]`);
   const btnNA = document.querySelector(`label[for="na-${index}"]`);
+  const txtArea = document.getElementById(`ta-${index}`);
 
+  // Reseta classes
   btnC.classList.remove('active'); btnNC.classList.remove('active'); btnNA.classList.remove('active');
 
   if(valor === 'C') {
-    btnC.classList.add('active'); container.style.display = 'none'; container.querySelector('textarea').required = false;
+    btnC.classList.add('active');
+    container.style.display = 'none';
+    txtArea.value = ""; // Limpa justificativa
   } else if(valor === 'NC') {
-    btnNC.classList.add('active'); container.style.display = 'block'; container.querySelector('textarea').required = true;
+    btnNC.classList.add('active');
+    container.style.display = 'block';
   } else if(valor === 'NA') {
-    btnNA.classList.add('active'); container.style.display = 'none'; container.querySelector('textarea').required = false;
+    btnNA.classList.add('active');
+    container.style.display = 'none';
+    txtArea.value = "";
   }
 }
 
-/* ====== SISTEMA DE CÂMERA IN-APP E COMPRESSÃO (WEBP) ====== */
-async function openCamera(index, fieldName) {
+// ===================================
+// SISTEMA DE GALERIA E CÂMERA
+// ===================================
+function processGalleryFile(index, input) {
+    if (input.files && input.files[0]) {
+        const file = input.files[0];
+        const reader = new FileReader();
+        reader.onload = function(e) {
+            const img = new Image();
+            img.onload = function() {
+                const canvas = document.createElement('canvas');
+                let w = img.width, h = img.height;
+                const maxSize = 800;
+                if (w > h) { if (w > maxSize) { h *= maxSize / w; w = maxSize; } } 
+                else { if (h > maxSize) { w *= maxSize / h; h = maxSize; } }
+                canvas.width = w; canvas.height = h;
+                const ctx = canvas.getContext('2d');
+                ctx.drawImage(img, 0, 0, w, h);
+                const dataUrl = canvas.toDataURL('image/webp', 0.6);
+                const preview = document.getElementById(`preview-${index}`);
+                preview.src = dataUrl;
+                preview.style.display = 'block';
+                document.getElementById(`remove-foto-${index}`).style.display = 'block';
+                activeQuestionIndex = index;
+            }
+            img.src = e.target.result;
+        }
+        reader.readAsDataURL(file);
+    }
+}
+
+async function openCamera(index) {
   activeQuestionIndex = index;
-  activeFieldName = fieldName;
   const modal = document.getElementById('camera-modal');
   const video = document.getElementById('camera-video');
   modal.style.display = 'flex';
-
   try {
-    cameraStream = await navigator.mediaDevices.getUserMedia({
-      video: { facingMode: 'environment' }
-    });
+    cameraStream = await navigator.mediaDevices.getUserMedia({ video: { facingMode: 'environment' } });
     video.srcObject = cameraStream;
   } catch (err) {
-    alert("Permissão de câmera negada ou recurso indisponível no navegador. Verifique as configurações do site.");
+    alert("Erro na câmera: " + err.message);
     closeCamera();
   }
 }
 
 function closeCamera() {
-  if (cameraStream) {
-    cameraStream.getTracks().forEach(track => track.stop());
-    cameraStream = null;
-  }
+  if (cameraStream) { cameraStream.getTracks().forEach(track => track.stop()); cameraStream = null; }
   document.getElementById('camera-modal').style.display = 'none';
 }
 
 function takePhoto() {
   const video = document.getElementById('camera-video');
   const canvas = document.createElement('canvas');
-  
-  let w = video.videoWidth;
-  let h = video.videoHeight;
-  if (w > h) { if (w > 600) { h *= 600 / w; w = 600; } } 
-  else { if (h > 600) { w *= 600 / h; h = 600; } }
-  
+  let w = video.videoWidth, h = video.videoHeight;
+  if (w > h) { if (w > 600) { h *= 600 / w; w = 600; } } else { if (h > 600) { w *= 600 / h; h = 600; } }
   canvas.width = w; canvas.height = h;
   const ctx = canvas.getContext('2d');
   ctx.drawImage(video, 0, 0, w, h);
-
-  // Compressão direta em WebP (super leve e suportado universalmente)
   const dataUrl = canvas.toDataURL('image/webp', 0.6); 
-
-  fetch(dataUrl).then(res => res.blob()).then(blob => {
-    capturedPhotos["FOTO_" + activeFieldName] = blob;
-  });
-
   const preview = document.getElementById(`preview-${activeQuestionIndex}`);
   preview.src = dataUrl;
   preview.style.display = 'block';
   document.getElementById(`remove-foto-${activeQuestionIndex}`).style.display = 'block';
-
   closeCamera();
 }
 
-function removeFoto(index, fieldName) {
-  delete capturedPhotos["FOTO_" + fieldName];
+function removeFoto(index) {
+  document.getElementById(`preview-${index}`).src = '';
   document.getElementById(`preview-${index}`).style.display = 'none';
   document.getElementById(`remove-foto-${index}`).style.display = 'none';
+  const fileInput = document.getElementById(`gallery-${index}`);
+  if(fileInput) fileInput.value = "";
 }
 
-/* ====== CANVAS ASSINATURA ====== */
+// ===================================
+// ASSINATURA
+// ===================================
 function setupCanvas(id){
   const c = document.getElementById(id);
   const ctx = c.getContext("2d", { willReadFrequently: true });
   const ratio = Math.max(window.devicePixelRatio || 1, 1);
   const rect = c.getBoundingClientRect();
-  c.width  = Math.round(rect.width  * ratio); c.height = Math.round(rect.height * ratio);
-  c.style.width = rect.width + "px"; c.style.height = rect.height + "px";
+  c.width  = Math.round(rect.width  * ratio);
+  c.height = Math.round(rect.height * ratio);
+  c.style.width = rect.width + "px";
+  c.style.height = rect.height + "px";
   ctx.setTransform(ratio, 0, 0, ratio, 0, 0);
   limparCanvas(id);
   let desenhando = false;
   c.addEventListener("pointerdown", (e) => {
-    desenhando = true; c.setPointerCapture(e.pointerId);
+    desenhando = true;
+    c.setPointerCapture(e.pointerId);
     ctx.lineWidth = 2; ctx.lineCap = "round"; ctx.lineJoin = "round"; ctx.strokeStyle = "#000";
-    ctx.beginPath(); ctx.moveTo(e.clientX - c.getBoundingClientRect().left, e.clientY - c.getBoundingClientRect().top);
+    const r = c.getBoundingClientRect(); 
+    ctx.beginPath(); ctx.moveTo(e.clientX - r.left, e.clientY - r.top);
     e.preventDefault();
   }, { passive: false });
   c.addEventListener("pointermove", (e) => {
     if(!desenhando) return;
-    ctx.lineTo(e.clientX - c.getBoundingClientRect().left, e.clientY - c.getBoundingClientRect().top);
-    ctx.stroke(); e.preventDefault();
+    const r = c.getBoundingClientRect();
+    ctx.lineTo(e.clientX - r.left, e.clientY - r.top);
+    ctx.stroke();
+    e.preventDefault();
   }, { passive: false });
   c.addEventListener("pointerup", () => desenhando = false);
   c.addEventListener("pointercancel", () => desenhando = false);
 }
 function limparCanvas(id){
-  const c = document.getElementById(id);
-  const ctx = c.getContext("2d");
+  const c = document.getElementById(id); const ctx = c.getContext("2d");
   ctx.save(); ctx.setTransform(1, 0, 0, 1, 0, 0); ctx.fillStyle = "#ffffff";
   ctx.fillRect(0, 0, c.width, c.height); ctx.restore(); ctx.beginPath(); 
 }
 function canvasEstaVazio(id){
-  const c = document.getElementById(id);
-  const blank = document.createElement('canvas');
-  blank.width = c.width; blank.height = c.height;
-  const ctx = blank.getContext("2d");
+  const c = document.getElementById(id); const blank = document.createElement('canvas');
+  blank.width = c.width; blank.height = c.height; const ctx = blank.getContext("2d");
   ctx.fillStyle = "#ffffff"; ctx.fillRect(0, 0, blank.width, blank.height);
   return c.toDataURL() === blank.toDataURL();
 }
 setupCanvas("sig-auditor"); setupCanvas("sig-gerente");
-function canvasToBlob(canvasId) {
-    return new Promise((resolve) => { document.getElementById(canvasId).toBlob((blob) => resolve(blob), 'image/jpeg', 0.9); });
-}
 
-/* ====== ENVIO E GERAÇÃO DO PDF ====== */
+// ===================================
+// ENVIO E VALIDAÇÃO (PDF APENAS)
+// ===================================
 const form = document.getElementById('auditForm');
-
 form.onsubmit = async function(e){
   e.preventDefault(); 
   
+  if(document.getElementById('nome-auditor').value.trim() === "" || document.getElementById('unidade-loja').value === "") { alert("Preencha nome e unidade."); return false; }
   const totalP = perguntas.length;
   const respondidas = document.querySelectorAll('input[type="radio"]:checked').length;
   if(respondidas < totalP){ alert(`Responda todas as perguntas.`); return false; }
-  if(canvasEstaVazio('sig-auditor') || canvasEstaVazio('sig-gerente')){ alert("Assinaturas obrigatórias."); return false; }
+  
+  // VALIDAÇÃO RÍGIDA: NÃO CONFORME = JUSTIFICATIVA + FOTO
+  for(let i=0; i<totalP; i++) {
+      const isNC = document.getElementById(`nc-${i}`).checked;
+      const hasText = document.getElementById(`ta-${i}`).value.trim() !== "";
+      const hasPhoto = document.getElementById(`preview-${i}`).src && document.getElementById(`preview-${i}`).style.display !== 'none';
+
+      if(isNC) {
+          if(!hasText) { alert(`Pergunta ${i+1}: Justificativa obrigatória para NÃO CONFORME.`); return false; }
+          if(!hasPhoto) { alert(`Pergunta ${i+1}: Foto obrigatória para NÃO CONFORME.`); return false; }
+      }
+  }
+
+  if(canvasEstaVazio('sig-auditor') || canvasEstaVazio('sig-gerente')){ alert("Assine o documento."); return false; }
 
   const btnSubmit = document.getElementById('btn-submit');
-  btnSubmit.innerText = "GERANDO PDF... (Aguarde)";
+  btnSubmit.innerText = "ENVIANDO...";
   btnSubmit.disabled = true;
 
   try {
-    // --- Lógica do Tempo ---
     const auditEndTime = new Date();
-    const difEmSegundos = Math.floor((auditEndTime - auditStartTime) / 1000);
-    const minutos = Math.floor(difEmSegundos / 60);
-    const segundos = difEmSegundos % 60;
-
+    const dif = Math.floor((auditEndTime - auditStartTime) / 1000);
+    const min = Math.floor(dif / 60); const seg = dif % 60;
+    
     document.getElementById('lbl-start-time').innerText = auditStartTime.toLocaleString('pt-BR');
     document.getElementById('lbl-end-time').innerText = auditEndTime.toLocaleString('pt-BR');
-    document.getElementById('lbl-duration').innerText = `${minutos} minutos e ${segundos} segundos`;
+    document.getElementById('lbl-duration').innerText = `${min}m ${seg}s`;
 
-    // --- Lógica de 3 Opções (Ignorando N/A) ---
-    let pontosPossiveis = 0, pontosObtidos = 0;
+    let ptsPossiveis = 0, ptsObtidos = 0;
     perguntas.forEach((p, i) => {
-      const rC = document.getElementById(`c-${i}`);
-      const rNA = document.getElementById(`na-${i}`);
-      
-      if(rNA && rNA.checked) {
-          // Se marcou N/A, a pergunta sai do cálculo geral
-      } else {
-         pontosPossiveis += p.w;
-         if(rC && rC.checked) pontosObtidos += p.w;
+      const isNA = document.getElementById(`na-${i}`).checked;
+      if(!isNA){
+          ptsPossiveis += p.w;
+          if(document.getElementById(`c-${i}`).checked) ptsObtidos += p.w;
       }
     });
-
-    let percentual = 100.0;
-    if (pontosPossiveis > 0) percentual = ((pontosObtidos / pontosPossiveis) * 100).toFixed(1);
-    let selo = percentual >= 89 ? "SELO A (APROVADO)" : (percentual >= 70 ? "SELO B (ATENÇÃO)" : "SELO C (REPROVADO)");
     
-    document.getElementById('score-total').value = `${pontosObtidos} / ${pontosPossiveis} válidos`;
-    document.getElementById('score-percent').value = `${percentual}%`;
+    let perc = 100.0;
+    if(ptsPossiveis > 0) perc = ((ptsObtidos / ptsPossiveis) * 100).toFixed(1);
+    let selo = perc >= 89 ? "SELO A (APROVADO)" : (perc >= 70 ? "SELO B (ATENÇÃO)" : "SELO C (REPROVADO)");
+    
+    document.getElementById('score-total').value = `${ptsObtidos} / ${ptsPossiveis}`;
+    document.getElementById('score-percent').value = `${perc}%`;
     document.getElementById('score-seal').value = selo;
 
     document.querySelectorAll('textarea').forEach(ta => ta.textContent = ta.value);
     document.querySelectorAll('input[type="text"]').forEach(inp => inp.setAttribute('value', inp.value));
-    document.querySelectorAll('select').forEach(s => { if(s.selectedIndex >= 0) s.options[s.selectedIndex].setAttribute('selected', 'selected'); });
+    document.querySelectorAll('select').forEach(sel => { if(sel.selectedIndex >= 0) sel.options[sel.selectedIndex].setAttribute('selected', 'selected'); });
 
     window.scrollTo(0, 0);
     const pdfContainer = document.getElementById('pdf-container');
-    pdfContainer.classList.add('pdf-mode'); // Isso faz o bloco de TEMPO ficar visível no PDF!
+    pdfContainer.classList.add('pdf-mode'); 
     btnSubmit.style.display = 'none';
 
-    // PDF Otimizado para não travar
     const pdfOptions = {
-      margin: 10, filename: 'Auditoria_Divina.pdf', image: { type: 'jpeg', quality: 0.80 },
+      margin: 5, filename: 'Auditoria_Divina.pdf', image: { type: 'jpeg', quality: 0.85 },
       html2canvas: { scale: 1.0, useCORS: true, scrollY: 0, backgroundColor: '#000' },
       jsPDF: { unit: 'mm', format: 'a4', orientation: 'portrait' }
     };
+    
     const pdfBlob = await html2pdf().set(pdfOptions).from(pdfContainer).output('blob');
 
     pdfContainer.classList.remove('pdf-mode');
     btnSubmit.style.display = 'block';
 
-    // Monta o pacote de dados
-    const formData = new FormData(form);
-    formData.append("Assinatura_Auditor", await canvasToBlob('sig-auditor'), "assinatura_auditor.jpg");
-    formData.append("Assinatura_Gerente", await canvasToBlob('sig-gerente'), "assinatura_gerente.jpg");
-    formData.append("Relatorio_PDF", pdfBlob, "Auditoria_Divina.pdf");
-    
-    // Passa o tempo e duração pro Formspree
-    formData.append("Horario_Inicio", auditStartTime.toLocaleString('pt-BR'));
-    formData.append("Horario_Termino", auditEndTime.toLocaleString('pt-BR'));
-    formData.append("Duracao_Total", `${minutos}m ${segundos}s`);
-
-    // Anexa as fotos capturadas na câmera nativa
-    for (const [key, blob] of Object.entries(capturedPhotos)) {
-        formData.append(key, blob, `${key}.webp`);
-    }
+    const formData = new FormData();
+    formData.append("Auditor", document.getElementById('nome-auditor').value);
+    formData.append("Unidade", document.getElementById('unidade-loja').value);
+    formData.append("Duracao", `${min}m ${seg}s`);
+    formData.append("Arquivo", pdfBlob, "Auditoria_Divina.pdf");
 
     const response = await fetch(form.action, { method: 'POST', body: formData, headers: { 'Accept': 'application/json' }});
-    if (response.ok) { alert("Auditoria enviada com sucesso!"); window.scrollTo(0,0); window.location.reload(); } 
-    else { alert("Erro de rede. A central não recebeu os dados."); }
+    
+    if (response.ok) { 
+        alert("Enviado com sucesso!"); window.scrollTo(0,0); window.location.reload(); 
+    } else { 
+        try { const err = await response.json(); alert("Erro: " + (err.error || response.status)); } 
+        catch(e) { alert("Erro de envio: " + response.status); }
+    }
   } catch (error) {
-    alert("Erro ao processar PDF.");
+    alert("Erro geral: " + error.message);
   } finally {
     btnSubmit.innerText = "FINALIZAR E ENVIAR AUDITORIA";
     btnSubmit.disabled = false;
