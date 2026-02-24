@@ -3,7 +3,7 @@
 <head>
 <meta charset="UTF-8" />
 <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no" />
-<title>Checklist Divina - Grupo Sampaio</title>
+<title>Checklist Divina - Don Tallento</title>
 
 <script>
   if (sessionStorage.getItem("gs_acesso_liberado") !== "SIM") {
@@ -201,7 +201,7 @@ input[type="radio"]{display:none;}
 
     <button type="submit" class="btn-finish" id="btn-submit">ENVIAR AUDITORIA</button>
   </form>
-  <div class="footer">GRUPO SAMPAIO • 2026</div>
+  <div class="footer">GRUPO DON TALLENTO • 2026</div>
 </div>
 
 <script>
@@ -304,8 +304,8 @@ perguntas.forEach((p, i) => {
     <div class="input-file-wrapper">
         <label style="font-size:0.7rem;color:#aaa;">EVIDÊNCIA (OBRIGATÓRIO SE NÃO CONFORME):</label><br>
         <div class="photo-buttons">
-            <button type="button" class="btn-camera" onclick="openCamera(${i})">📷 CÂMERA</button>
-            <button type="button" class="btn-gallery" onclick="document.getElementById('gallery-${i}').click()">🖼️ GALERIA</button>
+            <button type="button" class="btn-camera" onclick="openCamera(${i})">CÂMERA</button>
+            <button type="button" class="btn-gallery" onclick="document.getElementById('gallery-${i}').click()">GALERIA</button>
         </div>
         
         <input type="file" id="gallery-${i}" accept="image/*" style="display:none" onchange="processGalleryFile(${i}, this)">
