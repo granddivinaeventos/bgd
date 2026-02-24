@@ -48,7 +48,7 @@ body{background:var(--bg);color:var(--text);font-family:'Segoe UI',sans-serif;ma
 .input-obs{width:100%;padding:12px;background:#000;border:1px solid #444;color:#fff;margin-bottom:10px;border-radius:4px;}
 
 /* BOTÕES DE FOTO (CÂMERA E GALERIA) */
-.input-file-wrapper{margin-top:10px;border-top:1px dashed #333;padding-top:10px;text-align:center;}
+.input-file-wrapper{margin-top:15px;border-top:1px dashed #333;padding-top:15px;text-align:center;}
 .photo-buttons {display: flex; gap: 10px; justify-content: center; margin-bottom: 10px;}
 
 .btn-camera{flex:1; background:var(--blue); color:#fff; border:none; padding:12px; border-radius:6px; font-weight:bold; font-size:0.85rem; cursor:pointer; display:flex; align-items:center; justify-content:center; gap:5px;}
@@ -346,12 +346,14 @@ perguntas.forEach((p, i) => {
       <input type="radio" name="q_${i}" id="nao-${i}" value="NÃO" onchange="responder(${i}, false)">
       <label for="nao-${i}" class="btn-opt">NÃO</label>
     </div>
+    
     <div id="obs-${i}" class="justificativa-container">
       <label style="font-size:0.7rem;color:#f00;display:block;margin-bottom:5px;">EXPLICAÇÃO OBRIGATÓRIA:</label>
       <textarea id="ta-${i}" class="input-obs" placeholder="Descreva a não conformidade..."></textarea>
-      
-      <div class="input-file-wrapper">
-        <label style="font-size:0.7rem;color:#aaa;">ANEXAR FOTO (OPCIONAL):</label><br>
+    </div>
+
+    <div class="input-file-wrapper">
+        <label style="font-size:0.7rem;color:#aaa;">EVIDÊNCIA (FOTO OBRIGATÓRIA SE "NÃO"):</label><br>
         <div class="photo-buttons">
             <button type="button" class="btn-camera" onclick="openCamera(${i})">📷 CÂMERA</button>
             <button type="button" class="btn-gallery" onclick="document.getElementById('gallery-${i}').click()">🖼️ GALERIA</button>
@@ -361,7 +363,6 @@ perguntas.forEach((p, i) => {
 
         <img id="preview-${i}" class="img-preview" src="" alt="Pré-visualização da imagem" />
         <button type="button" id="remove-foto-${i}" class="btn-remove-foto" onclick="removeFoto(${i})">🗑️ REMOVER FOTO</button>
-      </div>
     </div>
   `;
   content.appendChild(c);
@@ -376,6 +377,7 @@ function responder(index, isSim){
   if(isSim){
     btnSim.classList.add('active-sim');
     btnNao.classList.remove('active-nao');
+    // Esconde só a justificativa de texto, mas a foto continua lá embaixo
     container.style.display = 'none';
     txtArea.value = ""; 
   }else{
@@ -396,12 +398,9 @@ function processGalleryFile(index, input) {
         reader.onload = function(e) {
             const img = new Image();
             img.onload = function() {
-                // Criar canvas para redimensionar (evitar arquivo gigante)
                 const canvas = document.createElement('canvas');
                 let w = img.width;
                 let h = img.height;
-                
-                // Redimensionar para max 800px (Seguro para PDF)
                 const maxSize = 800;
                 if (w > h) { if (w > maxSize) { h *= maxSize / w; w = maxSize; } } 
                 else { if (h > maxSize) { w *= maxSize / h; h = maxSize; } }
@@ -410,16 +409,13 @@ function processGalleryFile(index, input) {
                 canvas.height = h;
                 const ctx = canvas.getContext('2d');
                 ctx.drawImage(img, 0, 0, w, h);
-                
-                // Comprimir para WebP 0.6
                 const dataUrl = canvas.toDataURL('image/webp', 0.6);
                 
-                // Mostrar preview
                 const preview = document.getElementById(`preview-${index}`);
                 preview.src = dataUrl;
                 preview.style.display = 'block';
                 document.getElementById(`remove-foto-${index}`).style.display = 'block';
-                activeQuestionIndex = index; // Armazena índice ativo
+                activeQuestionIndex = index;
             }
             img.src = e.target.result;
         }
@@ -469,7 +465,6 @@ function removeFoto(index) {
   document.getElementById(`preview-${index}`).src = '';
   document.getElementById(`preview-${index}`).style.display = 'none';
   document.getElementById(`remove-foto-${index}`).style.display = 'none';
-  // Limpa o input de arquivo caso seja galeria, pra poder selecionar o mesmo se quiser
   const fileInput = document.getElementById(`gallery-${index}`);
   if(fileInput) fileInput.value = "";
 }
@@ -523,6 +518,9 @@ function canvasEstaVazio(id){
 }
 setupCanvas("sig-auditor"); setupCanvas("sig-gerente");
 
+// ===================================
+// ENVIO E VALIDAÇÃO (PDF APENAS)
+// ===================================
 const form = document.getElementById('auditForm');
 form.onsubmit = async function(e){
   e.preventDefault(); 
@@ -532,11 +530,18 @@ form.onsubmit = async function(e){
   const respondidas = document.querySelectorAll('input[type="radio"]:checked').length;
   if(respondidas < totalP){ alert(`Responda todas as perguntas.`); return false; }
   
+  // VALIDAÇÃO RÍGIDA: NÃO = JUSTIFICATIVA + FOTO
   for(let i=0; i<totalP; i++) {
-      if(document.getElementById(`nao-${i}`).checked && document.getElementById(`ta-${i}`).value.trim() === "") {
-          alert(`Justifique o NÃO na pergunta ${i+1}.`); return false;
+      const isNao = document.getElementById(`nao-${i}`).checked;
+      const hasText = document.getElementById(`ta-${i}`).value.trim() !== "";
+      const hasPhoto = document.getElementById(`preview-${i}`).src && document.getElementById(`preview-${i}`).style.display !== 'none';
+
+      if(isNao) {
+          if(!hasText) { alert(`Pergunta ${i+1}: Justificativa obrigatória para NÃO CONFORME.`); return false; }
+          if(!hasPhoto) { alert(`Pergunta ${i+1}: Foto obrigatória para NÃO CONFORME.`); return false; }
       }
   }
+
   if(canvasEstaVazio('sig-auditor') || canvasEstaVazio('sig-gerente')){ alert("Assine o documento."); return false; }
 
   const btnSubmit = document.getElementById('btn-submit');
