@@ -47,18 +47,21 @@ body{background:var(--bg);color:var(--text);font-family:'Segoe UI',sans-serif;ma
 .justificativa-container{display:none;margin-top:15px;padding:15px;background:#1a0a0a;border-radius:5px;border:1px solid #400}
 .input-obs{width:100%;padding:12px;background:#000;border:1px solid #444;color:#fff;margin-bottom:10px;border-radius:4px;}
 
-/* BOTÕES DE FOTO (CÂMERA E GALERIA) */
+/* BOTÕES DE FOTO E GALERIA MULTIPLAS */
 .input-file-wrapper{margin-top:15px;border-top:1px dashed #333;padding-top:15px;text-align:center;}
 .photo-buttons {display: flex; gap: 10px; justify-content: center; margin-bottom: 10px;}
 
-.btn-camera{flex:1; background:var(--blue); color:#fff; border:none; padding:12px; border-radius:6px; font-weight:bold; font-size:0.85rem; cursor:pointer; display:flex; align-items:center; justify-content:center; gap:5px;}
+.btn-camera{flex:1; background:var(--blue); color:#fff; border:none; padding:12px; border-radius:6px; font-weight:bold; font-size:0.85rem; cursor:pointer; display:flex; align-items:center; justify-content:center; gap:8px;}
 .btn-camera:active{background:#0066cc;}
 
-.btn-gallery{flex:1; background:var(--purple); color:#fff; border:none; padding:12px; border-radius:6px; font-weight:bold; font-size:0.85rem; cursor:pointer; display:flex; align-items:center; justify-content:center; gap:5px;}
+.btn-gallery{flex:1; background:var(--purple); color:#fff; border:none; padding:12px; border-radius:6px; font-weight:bold; font-size:0.85rem; cursor:pointer; display:flex; align-items:center; justify-content:center; gap:8px;}
 .btn-gallery:active{background:#4845b5;}
 
-.img-preview{max-width:100%; max-height:300px; margin-top:10px; border-radius:8px; display:none; border:1px solid #333; object-fit:contain; margin-left:auto; margin-right:auto;}
-.btn-remove-foto{background:transparent;color:var(--red);border:1px solid var(--red);padding:8px;border-radius:4px;margin-top:10px;width:100%;font-weight:bold;cursor:pointer;display:none;}
+.photo-gallery-container { display: flex; flex-wrap: wrap; gap: 10px; margin-top: 15px; justify-content: flex-start; }
+.photo-item { position: relative; width: calc(50% - 5px); display: flex; flex-direction: column; gap: 5px; }
+.img-preview{width:100%; height:140px; border-radius:8px; border:1px solid #333; object-fit:cover; background:#000; display:block;}
+.btn-remove-foto{background:transparent; color:var(--red); border:1px solid var(--red); padding:8px; border-radius:4px; font-weight:bold; cursor:pointer; display:flex; align-items:center; justify-content:center; gap:5px; width:100%; font-size:0.75rem;}
+.btn-remove-foto:active{background:rgba(231, 76, 60, 0.1);}
 
 input[type="text"],select{width:100%;padding:15px;background:#111;border:1px solid #333;color:#fff;margin-bottom:15px;border-radius:5px;}
 
@@ -200,7 +203,7 @@ input[type="radio"]{display:none;}
 let auditStartTime = null;
 let cameraStream = null;
 let activeQuestionIndex = null;
-const capturedPhotos = {}; 
+const capturedPhotos = {}; // Agora armazenará arrays de base64 por pergunta
 
 const brandLogos = { divina: "divina.png", opy: "opy.png", cheppitos: "cheppitos.png", fornelle: "fornelle.png" };
 const unidadeSelect = document.getElementById("unidade-loja");
@@ -355,14 +358,19 @@ perguntas.forEach((p, i) => {
     <div class="input-file-wrapper">
         <label style="font-size:0.7rem;color:#aaa;">EVIDÊNCIA (FOTO OBRIGATÓRIA SE "NÃO"):</label><br>
         <div class="photo-buttons">
-            <button type="button" class="btn-camera" onclick="openCamera(${i})">CÂMERA</button>
-            <button type="button" class="btn-gallery" onclick="document.getElementById('gallery-${i}').click()">GALERIA</button>
+            <button type="button" class="btn-camera" onclick="openCamera(${i})">
+              <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M23 19a2 2 0 0 1-2 2H3a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2h4l2-3h6l2 3h4a2 2 0 0 1 2 2z"></path><circle cx="12" cy="13" r="4"></circle></svg>
+              CÂMERA
+            </button>
+            <button type="button" class="btn-gallery" onclick="document.getElementById('gallery-${i}').click()">
+              <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="3" width="18" height="18" rx="2" ry="2"></rect><circle cx="8.5" cy="8.5" r="1.5"></circle><polyline points="21 15 16 10 5 21"></polyline></svg>
+              GALERIA
+            </button>
         </div>
         
-        <input type="file" id="gallery-${i}" accept="image/*" style="display:none" onchange="processGalleryFile(${i}, this)">
+        <input type="file" id="gallery-${i}" accept="image/*" multiple style="display:none" onchange="processGalleryFile(${i}, this)">
 
-        <img id="preview-${i}" class="img-preview" src="" alt="Pré-visualização da imagem" />
-        <button type="button" id="remove-foto-${i}" class="btn-remove-foto" onclick="removeFoto(${i})">🗑️ REMOVER FOTO</button>
+        <div id="photo-gallery-${i}" class="photo-gallery-container"></div>
     </div>
   `;
   content.appendChild(c);
@@ -377,7 +385,7 @@ function responder(index, isSim){
   if(isSim){
     btnSim.classList.add('active-sim');
     btnNao.classList.remove('active-nao');
-    // Esconde só a justificativa de texto, mas a foto continua lá embaixo
+    // Esconde a justificativa de texto, mas a área de fotos continua lá embaixo
     container.style.display = 'none';
     txtArea.value = ""; 
   }else{
@@ -388,38 +396,70 @@ function responder(index, isSim){
 }
 
 // ===================================
-// SISTEMA DE GALERIA (COM COMPRESSÃO)
+// SISTEMA DE GALERIA E FOTOS MÚLTIPLAS
 // ===================================
+
+// Adiciona foto ao array da pergunta
+function addPhoto(index, dataUrl) {
+  if (!capturedPhotos[index]) capturedPhotos[index] = [];
+  capturedPhotos[index].push(dataUrl);
+  renderPhotos(index);
+}
+
+// Remove uma foto específica
+function removePhoto(qIndex, pIndex) {
+  capturedPhotos[qIndex].splice(pIndex, 1);
+  renderPhotos(qIndex);
+}
+
+// Atualiza a exibição das fotos na interface
+function renderPhotos(index) {
+  const container = document.getElementById(`photo-gallery-${index}`);
+  container.innerHTML = '';
+  if (!capturedPhotos[index]) return;
+
+  capturedPhotos[index].forEach((dataUrl, pIndex) => {
+    const item = document.createElement('div');
+    item.className = 'photo-item';
+    item.innerHTML = `
+        <img class="img-preview" src="${dataUrl}" alt="Evidência" />
+        <button type="button" class="btn-remove-foto" onclick="removePhoto(${index}, ${pIndex})">
+            <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="3 6 5 6 21 6"></polyline><path d="M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6m3 0V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2"></path><line x1="10" y1="11" x2="10" y2="17"></line><line x1="14" y1="11" x2="14" y2="17"></line></svg>
+            REMOVER
+        </button>
+    `;
+    container.appendChild(item);
+  });
+}
+
 function processGalleryFile(index, input) {
-    if (input.files && input.files[0]) {
-        const file = input.files[0];
-        const reader = new FileReader();
-        
-        reader.onload = function(e) {
-            const img = new Image();
-            img.onload = function() {
-                const canvas = document.createElement('canvas');
-                let w = img.width;
-                let h = img.height;
-                const maxSize = 800;
-                if (w > h) { if (w > maxSize) { h *= maxSize / w; w = maxSize; } } 
-                else { if (h > maxSize) { w *= maxSize / h; h = maxSize; } }
-                
-                canvas.width = w;
-                canvas.height = h;
-                const ctx = canvas.getContext('2d');
-                ctx.drawImage(img, 0, 0, w, h);
-                const dataUrl = canvas.toDataURL('image/webp', 0.6);
-                
-                const preview = document.getElementById(`preview-${index}`);
-                preview.src = dataUrl;
-                preview.style.display = 'block';
-                document.getElementById(`remove-foto-${index}`).style.display = 'block';
-                activeQuestionIndex = index;
+    if (input.files && input.files.length > 0) {
+        Array.from(input.files).forEach(file => {
+            const reader = new FileReader();
+            reader.onload = function(e) {
+                const img = new Image();
+                img.onload = function() {
+                    const canvas = document.createElement('canvas');
+                    let w = img.width;
+                    let h = img.height;
+                    const maxSize = 800;
+                    if (w > h) { if (w > maxSize) { h *= maxSize / w; w = maxSize; } } 
+                    else { if (h > maxSize) { w *= maxSize / h; h = maxSize; } }
+                    
+                    canvas.width = w;
+                    canvas.height = h;
+                    const ctx = canvas.getContext('2d');
+                    ctx.drawImage(img, 0, 0, w, h);
+                    const dataUrl = canvas.toDataURL('image/webp', 0.6);
+                    
+                    addPhoto(index, dataUrl);
+                }
+                img.src = e.target.result;
             }
-            img.src = e.target.result;
-        }
-        reader.readAsDataURL(file);
+            reader.readAsDataURL(file);
+        });
+        // Reseta o input para permitir selecionar o mesmo arquivo/lote novamente
+        input.value = "";
     }
 }
 
@@ -454,19 +494,9 @@ function takePhoto() {
   const ctx = canvas.getContext('2d');
   ctx.drawImage(video, 0, 0, w, h);
   const dataUrl = canvas.toDataURL('image/webp', 0.6); 
-  const preview = document.getElementById(`preview-${activeQuestionIndex}`);
-  preview.src = dataUrl;
-  preview.style.display = 'block';
-  document.getElementById(`remove-foto-${activeQuestionIndex}`).style.display = 'block';
+  
+  addPhoto(activeQuestionIndex, dataUrl);
   closeCamera();
-}
-
-function removeFoto(index) {
-  document.getElementById(`preview-${index}`).src = '';
-  document.getElementById(`preview-${index}`).style.display = 'none';
-  document.getElementById(`remove-foto-${index}`).style.display = 'none';
-  const fileInput = document.getElementById(`gallery-${index}`);
-  if(fileInput) fileInput.value = "";
 }
 
 // ===================================
@@ -519,7 +549,7 @@ function canvasEstaVazio(id){
 setupCanvas("sig-auditor"); setupCanvas("sig-gerente");
 
 // ===================================
-// ENVIO E VALIDAÇÃO (PDF APENAS)
+// ENVIO E VALIDAÇÃO
 // ===================================
 const form = document.getElementById('auditForm');
 form.onsubmit = async function(e){
@@ -530,15 +560,15 @@ form.onsubmit = async function(e){
   const respondidas = document.querySelectorAll('input[type="radio"]:checked').length;
   if(respondidas < totalP){ alert(`Responda todas as perguntas.`); return false; }
   
-  // VALIDAÇÃO RÍGIDA: NÃO = JUSTIFICATIVA + FOTO
+  // VALIDAÇÃO RÍGIDA: NÃO = JUSTIFICATIVA + PELO MENOS 1 FOTO
   for(let i=0; i<totalP; i++) {
       const isNao = document.getElementById(`nao-${i}`).checked;
       const hasText = document.getElementById(`ta-${i}`).value.trim() !== "";
-      const hasPhoto = document.getElementById(`preview-${i}`).src && document.getElementById(`preview-${i}`).style.display !== 'none';
+      const hasPhoto = capturedPhotos[i] && capturedPhotos[i].length > 0;
 
       if(isNao) {
           if(!hasText) { alert(`Pergunta ${i+1}: Justificativa obrigatória para NÃO CONFORME.`); return false; }
-          if(!hasPhoto) { alert(`Pergunta ${i+1}: Foto obrigatória para NÃO CONFORME.`); return false; }
+          if(!hasPhoto) { alert(`Pergunta ${i+1}: Ao menos UMA foto é obrigatória para NÃO CONFORME.`); return false; }
       }
   }
 
