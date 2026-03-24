@@ -6,7 +6,7 @@
 <title>Controle de Qualidade - Don Tallento</title>
 <script>
   if (sessionStorage.getItem("gs_acesso_liberado") !== "SIM") {
-    window.location.replace("./"); 
+    // window.location.replace("./");  // Descomente em produção
   }
   window.history.replaceState({}, '', './');
 </script>
@@ -19,98 +19,274 @@
 <script src="https://cdnjs.cloudflare.com/ajax/libs/html2pdf.js/0.10.1/html2pdf.bundle.min.js"></script>
 
 <style>
+/* =========================================
+   APPLE-LIKE THEME VARIABLES
+   ========================================= */
+:root {
+  /* Light Theme */
+  --bg-body: #F2F2F7;
+  --bg-card: #FFFFFF;
+  --bg-section: #E5E5EA;
+  --text-main: #000000;
+  --text-muted: #8E8E93;
+  --border-color: #E5E5EA;
+  
+  /* Apple Colors */
+  --ios-blue: #007AFF;
+  --ios-green: #34C759;
+  --ios-red: #FF3B30;
+  --ios-gray: #8E8E93;
+  --ios-orange: #FF9500;
+  
+  --shadow-card: 0 4px 12px rgba(0, 0, 0, 0.05);
+  --radius-card: 16px;
+  --radius-btn: 10px;
+}
+
+[data-theme="dark"] {
+  /* Dark Theme */
+  --bg-body: #000000;
+  --bg-card: #1C1C1E;
+  --bg-section: #2C2C2E;
+  --text-main: #FFFFFF;
+  --text-muted: #EBEBF599;
+  --border-color: #38383A;
+  --shadow-card: 0 4px 20px rgba(0, 0, 0, 0.4);
+}
+
 *, *::before, *::after { box-sizing: border-box; }
-:root{--bg:#000;--card:#111;--border:#222;--text:#fff;--accent:#fff;--red:#e74c3c;--green:#2ecc71;--blue:#0A84FF;--purple:#5E5CE6;}
-body{background:var(--bg);color:var(--text);font-family:'Segoe UI',sans-serif;margin:0;padding:20px 20px 120px;}
-.container{max-width:800px;margin:auto;}
+
+body {
+  background: var(--bg-body);
+  color: var(--text-main);
+  font-family: -apple-system, BlinkMacSystemFont, "SF Pro Text", "Helvetica Neue", Helvetica, Arial, sans-serif;
+  -webkit-font-smoothing: antialiased;
+  margin: 0;
+  padding: 20px 20px 120px;
+  transition: background-color 0.3s ease, color 0.3s ease;
+}
+
+.container { max-width: 800px; margin: auto; position: relative; }
+
+/* Theme Toggle Button */
+.theme-toggle {
+  position: absolute;
+  top: 10px;
+  right: 0;
+  background: var(--bg-card);
+  border: 1px solid var(--border-color);
+  color: var(--text-main);
+  padding: 10px;
+  border-radius: 50%;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  box-shadow: var(--shadow-card);
+  transition: 0.2s;
+  z-index: 100;
+}
+.theme-toggle:active { transform: scale(0.9); }
 
 /* HEADER */
-.header{text-align:center;padding:20px 0;border-bottom:1px solid var(--border);margin-bottom:20px;}
-.brand-slot{display:flex;align-items:center;justify-content:center;gap:14px;margin-bottom:12px;min-height:56px;}
-.brand-logo{max-height:52px;max-width:220px;object-fit:contain;opacity:0;transition:opacity .35s ease;}
-.brand-logo.show{opacity:1;}
+.header { text-align: center; padding: 20px 0; border-bottom: 1px solid var(--border-color); margin-bottom: 24px; }
+.brand-slot { display: flex; align-items: center; justify-content: center; gap: 14px; margin-bottom: 12px; min-height: 56px; }
+.brand-logo { max-height: 52px; max-width: 220px; object-fit: contain; opacity: 0; transition: opacity .35s ease; }
+.brand-logo.show { opacity: 1; }
+.header h2 { font-weight: 700; font-size: 1.4rem; margin: 0 0 5px; letter-spacing: -0.5px; }
+.header p { color: var(--text-muted); font-size: 0.75rem; letter-spacing: 1.5px; font-weight: 600; margin: 0; }
 
-.section-h{background:#1a1a1a;padding:12px;font-size:.85rem;color:#aaa;text-transform:uppercase;margin:30px 0 15px;border-left:4px solid var(--accent);font-weight:bold;}
-.card{background:var(--card);border:1px solid var(--border);padding:20px;margin-bottom:15px;border-radius:8px;}
-.q-header{display:flex;justify-content:space-between;margin-bottom:10px;font-size:.75rem;color:#666;text-transform:uppercase;}
-.q-text{font-size:.95rem;margin-bottom:15px;line-height:1.4;}
-.badge{padding:2px 6px;border-radius:4px;font-weight:bold;}
-.badge-1{background:#222;color:#888;}
-.badge-2{background:#333;color:#aaa;border:1px solid #555;}
-.badge-3{background:#400;color:#ffaaaa;border:1px solid var(--red);}
+.section-h { 
+  background: transparent; 
+  padding: 10px 0; 
+  font-size: 0.85rem; 
+  color: var(--text-muted); 
+  text-transform: uppercase; 
+  margin: 30px 0 10px; 
+  font-weight: 700; 
+  letter-spacing: 1px; 
+  border-bottom: 1px solid var(--border-color);
+}
 
-.btn-group{display:flex;gap:10px}
-.btn-opt{flex:1;background:#1a1a1a;border:1px solid var(--border);color:#666;padding:12px;cursor:pointer;border-radius:4px;font-weight:bold;transition:all .2s;text-align:center;}
-.active-sim{background:var(--green);color:#fff;border-color:var(--green)}
-.active-nao{background:var(--red);color:#fff;border-color:var(--red)}
+.card { 
+  background: var(--bg-card); 
+  border: 1px solid var(--border-color); 
+  padding: 20px; 
+  margin-bottom: 16px; 
+  border-radius: var(--radius-card); 
+  box-shadow: var(--shadow-card);
+  transition: background-color 0.3s, border-color 0.3s;
+}
 
-.justificativa-container{display:none;margin-top:15px;padding:15px;background:#1a0a0a;border-radius:5px;border:1px solid #400}
-.input-obs{width:100%;padding:12px;background:#000;border:1px solid #444;color:#fff;margin-bottom:10px;border-radius:4px;}
+.q-header { display: flex; justify-content: space-between; margin-bottom: 12px; font-size: 0.75rem; color: var(--text-muted); text-transform: uppercase; font-weight: 700; }
+.q-text { font-size: 1.05rem; margin-bottom: 16px; line-height: 1.5; font-weight: 500; }
 
-/* BOTÕES DE FOTO E GALERIA MULTIPLAS */
-.input-file-wrapper{margin-top:15px;border-top:1px dashed #333;padding-top:15px;text-align:center;}
-.photo-buttons {display: flex; gap: 10px; justify-content: center; margin-bottom: 10px;}
+/* Badges */
+.badge { padding: 4px 8px; border-radius: 6px; font-weight: 700; font-size: 0.7rem; }
+.badge-1 { background: var(--bg-section); color: var(--text-muted); }
+.badge-2 { background: rgba(255, 149, 0, 0.15); color: var(--ios-orange); border: 1px solid rgba(255, 149, 0, 0.3); }
+.badge-3 { background: rgba(255, 59, 48, 0.15); color: var(--ios-red); border: 1px solid rgba(255, 59, 48, 0.3); }
 
-.btn-camera{flex:1; background:var(--blue); color:#fff; border:none; padding:12px; border-radius:6px; font-weight:bold; font-size:0.85rem; cursor:pointer; display:flex; align-items:center; justify-content:center; gap:8px;}
-.btn-camera:active{background:#0066cc;}
+/* iOS Segmented Control Style for Buttons */
+.btn-group { 
+  display: flex; 
+  background: var(--bg-body); 
+  padding: 4px; 
+  border-radius: 12px; 
+  gap: 4px; 
+  border: 1px solid var(--border-color);
+}
+.btn-opt { 
+  flex: 1; 
+  background: transparent; 
+  color: var(--text-muted); 
+  padding: 12px 5px; 
+  cursor: pointer; 
+  border-radius: 8px; 
+  font-weight: 600; 
+  transition: all 0.25s cubic-bezier(0.25, 0.8, 0.25, 1); 
+  text-align: center; 
+  font-size: 0.85rem; 
+}
+.opt-sim.active { background: var(--ios-green); color: #fff; box-shadow: 0 2px 8px rgba(52, 199, 89, 0.4); }
+.opt-nao.active { background: var(--ios-red); color: #fff; box-shadow: 0 2px 8px rgba(255, 59, 48, 0.4); }
+.opt-na.active { background: var(--ios-gray); color: #fff; box-shadow: 0 2px 8px rgba(142, 142, 147, 0.4); }
 
-.btn-gallery{flex:1; background:var(--purple); color:#fff; border:none; padding:12px; border-radius:6px; font-weight:bold; font-size:0.85rem; cursor:pointer; display:flex; align-items:center; justify-content:center; gap:8px;}
-.btn-gallery:active{background:#4845b5;}
+/* Inputs and Textareas */
+.justificativa-container { display: none; margin-top: 15px; padding: 15px; background: rgba(255, 59, 48, 0.05); border-radius: 12px; border: 1px solid rgba(255, 59, 48, 0.3); }
+.input-obs, input[type="text"], select { 
+  width: 100%; 
+  padding: 14px; 
+  background: var(--bg-body); 
+  border: 1px solid var(--border-color); 
+  color: var(--text-main); 
+  margin-bottom: 10px; 
+  border-radius: 10px; 
+  font-family: inherit; 
+  font-size: 1rem;
+  transition: border 0.3s;
+}
+.input-obs:focus, input[type="text"]:focus, select:focus { outline: none; border-color: var(--ios-blue); }
 
-.photo-gallery-container { display: flex; flex-wrap: wrap; gap: 10px; margin-top: 15px; justify-content: flex-start; }
-.photo-item { position: relative; width: calc(50% - 5px); display: flex; flex-direction: column; gap: 5px; }
-.img-preview{width:100%; height:140px; border-radius:8px; border:1px solid #333; object-fit:cover; background:#000; display:block;}
-.btn-remove-foto{background:transparent; color:var(--red); border:1px solid var(--red); padding:8px; border-radius:4px; font-weight:bold; cursor:pointer; display:flex; align-items:center; justify-content:center; gap:5px; width:100%; font-size:0.75rem;}
-.btn-remove-foto:active{background:rgba(231, 76, 60, 0.1);}
+/* Photo Buttons */
+.input-file-wrapper { margin-top: 20px; border-top: 1px solid var(--border-color); padding-top: 20px; text-align: center; }
+.photo-buttons { display: flex; gap: 10px; justify-content: center; margin-bottom: 10px; }
+.btn-camera, .btn-gallery { 
+  flex: 1; 
+  border: none; 
+  padding: 14px; 
+  border-radius: var(--radius-btn); 
+  font-weight: 600; 
+  font-size: 0.9rem; 
+  cursor: pointer; 
+  display: flex; 
+  align-items: center; 
+  justify-content: center; 
+  gap: 8px; 
+  transition: opacity 0.2s; 
+}
+.btn-camera { background: var(--ios-blue); color: #fff; }
+.btn-gallery { background: var(--bg-section); color: var(--text-main); }
+.btn-camera:active, .btn-gallery:active { opacity: 0.7; }
 
-input[type="text"],select{width:100%;padding:15px;background:#111;border:1px solid #333;color:#fff;margin-bottom:15px;border-radius:5px;}
+/* Photos Preview */
+.photo-gallery-container { display: flex; flex-wrap: wrap; gap: 10px; margin-top: 15px; }
+.photo-item { position: relative; width: calc(50% - 5px); display: flex; flex-direction: column; gap: 8px; }
+.img-preview { width: 100%; height: 140px; border-radius: var(--radius-btn); border: 1px solid var(--border-color); object-fit: cover; background: #000; }
+.btn-remove-foto { 
+  background: transparent; 
+  color: var(--ios-red); 
+  border: 1px solid var(--ios-red); 
+  padding: 10px; 
+  border-radius: 8px; 
+  font-weight: 600; 
+  cursor: pointer; 
+  display: flex; 
+  align-items: center; 
+  justify-content: center; 
+  gap: 5px; 
+  font-size: 0.8rem; 
+}
 
-.btn-finish{width:100%;padding:22px;background:#fff;color:#000;border:none;font-weight:bold;font-size:1rem;border-radius:8px;margin-top:15px;cursor:pointer;}
-.btn-finish:disabled{background:#666;cursor:not-allowed;}
+/* Submit & Footers */
+.btn-finish { 
+  width: 100%; 
+  padding: 18px; 
+  background: var(--ios-blue); 
+  color: #fff; 
+  border: none; 
+  font-weight: 700; 
+  font-size: 1.1rem; 
+  border-radius: 14px; 
+  margin-top: 20px; 
+  cursor: pointer; 
+  box-shadow: 0 4px 14px rgba(0, 122, 255, 0.4);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 10px;
+}
+.btn-finish:disabled { background: var(--ios-gray); box-shadow: none; cursor: not-allowed; }
 
-.footer{text-align:center;margin-top:40px;color:#444;font-size:.7rem;letter-spacing:2px}
-.signature-pad{background:#fff;border-radius:4px;width:100%;height:150px;touch-action:none;border:2px solid #333;}
-.btn-clear{background:#333;color:#fff;border:none;padding:8px 15px;font-size:.7rem;margin-top:8px;border-radius:4px;cursor:pointer;}
-input[type="radio"]{display:none;}
+.footer { text-align: center; margin-top: 40px; color: var(--text-muted); font-size: 0.75rem; letter-spacing: 1px; font-weight: 500; }
+
+/* Signature */
+.signature-pad { background: #FFFFFF; border-radius: var(--radius-btn); width: 100%; height: 160px; touch-action: none; border: 1px solid var(--border-color); }
+.btn-clear { background: var(--bg-section); color: var(--text-main); border: none; padding: 10px 15px; font-size: 0.8rem; font-weight: 600; margin-top: 10px; border-radius: 8px; cursor: pointer; }
+
+input[type="radio"] { display: none; }
 
 /* MODAL CÂMERA */
-.camera-overlay {position:fixed;inset:0;z-index:999999;background:#000;display:none;flex-direction:column;align-items:center;justify-content:center;}
-.camera-video-container {width:100%;flex:1;background:#000;display:flex;align-items:center;justify-content:center;overflow:hidden;}
-#camera-video { width:100%; max-height:100%; object-fit:cover; }
-.camera-controls {width:100%;padding:20px;background:#111;display:flex;justify-content:space-around;align-items:center;padding-bottom:40px;}
-.btn-cam-capture {width:70px;height:70px;border-radius:50%;background:#fff;border:4px solid #aaa;cursor:pointer;outline:none;}
-.btn-cam-cancel { color:#fff;background:transparent;border:none;font-size:1rem;font-weight:bold;padding:10px; }
+.camera-overlay { position: fixed; inset: 0; z-index: 999999; background: #000; display: none; flex-direction: column; align-items: center; justify-content: center; }
+.camera-video-container { width: 100%; flex: 1; background: #000; display: flex; align-items: center; justify-content: center; overflow: hidden; }
+#camera-video { width: 100%; max-height: 100%; object-fit: cover; }
+.camera-controls { width: 100%; padding: 30px 20px 50px; background: rgba(0,0,0,0.8); backdrop-filter: blur(10px); display: flex; justify-content: space-around; align-items: center; }
+.btn-cam-capture { width: 70px; height: 70px; border-radius: 50%; background: #fff; border: 6px solid #ccc; cursor: pointer; outline: none; transition: 0.2s; }
+.btn-cam-capture:active { transform: scale(0.9); background: #eee; }
+.btn-cam-cancel { color: #fff; background: transparent; border: none; font-size: 1rem; font-weight: 600; padding: 10px; }
 
 #audit-timer-info { display: none; }
 
-/* WELCOME */
-.welcome-overlay{position:fixed;inset:0;z-index:9999;background:rgba(0,0,0,.9);display:flex;align-items:center;justify-content:center;padding:18px;}
-.welcome-card{width:min(720px, 100%);background:linear-gradient(180deg,#0f0f0f,#0a0a0a);border:1px solid #222;border-radius:14px;padding:22px;}
-.welcome-top{display:flex;align-items:center;justify-content:center;gap:10px;margin-bottom:12px;flex-wrap:wrap;}
-.welcome-logos{display:flex;gap:10px;align-items:center;justify-content:center;flex-wrap:wrap;}
-.welcome-logos img{height:32px;max-width:120px;object-fit:contain;opacity:.9;}
-.welcome-title{margin:8px 0 0;text-align:center;font-size:1.1rem;letter-spacing:1px;}
-.welcome-sub{margin:8px 0 16px;text-align:center;color:#9a9a9a;font-size:.85rem;line-height:1.45;}
-.welcome-actions{display:flex;gap:12px;justify-content:center;flex-wrap:wrap;}
-.btn-primary{padding:14px 18px;border-radius:10px;border:none;background:#fff;color:#000;font-weight:800;cursor:pointer;}
-.btn-ghost{padding:14px 18px;border-radius:10px;border:1px solid #333;background:transparent;color:#ddd;font-weight:700;cursor:pointer;}
-.hidden{display:none !important;}
+/* WELCOME SCREEN - Frosted Glass effect */
+.welcome-overlay { position: fixed; inset: 0; z-index: 9999; background: rgba(0,0,0,0.5); backdrop-filter: blur(8px); -webkit-backdrop-filter: blur(8px); display: flex; align-items: center; justify-content: center; padding: 18px; }
+.welcome-card { width: min(720px, 100%); background: var(--bg-card); border: 1px solid var(--border-color); border-radius: 20px; padding: 30px 20px; box-shadow: 0 20px 40px rgba(0,0,0,0.2); }
+.welcome-top { display: flex; align-items: center; justify-content: center; gap: 10px; margin-bottom: 20px; flex-wrap: wrap; }
+.welcome-logos { display: flex; gap: 15px; align-items: center; justify-content: center; flex-wrap: wrap; }
+.welcome-logos img { height: 36px; max-width: 120px; object-fit: contain; opacity: 0.9; }
+.welcome-title { margin: 10px 0 5px; text-align: center; font-size: 1.3rem; font-weight: 700; }
+.welcome-sub { margin: 0 0 24px; text-align: center; color: var(--text-muted); font-size: 0.95rem; line-height: 1.45; }
+.welcome-actions { display: flex; gap: 12px; justify-content: center; flex-wrap: wrap; }
+.btn-primary { padding: 14px 24px; border-radius: 12px; border: none; background: var(--ios-blue); color: #fff; font-weight: 600; cursor: pointer; font-size: 1rem; width: 100%; margin-bottom: 8px;}
+.btn-ghost { padding: 14px 24px; border-radius: 12px; border: 1px solid var(--border-color); background: var(--bg-section); color: var(--text-main); font-weight: 600; cursor: pointer; font-size: 1rem; flex: 1; text-align: center;}
+.btn-danger-ghost { padding: 14px 24px; border-radius: 12px; border: 1px solid rgba(255, 59, 48, 0.3); background: transparent; color: var(--ios-red); font-weight: 600; cursor: pointer; font-size: 1rem; flex: 1; text-align: center;}
+.hidden { display: none !important; }
 
-/* PDF Mode */
-.pdf-mode {background-color: var(--bg) !important;padding: 20px !important;}
-.pdf-mode .btn-clear, .pdf-mode .btn-camera, .pdf-mode .btn-gallery, .pdf-mode .btn-remove-foto { display: none !important; }
-.pdf-mode #audit-timer-info { display: block !important; margin-bottom: 20px; padding: 15px; background: #111; border: 1px solid #333; border-radius: 8px; }
+/* PDF Mode - Force light theme elements for printing */
+.pdf-mode { background-color: #ffffff !important; padding: 20px !important; color: #000000 !important; }
+.pdf-mode .card { background: #ffffff !important; border: 1px solid #ddd !important; box-shadow: none !important; color: #000000 !important; }
+.pdf-mode .q-header, .pdf-mode .q-text, .pdf-mode .section-h { color: #000000 !important; }
+.pdf-mode input, .pdf-mode textarea { background: #ffffff !important; border: 1px solid #ccc !important; color: #000000 !important; }
+.pdf-mode .btn-clear, .pdf-mode .btn-camera, .pdf-mode .btn-gallery, .pdf-mode .btn-remove-foto, .pdf-mode .theme-toggle { display: none !important; }
+.pdf-mode #audit-timer-info { display: block !important; margin-bottom: 20px; padding: 15px; background: #f9f9f9; border: 1px solid #ddd; border-radius: 8px; }
+
+/* Toast notification for saves */
+#save-toast { position: fixed; bottom: 20px; left: 50%; transform: translateX(-50%); background: rgba(0,0,0,0.8); color: white; padding: 8px 16px; border-radius: 20px; font-size: 0.8rem; font-weight: 600; opacity: 0; transition: opacity 0.3s; pointer-events: none; z-index: 1000; }
 </style>
 </head>
 
 <body>
+
+<button class="theme-toggle" id="btn-theme" title="Alternar Tema">
+  <svg id="icon-sun" class="hidden" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="5"></circle><line x1="12" y1="1" x2="12" y2="3"></line><line x1="12" y1="21" x2="12" y2="23"></line><line x1="4.22" y1="4.22" x2="5.64" y2="5.64"></line><line x1="18.36" y1="18.36" x2="19.78" y2="19.78"></line><line x1="1" y1="12" x2="3" y2="12"></line><line x1="21" y1="12" x2="23" y2="12"></line><line x1="4.22" y1="19.78" x2="5.64" y2="18.36"></line><line x1="18.36" y1="5.64" x2="19.78" y2="4.22"></line></svg>
+  <svg id="icon-moon" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 12.79A9 9 0 1 1 11.21 3 7 7 0 0 0 21 12.79z"></path></svg>
+</button>
 
 <div id="camera-modal" class="camera-overlay">
   <div class="camera-video-container">
     <video id="camera-video" autoplay playsinline></video>
   </div>
   <div class="camera-controls">
-    <button class="btn-cam-cancel" onclick="closeCamera()">CANCELAR</button>
+    <button class="btn-cam-cancel" onclick="closeCamera()">Cancelar</button>
     <button class="btn-cam-capture" onclick="takePhoto()"></button>
     <div style="width:70px;"></div> 
   </div>
@@ -126,11 +302,14 @@ input[type="radio"]{display:none;}
         <img src="fornelle.png" alt="Fornelle" onerror="this.style.display='none'" />
       </div>
     </div>
-    <h3 class="welcome-title">AUDITORIA OPERACIONAL</h3>
-    <p class="welcome-sub">Controle de Qualidade & Segurança Alimentar.</p>
-    <div class="welcome-actions">
-      <button class="btn-primary" id="btn-start" type="button">INICIAR AUDITORIA</button>
-      <button class="btn-ghost" type="button" onclick="window.location.replace('./')">VOLTAR AO MENU</button>
+    <h3 class="welcome-title">Auditoria Operacional</h3>
+    <p class="welcome-sub" id="welcome-msg">Controle de Qualidade & Segurança Alimentar</p>
+    
+    <div class="welcome-actions" style="flex-direction: column;">
+      <button class="btn-primary" id="btn-start" type="button">Iniciar Auditoria</button>
+      <div style="display: flex; gap: 10px; width: 100%;">
+        <button class="btn-danger-ghost hidden" id="btn-clear-draft" type="button">Iniciar do Zero</button>
+        </div>
     </div>
   </div>
 </div>
@@ -139,8 +318,8 @@ input[type="radio"]{display:none;}
 
   <div class="header">
     <div class="brand-slot"><img id="brandLogo" class="brand-logo" src="" alt="" onerror="this.style.display='none'" /></div>
-    <h2>AUDITORIA OPERACIONAL</h2>
-    <p style="color:#666;font-size:.7rem;letter-spacing:2px">CONTROLE DE QUALIDADE</p>
+    <h2>Auditoria Operacional</h2>
+    <p>CONTROLE DE QUALIDADE</p>
   </div>
 
   <form id="auditForm" action="https://formspree.io/f/xdadqvpr">
@@ -152,11 +331,11 @@ input[type="radio"]{display:none;}
       <p style="margin:5px 0; font-size:0.9rem;"><strong>Duração Total:</strong> <span id="lbl-duration">--</span></p>
     </div>
 
-    <div class="card" style="border-color:#555">
-      <label style="font-size:0.8rem;color:#aaa">DADOS DA AUDITORIA</label><br><br>
-      <input type="text" id="nome-auditor" placeholder="NOME DO AUDITOR" required />
+    <div class="card">
+      <label style="font-size:0.8rem; color:var(--text-muted); font-weight: 700;">DADOS DA AUDITORIA</label><br><br>
+      <input type="text" id="nome-auditor" placeholder="Nome do Auditor" required />
       <select id="unidade-loja" required>
-        <option value="">SELECIONE A UNIDADE</option>
+        <option value="">Selecione a Unidade</option>
         <option>Divina - Cidade</option>
         <option>Divina - Meireles</option>
         <option>Divina - Itaperi</option>
@@ -176,34 +355,68 @@ input[type="radio"]{display:none;}
 
     <div class="section-h">Validação</div>
     <div class="card">
-      <p>Assinatura do Auditor</p>
+      <p style="font-weight: 600; margin-top: 0;">Assinatura do Auditor</p>
       <canvas id="sig-auditor" class="signature-pad"></canvas>
-      <button type="button" class="btn-clear" onclick="limparCanvas('sig-auditor')">LIMPAR</button>
+      <button type="button" class="btn-clear" onclick="limparCanvas('sig-auditor')">
+        <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="vertical-align: middle; margin-right: 4px;"><polyline points="3 6 5 6 21 6"></polyline><path d="M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6m3 0V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2"></path></svg> Limpar
+      </button>
     </div>
     <div class="card">
-      <p>Assinatura do Gerente</p>
+      <p style="font-weight: 600; margin-top: 0;">Assinatura do Gerente</p>
       <canvas id="sig-gerente" class="signature-pad"></canvas>
-      <button type="button" class="btn-clear" onclick="limparCanvas('sig-gerente')">LIMPAR</button>
+      <button type="button" class="btn-clear" onclick="limparCanvas('sig-gerente')">
+         <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="vertical-align: middle; margin-right: 4px;"><polyline points="3 6 5 6 21 6"></polyline><path d="M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6m3 0V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2"></path></svg> Limpar
+      </button>
     </div>
 
     <div class="card">
-      <table style="width:100%; color:#fff; font-size:0.9rem;">
-        <tr><td>Pontuação:</td><td style="text-align:right;"><input type="text" id="score-total" readonly style="border:none; background:transparent; text-align:right; font-weight:bold; width:auto; padding:0; margin:0;" /></td></tr>
-        <tr><td>Percentual:</td><td style="text-align:right;"><input type="text" id="score-percent" readonly style="border:none; background:transparent; text-align:right; font-weight:bold; width:auto; padding:0; margin:0;" /></td></tr>
-        <tr><td>Selo:</td><td style="text-align:right;"><input type="text" id="score-seal" readonly style="border:none; background:transparent; text-align:right; font-weight:bold; width:auto; padding:0; margin:0;" /></td></tr>
+      <table style="width:100%; font-size:1rem; font-weight: 600;">
+        <tr><td style="padding: 5px 0;">Pontuação Válida:</td><td style="text-align:right;"><input type="text" id="score-total" readonly style="border:none; background:transparent; text-align:right; font-weight:bold; width:auto; padding:0; margin:0; color: inherit;" /></td></tr>
+        <tr><td style="padding: 5px 0;">Aproveitamento:</td><td style="text-align:right;"><input type="text" id="score-percent" readonly style="border:none; background:transparent; text-align:right; font-weight:bold; width:auto; padding:0; margin:0; color: inherit;" /></td></tr>
+        <tr><td style="padding: 5px 0;">Selo Final:</td><td style="text-align:right;"><input type="text" id="score-seal" readonly style="border:none; background:transparent; text-align:right; font-weight:bold; width:auto; padding:0; margin:0; color: inherit;" /></td></tr>
       </table>
     </div>
 
-    <button type="submit" class="btn-finish" id="btn-submit">ENVIAR AUDITORIA</button>
+    <button type="submit" class="btn-finish" id="btn-submit">
+      <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><line x1="22" y1="2" x2="11" y2="13"></line><polygon points="22 2 15 22 11 13 2 9 22 2"></polygon></svg>
+      Enviar Auditoria
+    </button>
   </form>
   <div class="footer">GRUPO DON TALLENTO • 2026</div>
 </div>
 
+<div id="save-toast">Rascunho salvo</div>
+
 <script>
+// --- THEME TOGGLE LOGIC ---
+const themeToggle = document.getElementById('btn-theme');
+const iconSun = document.getElementById('icon-sun');
+const iconMoon = document.getElementById('icon-moon');
+
+function setTheme(isDark) {
+  if (isDark) {
+    document.documentElement.setAttribute('data-theme', 'dark');
+    iconMoon.classList.add('hidden');
+    iconSun.classList.remove('hidden');
+    localStorage.setItem('apple_theme', 'dark');
+  } else {
+    document.documentElement.removeAttribute('data-theme');
+    iconSun.classList.add('hidden');
+    iconMoon.classList.remove('hidden');
+    localStorage.setItem('apple_theme', 'light');
+  }
+}
+
+const savedTheme = localStorage.getItem('apple_theme');
+if (savedTheme === 'dark' || (!savedTheme && window.matchMedia('(prefers-color-scheme: dark)').matches)) { setTheme(true); } else { setTheme(false); }
+themeToggle.addEventListener('click', () => { const isDark = document.documentElement.getAttribute('data-theme') === 'dark'; setTheme(!isDark); });
+
+// --- VARIÁVEIS GLOBAIS ---
 let auditStartTime = null;
 let cameraStream = null;
 let activeQuestionIndex = null;
-const capturedPhotos = {}; // Agora armazenará arrays de base64 por pergunta
+let capturedPhotos = {}; 
+const STORAGE_KEY = 'audit_operacional_draft';
 
 const brandLogos = { divina: "divina.png", opy: "opy.png", cheppitos: "cheppitos.png", fornelle: "fornelle.png" };
 const unidadeSelect = document.getElementById("unidade-loja");
@@ -225,13 +438,17 @@ unidadeSelect.addEventListener("change", (e) => {
     brandLogoEl.style.display = 'none';
     brandLogoEl.classList.remove("show");
   }
+  saveLocalDraft();
 });
 
-document.getElementById("btn-start").addEventListener("click", () => {
-  document.getElementById("welcome").classList.add("hidden");
-  auditStartTime = new Date(); 
+document.getElementById('nome-auditor').addEventListener('input', saveLocalDraft);
+
+// Event Delegation para salvar textos das observações
+document.getElementById('checklist-content').addEventListener('input', (e) => {
+  if (e.target.classList.contains('input-obs')) saveLocalDraft();
 });
 
+// --- PERGUNTAS DO CHECKLIST ---
 const perguntas = [
   { a: "1.1 SETOR FRITURA", cat: "EQUIPAMENTOS/UTENSÍLIOS", w: 1, p: "As fritadeiras estão em bom estado de conservação e funcionamento? (Termostato, Piloto, Tampas)" },
   { a: "1.1 SETOR FRITURA", cat: "EQUIPAMENTOS/UTENSÍLIOS", w: 1, p: "O sistema de exaustão encontra-se em bom estado de conservação e funcionamento? (Dutos não possuem gordura visível escorrendo interno e externo, filtros corta-chama das coifas estão em uso e em bom estado, etc.)?" },
@@ -325,7 +542,7 @@ const perguntas = [
 
   { a: "3. PRODUTO VENCIDO [PV]", cat: "ITEM CRÍTICO", w: 3, p: "Ausência de qualquer produto VENCIDO em qualquer setor do Restaurante, e não encontrado em outras avaliações realizadas dentro do mês." },
   { a: "3.2 PRODUTO NÃO HOMOLOGADO [PNH]", cat: "ITEM CRÍTICO", w: 3, p: "Utiliza produtos adquiridos da Central de Produção para o preparo dos produtos (insumos produzidos e distribuídos)." },
- ];
+];
 
 const content = document.getElementById("checklist-content");
 let currentA = "";
@@ -343,28 +560,31 @@ perguntas.forEach((p, i) => {
     <div class="q-header"><span>${p.cat}</span><span class="badge ${badgeClass}">${labelPeso}</span></div>
     <div class="q-text">${p.p}</div>
     <div class="btn-group">
-      <input type="radio" name="q_${i}" id="sim-${i}" value="SIM" onchange="responder(${i}, true)">
-      <label for="sim-${i}" class="btn-opt">SIM</label>
+      <input type="radio" name="q_${i}" id="sim-${i}" value="SIM" onchange="responder(${i}, 'SIM')">
+      <label for="sim-${i}" class="btn-opt opt-sim">SIM</label>
       
-      <input type="radio" name="q_${i}" id="nao-${i}" value="NÃO" onchange="responder(${i}, false)">
-      <label for="nao-${i}" class="btn-opt">NÃO</label>
+      <input type="radio" name="q_${i}" id="nao-${i}" value="NÃO" onchange="responder(${i}, 'NÃO')">
+      <label for="nao-${i}" class="btn-opt opt-nao">NÃO</label>
+      
+      <input type="radio" name="q_${i}" id="na-${i}" value="N/A" onchange="responder(${i}, 'NA')">
+      <label for="na-${i}" class="btn-opt opt-na">N/A</label>
     </div>
     
     <div id="obs-${i}" class="justificativa-container">
-      <label style="font-size:0.7rem;color:#f00;display:block;margin-bottom:5px;">EXPLICAÇÃO OBRIGATÓRIA:</label>
-      <textarea id="ta-${i}" class="input-obs" placeholder="Descreva a não conformidade..."></textarea>
+      <label style="font-size:0.75rem; color:var(--ios-red); display:block; margin-bottom:8px; font-weight:600;">Explicação Obrigatória:</label>
+      <textarea id="ta-${i}" class="input-obs" rows="3" placeholder="Descreva a não conformidade encontrada..."></textarea>
     </div>
 
     <div class="input-file-wrapper">
-        <label style="font-size:0.7rem;color:#aaa;">EVIDÊNCIA (FOTO OBRIGATÓRIA SE "NÃO"):</label><br>
-        <div class="photo-buttons">
+        <label style="font-size:0.75rem; color:var(--text-muted); font-weight:600;">EVIDÊNCIA FOTOGRÁFICA (Obrigatória se "NÃO"):</label><br>
+        <div class="photo-buttons" style="margin-top:10px;">
             <button type="button" class="btn-camera" onclick="openCamera(${i})">
               <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M23 19a2 2 0 0 1-2 2H3a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2h4l2-3h6l2 3h4a2 2 0 0 1 2 2z"></path><circle cx="12" cy="13" r="4"></circle></svg>
-              CÂMERA
+              Câmera
             </button>
             <button type="button" class="btn-gallery" onclick="document.getElementById('gallery-${i}').click()">
               <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="3" width="18" height="18" rx="2" ry="2"></rect><circle cx="8.5" cy="8.5" r="1.5"></circle><polyline points="21 15 16 10 5 21"></polyline></svg>
-              GALERIA
+              Galeria
             </button>
         </div>
         
@@ -376,43 +596,49 @@ perguntas.forEach((p, i) => {
   content.appendChild(c);
 });
 
-function responder(index, isSim){
+function responder(index, valor){
   const container = document.getElementById(`obs-${index}`);
   const btnSim = document.querySelector(`label[for="sim-${index}"]`);
   const btnNao = document.querySelector(`label[for="nao-${index}"]`);
+  const btnNA = document.querySelector(`label[for="na-${index}"]`);
   const txtArea = document.getElementById(`ta-${index}`);
 
-  if(isSim){
-    btnSim.classList.add('active-sim');
-    btnNao.classList.remove('active-nao');
-    // Esconde a justificativa de texto, mas a área de fotos continua lá embaixo
+  btnSim.classList.remove('active');
+  btnNao.classList.remove('active');
+  btnNA.classList.remove('active');
+
+  if(valor === 'SIM') {
+    btnSim.classList.add('active');
     container.style.display = 'none';
     txtArea.value = ""; 
-  }else{
-    btnNao.classList.add('active-nao');
-    btnSim.classList.remove('active-sim');
+  } else if (valor === 'NÃO') {
+    btnNao.classList.add('active');
     container.style.display = 'block';
+  } else if (valor === 'NA') {
+    btnNA.classList.add('active');
+    container.style.display = 'none';
+    txtArea.value = ""; 
   }
+  
+  saveLocalDraft(); // Salva o estado ao responder
 }
 
 // ===================================
 // SISTEMA DE GALERIA E FOTOS MÚLTIPLAS
 // ===================================
-
-// Adiciona foto ao array da pergunta
 function addPhoto(index, dataUrl) {
   if (!capturedPhotos[index]) capturedPhotos[index] = [];
   capturedPhotos[index].push(dataUrl);
   renderPhotos(index);
+  saveLocalDraft(); // Salva estado
 }
 
-// Remove uma foto específica
 function removePhoto(qIndex, pIndex) {
   capturedPhotos[qIndex].splice(pIndex, 1);
   renderPhotos(qIndex);
+  saveLocalDraft(); // Salva estado
 }
 
-// Atualiza a exibição das fotos na interface
 function renderPhotos(index) {
   const container = document.getElementById(`photo-gallery-${index}`);
   container.innerHTML = '';
@@ -424,8 +650,8 @@ function renderPhotos(index) {
     item.innerHTML = `
         <img class="img-preview" src="${dataUrl}" alt="Evidência" />
         <button type="button" class="btn-remove-foto" onclick="removePhoto(${index}, ${pIndex})">
-            <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="3 6 5 6 21 6"></polyline><path d="M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6m3 0V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2"></path><line x1="10" y1="11" x2="10" y2="17"></line><line x1="14" y1="11" x2="14" y2="17"></line></svg>
-            REMOVER
+            <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><line x1="18" y1="6" x2="6" y2="18"></line><line x1="6" y1="6" x2="18" y2="18"></line></svg>
+            Remover
         </button>
     `;
     container.appendChild(item);
@@ -440,25 +666,21 @@ function processGalleryFile(index, input) {
                 const img = new Image();
                 img.onload = function() {
                     const canvas = document.createElement('canvas');
-                    let w = img.width;
-                    let h = img.height;
+                    let w = img.width, h = img.height;
                     const maxSize = 800;
                     if (w > h) { if (w > maxSize) { h *= maxSize / w; w = maxSize; } } 
                     else { if (h > maxSize) { w *= maxSize / h; h = maxSize; } }
                     
-                    canvas.width = w;
-                    canvas.height = h;
+                    canvas.width = w; canvas.height = h;
                     const ctx = canvas.getContext('2d');
                     ctx.drawImage(img, 0, 0, w, h);
                     const dataUrl = canvas.toDataURL('image/webp', 0.6);
-                    
                     addPhoto(index, dataUrl);
                 }
                 img.src = e.target.result;
             }
             reader.readAsDataURL(file);
         });
-        // Reseta o input para permitir selecionar o mesmo arquivo/lote novamente
         input.value = "";
     }
 }
@@ -474,17 +696,12 @@ async function openCamera(index) {
   try {
     cameraStream = await navigator.mediaDevices.getUserMedia({ video: { facingMode: 'environment' } });
     video.srcObject = cameraStream;
-  } catch (err) {
-    alert("Erro na câmera: " + err.message);
-    closeCamera();
-  }
+  } catch (err) { alert("Erro na câmera: " + err.message); closeCamera(); }
 }
-
 function closeCamera() {
   if (cameraStream) { cameraStream.getTracks().forEach(track => track.stop()); cameraStream = null; }
   document.getElementById('camera-modal').style.display = 'none';
 }
-
 function takePhoto() {
   const video = document.getElementById('camera-video');
   const canvas = document.createElement('canvas');
@@ -494,13 +711,12 @@ function takePhoto() {
   const ctx = canvas.getContext('2d');
   ctx.drawImage(video, 0, 0, w, h);
   const dataUrl = canvas.toDataURL('image/webp', 0.6); 
-  
   addPhoto(activeQuestionIndex, dataUrl);
   closeCamera();
 }
 
 // ===================================
-// ASSINATURA (CORRIGIDA E TESTADA)
+// ASSINATURA 
 // ===================================
 function setupCanvas(id){
   const c = document.getElementById(id);
@@ -512,41 +728,158 @@ function setupCanvas(id){
   c.style.width = rect.width + "px";
   c.style.height = rect.height + "px";
   ctx.setTransform(ratio, 0, 0, ratio, 0, 0);
-  limparCanvas(id);
+  limparCanvas(id, false);
   let desenhando = false;
   c.addEventListener("pointerdown", (e) => {
-    desenhando = true;
-    c.setPointerCapture(e.pointerId);
-    ctx.lineWidth = 2; ctx.lineCap = "round"; ctx.lineJoin = "round"; ctx.strokeStyle = "#000";
+    desenhando = true; c.setPointerCapture(e.pointerId);
+    ctx.lineWidth = 2.5; ctx.lineCap = "round"; ctx.lineJoin = "round"; ctx.strokeStyle = "#000";
     const r = c.getBoundingClientRect(); 
-    ctx.beginPath(); ctx.moveTo(e.clientX - r.left, e.clientY - r.top);
-    e.preventDefault();
+    ctx.beginPath(); ctx.moveTo(e.clientX - r.left, e.clientY - r.top); e.preventDefault();
   }, { passive: false });
   c.addEventListener("pointermove", (e) => {
     if(!desenhando) return;
     const r = c.getBoundingClientRect();
-    ctx.lineTo(e.clientX - r.left, e.clientY - r.top);
-    ctx.stroke();
-    e.preventDefault();
+    ctx.lineTo(e.clientX - r.left, e.clientY - r.top); ctx.stroke(); e.preventDefault();
   }, { passive: false });
-  c.addEventListener("pointerup", () => desenhando = false);
-  c.addEventListener("pointercancel", () => desenhando = false);
+  
+  c.addEventListener("pointerup", () => { desenhando = false; saveLocalDraft(); });
+  c.addEventListener("pointercancel", () => { desenhando = false; saveLocalDraft(); });
 }
-function limparCanvas(id){
-  const c = document.getElementById(id);
-  const ctx = c.getContext("2d");
+
+function limparCanvas(id, triggerSave = true){
+  const c = document.getElementById(id); const ctx = c.getContext("2d");
   ctx.save(); ctx.setTransform(1, 0, 0, 1, 0, 0); ctx.fillStyle = "#ffffff";
   ctx.fillRect(0, 0, c.width, c.height); ctx.restore(); ctx.beginPath(); 
+  if(triggerSave) saveLocalDraft();
 }
+
 function canvasEstaVazio(id){
-  const c = document.getElementById(id);
-  const blank = document.createElement('canvas');
-  blank.width = c.width; blank.height = c.height;
-  const ctx = blank.getContext("2d");
+  const c = document.getElementById(id); const blank = document.createElement('canvas');
+  blank.width = c.width; blank.height = c.height; const ctx = blank.getContext("2d");
   ctx.fillStyle = "#ffffff"; ctx.fillRect(0, 0, blank.width, blank.height);
   return c.toDataURL() === blank.toDataURL();
 }
+
+// ===================================
+// SISTEMA DE RASCUNHO (AUTOSAVE)
+// ===================================
+function showSaveToast() {
+  const toast = document.getElementById('save-toast');
+  toast.style.opacity = '1';
+  clearTimeout(toast.timeout);
+  toast.timeout = setTimeout(() => { toast.style.opacity = '0'; }, 1500);
+}
+
+function saveLocalDraft() {
+  if (!auditStartTime) return; // Só salva se a auditoria já começou
+  
+  const draft = {
+    startTime: auditStartTime.getTime(),
+    auditor: document.getElementById('nome-auditor').value,
+    unidade: document.getElementById('unidade-loja').value,
+    respostas: {},
+    fotos: capturedPhotos,
+    assinaturas: {
+      auditor: canvasEstaVazio('sig-auditor') ? null : document.getElementById('sig-auditor').toDataURL(),
+      gerente: canvasEstaVazio('sig-gerente') ? null : document.getElementById('sig-gerente').toDataURL()
+    }
+  };
+
+  perguntas.forEach((p, i) => {
+    let val = null;
+    if(document.getElementById(`sim-${i}`).checked) val = 'SIM';
+    if(document.getElementById(`nao-${i}`).checked) val = 'NÃO';
+    if(document.getElementById(`na-${i}`).checked) val = 'NA';
+    
+    draft.respostas[i] = {
+      valor: val,
+      obs: document.getElementById(`ta-${i}`).value
+    };
+  });
+
+  try {
+    localStorage.setItem(STORAGE_KEY, JSON.stringify(draft));
+    showSaveToast();
+  } catch (e) {
+    console.warn("Falha ao salvar rascunho (possível falta de memória por excesso de fotos)", e);
+  }
+}
+
+function loadLocalDraft() {
+  const saved = localStorage.getItem(STORAGE_KEY);
+  if (!saved) return false;
+
+  try {
+    const draft = JSON.parse(saved);
+    
+    // Restaurar tempos e inputs básicos
+    auditStartTime = new Date(draft.startTime);
+    document.getElementById('nome-auditor').value = draft.auditor || '';
+    document.getElementById('unidade-loja').value = draft.unidade || '';
+    
+    // Força atualização da logo se tiver unidade
+    if(draft.unidade) { document.getElementById('unidade-loja').dispatchEvent(new Event('change')); }
+
+    // Restaurar Respostas
+    Object.keys(draft.respostas).forEach(i => {
+      const resp = draft.respostas[i];
+      if (resp.valor) {
+        document.getElementById(`${resp.valor.toLowerCase() === 'na' ? 'na' : (resp.valor === 'SIM' ? 'sim' : 'nao')}-${i}`).checked = true;
+        responder(i, resp.valor); // Chama a função para atualizar botões e divs
+      }
+      document.getElementById(`ta-${i}`).value = resp.obs || '';
+    });
+
+    // Restaurar Fotos
+    if (draft.fotos) {
+      capturedPhotos = draft.fotos;
+      Object.keys(capturedPhotos).forEach(i => renderPhotos(i));
+    }
+
+    // Restaurar Assinaturas
+    const restoreSig = (id, dataUrl) => {
+      if (!dataUrl) return;
+      const c = document.getElementById(id);
+      const ctx = c.getContext('2d');
+      const img = new Image();
+      img.onload = () => { ctx.drawImage(img, 0, 0, c.width / window.devicePixelRatio, c.height / window.devicePixelRatio); };
+      img.src = dataUrl;
+    };
+    restoreSig('sig-auditor', draft.assinaturas.auditor);
+    restoreSig('sig-gerente', draft.assinaturas.gerente);
+
+    return true;
+  } catch (e) {
+    console.error("Erro ao carregar rascunho", e);
+    return false;
+  }
+}
+
+function clearDraft() {
+  if(confirm("Tem certeza que deseja apagar o rascunho atual e começar um novo formulário do zero?")) {
+    localStorage.removeItem(STORAGE_KEY);
+    window.location.reload();
+  }
+}
+
+// INICIALIZAÇÃO E CHECK DO RASCUNHO
 setupCanvas("sig-auditor"); setupCanvas("sig-gerente");
+
+window.addEventListener('DOMContentLoaded', () => {
+  const hasDraft = loadLocalDraft();
+  if (hasDraft) {
+    document.getElementById('welcome-msg').innerText = "Você tem um relatório em andamento.";
+    document.getElementById('btn-start').innerText = "Continuar Rascunho";
+    document.getElementById('btn-clear-draft').classList.remove('hidden');
+  }
+});
+
+document.getElementById("btn-start").addEventListener("click", () => {
+  document.getElementById("welcome").classList.add("hidden");
+  if(!auditStartTime) { auditStartTime = new Date(); saveLocalDraft(); }
+});
+
+document.getElementById("btn-clear-draft").addEventListener("click", clearDraft);
 
 // ===================================
 // ENVIO E VALIDAÇÃO
@@ -555,27 +888,27 @@ const form = document.getElementById('auditForm');
 form.onsubmit = async function(e){
   e.preventDefault(); 
   
-  if(document.getElementById('nome-auditor').value.trim() === "" || document.getElementById('unidade-loja').value === "") { alert("Preencha nome e unidade."); return false; }
+  if(document.getElementById('nome-auditor').value.trim() === "" || document.getElementById('unidade-loja').value === "") { alert("Por favor, preencha o nome do auditor e selecione a unidade."); return false; }
   const totalP = perguntas.length;
   const respondidas = document.querySelectorAll('input[type="radio"]:checked').length;
-  if(respondidas < totalP){ alert(`Responda todas as perguntas.`); return false; }
+  if(respondidas < totalP){ alert(`Por favor, responda todas as perguntas do checklist.`); return false; }
   
-  // VALIDAÇÃO RÍGIDA: NÃO = JUSTIFICATIVA + PELO MENOS 1 FOTO
+  // VALIDAÇÃO RÍGIDA
   for(let i=0; i<totalP; i++) {
       const isNao = document.getElementById(`nao-${i}`).checked;
       const hasText = document.getElementById(`ta-${i}`).value.trim() !== "";
       const hasPhoto = capturedPhotos[i] && capturedPhotos[i].length > 0;
 
       if(isNao) {
-          if(!hasText) { alert(`Pergunta ${i+1}: Justificativa obrigatória para NÃO CONFORME.`); return false; }
-          if(!hasPhoto) { alert(`Pergunta ${i+1}: Ao menos UMA foto é obrigatória para NÃO CONFORME.`); return false; }
+          if(!hasText) { alert(`Pergunta ${i+1}: A justificativa é obrigatória para marcações "NÃO".`); return false; }
+          if(!hasPhoto) { alert(`Pergunta ${i+1}: Ao menos UMA foto de evidência é obrigatória para marcações "NÃO".`); return false; }
       }
   }
 
-  if(canvasEstaVazio('sig-auditor') || canvasEstaVazio('sig-gerente')){ alert("Assine o documento."); return false; }
+  if(canvasEstaVazio('sig-auditor') || canvasEstaVazio('sig-gerente')){ alert("Por favor, recolha ambas as assinaturas antes de enviar."); return false; }
 
   const btnSubmit = document.getElementById('btn-submit');
-  btnSubmit.innerText = "ENVIANDO...";
+  btnSubmit.innerHTML = `<svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="animation: spin 1s linear infinite;"><line x1="12" y1="2" x2="12" y2="6"></line><line x1="12" y1="18" x2="12" y2="22"></line><line x1="4.93" y1="4.93" x2="7.76" y2="7.76"></line><line x1="16.24" y1="16.24" x2="19.07" y2="19.07"></line><line x1="2" y1="12" x2="6" y2="12"></line><line x1="18" y1="12" x2="22" y2="12"></line><line x1="4.93" y1="19.07" x2="7.76" y2="16.24"></line><line x1="16.24" y1="7.76" x2="19.07" y2="4.93"></line></svg> Enviando...`;
   btnSubmit.disabled = true;
 
   try {
@@ -589,10 +922,15 @@ form.onsubmit = async function(e){
 
     let ptsPossiveis = 0, ptsObtidos = 0;
     perguntas.forEach((p, i) => {
-      ptsPossiveis += p.w;
-      if(document.getElementById(`sim-${i}`).checked) ptsObtidos += p.w;
+      const isNA = document.getElementById(`na-${i}`).checked;
+      if(!isNA){
+          ptsPossiveis += p.w;
+          if(document.getElementById(`sim-${i}`).checked) ptsObtidos += p.w;
+      }
     });
-    const perc = ((ptsObtidos / ptsPossiveis) * 100).toFixed(1);
+    
+    let perc = 100.0;
+    if(ptsPossiveis > 0) perc = ((ptsObtidos / ptsPossiveis) * 100).toFixed(1);
     let selo = perc >= 89 ? "SELO A (APROVADO)" : (perc >= 70 ? "SELO B (ATENÇÃO)" : "SELO C (REPROVADO)");
     
     document.getElementById('score-total').value = `${ptsObtidos} / ${ptsPossiveis}`;
@@ -610,14 +948,14 @@ form.onsubmit = async function(e){
 
     const pdfOptions = {
       margin: 5, filename: 'Relatorio_Auditoria.pdf', image: { type: 'jpeg', quality: 0.85 },
-      html2canvas: { scale: 1.0, useCORS: true, scrollY: 0, backgroundColor: '#000' },
+      html2canvas: { scale: 1.0, useCORS: true, scrollY: 0 },
       jsPDF: { unit: 'mm', format: 'a4', orientation: 'portrait' }
     };
     
     const pdfBlob = await html2pdf().set(pdfOptions).from(pdfContainer).output('blob');
 
     pdfContainer.classList.remove('pdf-mode');
-    btnSubmit.style.display = 'block';
+    btnSubmit.style.display = 'flex';
 
     const formData = new FormData();
     formData.append("Auditor", document.getElementById('nome-auditor').value);
@@ -628,7 +966,8 @@ form.onsubmit = async function(e){
     const response = await fetch(form.action, { method: 'POST', body: formData, headers: { 'Accept': 'application/json' }});
     
     if (response.ok) { 
-        alert("Enviado com sucesso!"); window.scrollTo(0,0); window.location.reload(); 
+        localStorage.removeItem(STORAGE_KEY); // Limpa o rascunho em caso de sucesso
+        alert("Auditoria enviada com sucesso!"); window.scrollTo(0,0); window.location.reload(); 
     } else { 
         try { const err = await response.json(); alert("Erro: " + (err.error || response.status)); } 
         catch(e) { alert("Erro de envio: " + response.status); }
@@ -636,12 +975,15 @@ form.onsubmit = async function(e){
   } catch (error) {
     alert("Erro geral: " + error.message);
   } finally {
-    btnSubmit.innerText = "ENVIAR AUDITORIA";
+    btnSubmit.innerHTML = `<svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><line x1="22" y1="2" x2="11" y2="13"></line><polygon points="22 2 15 22 11 13 2 9 22 2"></polygon></svg> Enviar Auditoria`;
     btnSubmit.disabled = false;
-    btnSubmit.style.display = 'block';
+    btnSubmit.style.display = 'flex';
     document.getElementById('pdf-container').classList.remove('pdf-mode');
   }
 };
 </script>
+<style>
+@keyframes spin { 100% { transform: rotate(360deg); } }
+</style>
 </body>
 </html>

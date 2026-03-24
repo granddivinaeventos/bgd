@@ -8,273 +8,368 @@
 <link rel="icon" type="image/png" href="divina.png">
 
 <style>
-*, *::before, *::after { box-sizing: border-box; }
-
+/* =========================================
+   VERDADEIRO APPLE DESIGN SYSTEM
+   ========================================= */
 :root {
-  --bg-deep: #000000;
-  --glass-bg: rgba(20, 20, 25, 0.7);
-  --glass-border: rgba(255, 255, 255, 0.1);
-  --text-primary: #ffffff;
-  --text-secondary: #a1a1a6;
-  --accent-red: #FF453A;
-  --accent-green: #2ecc71;
-  --font-stack: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
+  /* Light Theme */
+  --bg-body: #F2F2F7;
+  --bg-card: rgba(255, 255, 255, 0.75);
+  --text-main: #000000;
+  --text-secondary: #3C3C4399; 
+  --border-color: rgba(0, 0, 0, 0.1);
+  --divider-color: rgba(60, 60, 67, 0.15);
+  --ios-blue: #007AFF;
+  --ios-red: #FF3B30;
+  --ios-green: #34C759;
+  --glass-blur: blur(25px) saturate(200%);
+  
+  --mesh-1: rgba(0, 122, 255, 0.08);
+  --mesh-2: rgba(94, 92, 230, 0.08);
+  --mesh-3: rgba(52, 199, 89, 0.05);
 }
 
+[data-theme="dark"] {
+  /* Dark Theme */
+  --bg-body: #000000;
+  --bg-card: rgba(28, 28, 30, 0.75);
+  --text-main: #FFFFFF;
+  --text-secondary: #EBEBF599;
+  --border-color: rgba(255, 255, 255, 0.15);
+  --divider-color: rgba(84, 84, 88, 0.65);
+  --ios-blue: #0A84FF;
+  --ios-red: #FF453A;
+  --ios-green: #30D158;
+  
+  --mesh-1: rgba(10, 132, 255, 0.15);
+  --mesh-2: rgba(94, 92, 230, 0.15);
+  --mesh-3: rgba(255, 69, 58, 0.08);
+}
+
+*, *::before, *::after { box-sizing: border-box; }
+
 body {
-  background: var(--bg-deep);
-  color: var(--text-primary);
-  font-family: var(--font-stack);
+  background: var(--bg-body);
+  color: var(--text-main);
+  font-family: -apple-system, BlinkMacSystemFont, "SF Pro Display", "SF Pro Text", "Helvetica Neue", sans-serif;
+  -webkit-font-smoothing: antialiased;
   margin: 0;
   display: flex;
   align-items: center;
   justify-content: center;
   min-height: 100vh;
-  text-transform: uppercase;
+  overflow: hidden;
+  transition: background-color 0.4s ease, color 0.4s ease;
 }
 
+/* ==========================================
+   FUNDO PROFISSIONAL (MESH GRADIENT)
+   ========================================== */
+.mesh-bg {
+  position: fixed; inset: 0; z-index: -1;
+  background-color: var(--bg-body);
+  background-image:
+    radial-gradient(at 20% 20%, var(--mesh-1) 0px, transparent 50%),
+    radial-gradient(at 80% 0%, var(--mesh-2) 0px, transparent 50%),
+    radial-gradient(at 50% 100%, var(--mesh-3) 0px, transparent 50%);
+  animation: breathe 12s ease-in-out infinite alternate;
+  transition: background-image 0.4s ease, background-color 0.4s ease;
+}
+@keyframes breathe {
+  0% { transform: scale(1); }
+  100% { transform: scale(1.05); }
+}
+
+/* Theme Toggle Button */
+.theme-toggle {
+  position: absolute; top: 20px; right: 20px;
+  background: transparent; border: none;
+  color: var(--ios-blue); padding: 10px; border-radius: 50%;
+  cursor: pointer; display: flex; align-items: center; justify-content: center;
+  z-index: 100; transition: opacity 0.2s;
+}
+.theme-toggle:active { opacity: 0.5; }
+
+/* ==========================================
+   CARTÃO DE SEGURANÇA (GLASSMORPHISM)
+   ========================================== */
 .security-card {
-  width: min(90%, 380px);
-  background: var(--glass-bg);
-  backdrop-filter: blur(20px);
-  -webkit-backdrop-filter: blur(20px);
-  border: 1px solid var(--glass-border);
-  border-radius: 20px;
+  width: min(90%, 360px);
+  background: var(--bg-card);
+  backdrop-filter: var(--glass-blur);
+  -webkit-backdrop-filter: var(--glass-blur);
+  border: 1px solid var(--border-color);
+  border-radius: 24px;
   padding: 40px 30px;
   text-align: center;
-  box-shadow: 0 25px 50px rgba(0,0,0,0.8);
-  animation: fadeIn 0.6s ease-out;
+  box-shadow: 0 20px 40px rgba(0,0,0,0.1);
+  animation: fadeIn 0.6s cubic-bezier(0.2, 0.8, 0.2, 1);
 }
+[data-theme="dark"] .security-card { box-shadow: 0 20px 60px rgba(0,0,0,0.5); }
 
 @keyframes fadeIn {
-  from { opacity: 0; transform: translateY(20px); }
-  to { opacity: 1; transform: translateY(0); }
+  from { opacity: 0; transform: translateY(20px) scale(0.95); }
+  to { opacity: 1; transform: translateY(0) scale(1); }
 }
 
 .icon-lock {
-  font-size: 3rem;
-  margin-bottom: 15px;
+  color: var(--text-main);
+  margin-bottom: 20px;
+  display: flex;
+  justify-content: center;
 }
 
 h2 {
-  margin: 0 0 5px;
-  font-size: 1.3rem;
-  letter-spacing: 2px;
-  color: var(--accent-red);
+  margin: 0 0 6px;
+  font-size: 1.4rem;
+  font-weight: 700;
+  letter-spacing: -0.5px;
+  color: var(--text-main);
 }
 
 p {
   color: var(--text-secondary);
-  font-size: 0.85rem;
-  line-height: 1.5;
-  margin-bottom: 20px;
-  letter-spacing: 1px;
-}
-
-input {
-  width: 100%;
-  padding: 18px;
-  background: rgba(0,0,0,0.4);
-  border: 1px solid var(--glass-border);
-  color: #fff;
-  border-radius: 12px;
-  font-size: 1.2rem;
-  text-align: center;
-  letter-spacing: 8px;
-  margin-bottom: 20px;
-  outline: none;
-  transition: all 0.3s;
-}
-
-input:focus {
-  border-color: var(--text-primary);
-  background: rgba(0,0,0,0.6);
-}
-
-input.error {
-  border-color: var(--accent-red);
-  color: var(--accent-red);
-  animation: shake 0.4s;
-}
-
-@keyframes shake {
-  0%, 100% { transform: translateX(0); }
-  25% { transform: translateX(-6px); }
-  75% { transform: translateX(6px); }
+  font-size: 0.95rem;
+  line-height: 1.4;
+  margin-bottom: 30px;
+  font-weight: 400;
 }
 
 /* ==========================================
-   COMPONENTE ANTI-ROBÔ (ESTILO CLOUDFLARE)
+   INPUT DA SENHA
    ========================================== */
-.antibot-container {
-  display: flex;
-  align-items: center;
-  background: #1a1a1a;
-  border: 1px solid #333;
-  padding: 12px 15px;
-  border-radius: 8px;
-  margin-bottom: 25px;
-  cursor: pointer;
-  transition: border 0.3s;
-  text-align: left;
+.input-wrapper { position: relative; margin-bottom: 25px; }
+input {
+  width: 100%;
+  padding: 16px;
+  background: var(--bg-body);
+  border: 1px solid var(--border-color);
+  color: var(--text-main);
+  border-radius: 14px;
+  font-size: 1.2rem;
+  text-align: center;
+  letter-spacing: 6px;
+  outline: none;
+  font-family: monospace;
+  transition: all 0.3s cubic-bezier(0.2, 0.8, 0.2, 1);
 }
-.antibot-container:hover { border-color: #555; }
-.antibot-container.verified { border-color: var(--accent-green); cursor: default; }
 
-.antibot-box {
-  width: 24px;
-  height: 24px;
-  border: 2px solid #555;
-  border-radius: 4px;
-  margin-right: 12px;
+input:focus {
+  border-color: var(--ios-blue);
+  box-shadow: 0 0 0 4px rgba(0, 122, 255, 0.15);
+}
+
+input.error {
+  border-color: var(--ios-red);
+  color: var(--ios-red);
+  animation: shakeX 0.4s;
+}
+
+@keyframes shakeX {
+  0%, 100% { transform: translateX(0); }
+  15%, 45%, 75% { transform: translateX(-6px); }
+  30%, 60%, 90% { transform: translateX(6px); }
+}
+
+/* ==========================================
+   VERIFICAÇÃO DE SEGURANÇA (ESTILO APPLE)
+   ========================================== */
+.auth-widget {
   display: flex;
   align-items: center;
   justify-content: center;
-  background: #000;
+  gap: 12px;
+  background: transparent;
+  border: 1px solid var(--border-color);
+  padding: 14px;
+  border-radius: 14px;
+  margin-bottom: 25px;
+  cursor: pointer;
+  transition: all 0.3s ease;
+}
+.auth-widget:hover { background: rgba(0,0,0,0.03); }
+[data-theme="dark"] .auth-widget:hover { background: rgba(255,255,255,0.05); }
+
+.auth-widget.verified { 
+  border-color: var(--ios-green); 
+  background: rgba(52, 199, 89, 0.05); 
+  cursor: default; 
+}
+
+.auth-icon {
+  width: 24px; height: 24px;
+  display: flex; align-items: center; justify-content: center;
+  color: var(--text-secondary);
   transition: all 0.3s;
-  flex-shrink: 0;
 }
 
-/* Animação de Loading (Girando) */
-.antibot-box.loading {
-  border: 2px solid transparent;
-  border-top-color: var(--text-secondary);
+.auth-text {
+  font-size: 0.95rem;
+  color: var(--text-main);
+  font-weight: 500;
+  letter-spacing: -0.2px;
+}
+
+/* Spinner Nativo da Apple */
+.spinner {
+  width: 20px; height: 20px;
+  border: 2px solid var(--divider-color);
+  border-top-color: var(--ios-blue);
   border-radius: 50%;
-  animation: spin 5s linear infinite;
+  animation: spin 0.8s linear infinite;
 }
-
-/* Marca de Verificado (Verde) */
-.antibot-box.success {
-  border-color: var(--accent-green);
-  background: var(--accent-green);
-}
-.antibot-box.success::after {
-  content: '✔';
-  color: #fff;
-  font-size: 14px;
-  font-weight: bold;
-}
-
 @keyframes spin { 100% { transform: rotate(360deg); } }
 
-.antibot-text {
-  flex: 1;
-  font-size: 0.8rem;
-  color: #ccc;
-  letter-spacing: 1px;
-  text-transform: none;
-}
-.antibot-logo {
-  font-size: 0.6rem;
-  color: #666;
-  text-align: right;
-  line-height: 1.2;
-}
-.antibot-logo span { font-weight: bold; color: #888; }
+.icon-success { color: var(--ios-green); }
 
 /* ==========================================
    BOTÃO DESBLOQUEAR
    ========================================== */
-button {
+button.btn-submit {
   width: 100%;
-  padding: 18px;
-  border-radius: 12px;
+  padding: 16px;
+  border-radius: 14px;
   border: none;
-  background: #fff;
-  color: #000;
-  font-weight: 800;
-  font-size: 1rem;
-  letter-spacing: 1px;
+  background: var(--ios-blue);
+  color: #fff;
+  font-weight: 600;
+  font-size: 1.05rem;
+  font-family: inherit;
   cursor: pointer;
-  transition: all 0.3s;
+  transition: all 0.2s;
+  box-shadow: 0 4px 12px rgba(0, 122, 255, 0.2);
 }
 
-button:active:not(:disabled) {
-  transform: scale(0.96);
+button.btn-submit:active:not(:disabled) {
+  transform: scale(0.97);
+  box-shadow: none;
 }
 
-button:disabled {
-  background: #333;
-  color: #666;
+button.btn-submit:disabled {
+  background: var(--divider-color);
+  color: var(--text-secondary);
+  box-shadow: none;
   cursor: not-allowed;
 }
+
+.hidden { display: none !important; }
 </style>
 </head>
 <body>
 
-<div class="security-card">
-  <div class="icon-lock"></div>
-  <h2>Área Restrita</h2>
-  <p>Acesso exclusivo para auditores.<br></p>
+<div class="mesh-bg"></div>
 
-  <input type="password" id="master-pass" placeholder="••••••••" onkeyup="checkEnter(event)">
+<button class="theme-toggle" id="btn-theme" title="Alternar Tema">
+  <svg id="icon-sun" class="hidden" width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="5"></circle><line x1="12" y1="1" x2="12" y2="3"></line><line x1="12" y1="21" x2="12" y2="23"></line><line x1="4.22" y1="4.22" x2="5.64" y2="5.64"></line><line x1="18.36" y1="18.36" x2="19.78" y2="19.78"></line><line x1="1" y1="12" x2="3" y2="12"></line><line x1="21" y1="12" x2="23" y2="12"></line><line x1="4.22" y1="19.78" x2="5.64" y2="18.36"></line><line x1="18.36" y1="5.64" x2="19.78" y2="4.22"></line></svg>
+  <svg id="icon-moon" width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 12.79A9 9 0 1 1 11.21 3 7 7 0 0 0 21 12.79z"></path></svg>
+</button>
+
+<div class="security-card">
+  <div class="icon-lock">
+    <svg width="42" height="42" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round">
+      <rect x="3" y="11" width="18" height="11" rx="2" ry="2"></rect>
+      <path d="M7 11V7a5 5 0 0 1 10 0v4"></path>
+    </svg>
+  </div>
   
-  <div class="antibot-container" id="bot-widget" onclick="verificarHumano()">
-    <div class="antibot-box" id="bot-box"></div>
-    <div class="antibot-text" id="bot-text">Verificação</div>
-    <div class="antibot-logo">Protegido por<br><span>Central DT</span></div>
+  <h2>Área Restrita</h2>
+  <p>Acesso exclusivo para o controlo de auditoria.</p>
+
+  <div class="input-wrapper">
+    <input type="password" id="master-pass" placeholder="••••••••" onkeyup="checkEnter(event)" autocomplete="off">
+  </div>
+  
+  <div class="auth-widget" id="bot-widget" onclick="verificarHumano()">
+    <div class="auth-icon" id="bot-icon">
+      <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"></path></svg>
+    </div>
+    <div class="auth-text" id="bot-text">Verificar Segurança</div>
   </div>
 
-  <button id="btn-submit" onclick="validarAcesso()" disabled>DESBLOQUEAR</button>
+  <button class="btn-submit" id="btn-submit" onclick="validarAcesso()" disabled>Acessar Hub</button>
 </div>
 
 <script>
+// --- LÓGICA DO TEMA ---
+const themeToggle = document.getElementById('btn-theme');
+const iconSun = document.getElementById('icon-sun');
+const iconMoon = document.getElementById('icon-moon');
+
+function setTheme(isDark) {
+  if (isDark) {
+    document.documentElement.setAttribute('data-theme', 'dark');
+    iconMoon.classList.add('hidden');
+    iconSun.classList.remove('hidden');
+    localStorage.setItem('apple_theme', 'dark');
+  } else {
+    document.documentElement.removeAttribute('data-theme');
+    iconSun.classList.add('hidden');
+    iconMoon.classList.remove('hidden');
+    localStorage.setItem('apple_theme', 'light');
+  }
+}
+
+const savedTheme = localStorage.getItem('apple_theme');
+if (savedTheme === 'dark' || (!savedTheme && window.matchMedia('(prefers-color-scheme: dark)').matches)) { setTheme(true); } else { setTheme(false); }
+themeToggle.addEventListener('click', () => { const isDark = document.documentElement.getAttribute('data-theme') === 'dark'; setTheme(!isDark); });
+
+
 // === DEFINA A SENHA MESTRE AQUI ===
 const SENHA_MESTRE = "gs2026"; 
 
 let isHuman = false;
 let isVerifying = false;
 
-// Lógica do Sistema Anti-Robô
+// Lógica de Verificação (Estilo Apple)
 function verificarHumano() {
-  if (isHuman || isVerifying) return; // Se já verificou ou está verificando, ignora o clique
+  if (isHuman || isVerifying) return; 
   isVerifying = true;
   
-  const box = document.getElementById('bot-box');
+  const iconBox = document.getElementById('bot-icon');
   const text = document.getElementById('bot-text');
   const widget = document.getElementById('bot-widget');
   const btn = document.getElementById('btn-submit');
 
-  // Estado de Loading
-  box.classList.add('loading');
-  text.innerText = "Analisando conexão...";
+  // Estado de Loading (Spinner nativo)
+  iconBox.innerHTML = '<div class="spinner"></div>';
+  text.innerText = "A autenticar...";
+  text.style.color = "var(--text-secondary)";
 
-  // Simula o tempo de verificação (1.5 segundos)
+  // Simula o tempo de verificação
   setTimeout(() => {
-    box.classList.remove('loading');
-    box.classList.add('success');
+    // Sucesso (Checkmark verde)
     widget.classList.add('verified');
-    text.innerText = "Conexão segura verificada";
-    text.style.color = "#2ecc71";
+    iconBox.innerHTML = '<svg class="icon-success" width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="M22 11.08V12a10 10 0 1 1-5.93-9.14"></path><polyline points="22 4 12 14.01 9 11.01"></polyline></svg>';
+    
+    text.innerText = "Dispositivo Verificado";
+    text.style.color = "var(--ios-green)";
     
     isHuman = true;
-    btn.disabled = false; // Libera o botão de desbloquear
-  }, 1500);
+    btn.disabled = false;
+  }, 1200);
 }
 
 // Lógica de Desbloqueio da Senha Mestre
 function validarAcesso() {
-  if (!isHuman) return; // Trava extra de segurança
+  if (!isHuman) return; 
 
   const input = document.getElementById('master-pass');
   
   if(input.value === SENHA_MESTRE) {
-    // Cria o crachá de segurança na memória do celular
     sessionStorage.setItem("gs_acesso_liberado", "SIM");
-    
-    // Redireciona para o Hub usando a URL limpa (ajustado para funcionar com a máscara)
-    window.location.replace("./hub");
+    window.location.replace("./hub.html");
   } else {
-    // Animação de erro na senha
+    // Animação de erro nativa iOS
     input.classList.remove('error');
     void input.offsetWidth; 
     input.classList.add('error');
     input.value = '';
-    if(navigator.vibrate) navigator.vibrate([100, 50, 100]);
+    
+    if(navigator.vibrate) navigator.vibrate([50, 50, 50]);
   }
 }
 
-// Permitir apertar Enter só se já tiver verificado ser humano
+// Permitir apertar Enter só se já tiver verificado
 function checkEnter(event) {
   if (event.key === "Enter" && isHuman) {
     validarAcesso();
