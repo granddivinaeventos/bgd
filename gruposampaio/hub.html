@@ -10,328 +10,365 @@
 
 <title>Hub - Don Tallento</title>
 <script>
+  // 1. Bloqueio: Se a pessoa não digitou a senha no início, é expulsa
   if (sessionStorage.getItem("gs_acesso_liberado") !== "SIM") {
-    // window.location.replace("/gruposampaio/"); // Descomente em produção
+    window.location.replace("/gruposampaio/"); // Volta pra tela do cadeado
   }
+  
+  // 2. Máscara: Apaga o nome da página e congela a URL mostrando só a pasta principal
   window.history.replaceState({}, '', '/gruposampaio/');
 </script>
 <link rel="icon" type="image/png" href="gs.png">
 
 <style>
-/* =========================================
-   VERDADEIRO APPLE DESIGN SYSTEM
-   ========================================= */
-:root {
-  /* Light Theme */
-  --bg-body: #F2F2F7;
-  --bg-card: #FFFFFF;
-  --bg-modal: rgba(255, 255, 255, 0.85);
-  --text-main: #000000;
-  --text-secondary: #3C3C4399; /* Cor nativa de subtítulos no iOS */
-  --border-color: #C6C6C8;
-  --divider-color: rgba(60, 60, 67, 0.15);
-  --ios-blue: #007AFF;
-  --ios-red: #FF3B30;
-  
-  --mesh-1: rgba(0, 122, 255, 0.08);
-  --mesh-2: rgba(94, 92, 230, 0.08);
-  --mesh-3: rgba(52, 199, 89, 0.05);
-}
-
-[data-theme="dark"] {
-  /* Dark Theme */
-  --bg-body: #000000;
-  --bg-card: #1C1C1E;
-  --bg-modal: rgba(28, 28, 30, 0.85);
-  --text-main: #FFFFFF;
-  --text-secondary: #EBEBF599;
-  --border-color: #38383A;
-  --divider-color: rgba(84, 84, 88, 0.65);
-  --ios-blue: #0A84FF;
-  --ios-red: #FF453A;
-  
-  --mesh-1: rgba(10, 132, 255, 0.15);
-  --mesh-2: rgba(94, 92, 230, 0.15);
-  --mesh-3: rgba(255, 69, 58, 0.08);
-}
-
 *, *::before, *::after { box-sizing: border-box; }
 
+:root {
+  --bg-deep: #000000;
+  --glass-bg: rgba(30, 30, 35, 0.65);
+  --glass-border: rgba(255, 255, 255, 0.12);
+  --text-primary: #ffffff;
+  --text-secondary: #a1a1a6;
+  --accent-blue: #0A84FF;
+  --red-ios: #FF453A;
+  --font-stack: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
+}
+
 body {
-  background: var(--bg-body);
-  color: var(--text-main);
-  font-family: -apple-system, BlinkMacSystemFont, "SF Pro Display", "SF Pro Text", "Helvetica Neue", sans-serif;
-  -webkit-font-smoothing: antialiased;
+  background: var(--bg-deep);
+  color: var(--text-primary);
+  font-family: var(--font-stack);
   margin: 0;
   overflow: hidden;
-  height: 100vh; 
-  width: 100vw;
-  transition: background-color 0.4s ease, color 0.4s ease;
+  height: 100%; 
+  width: 100%;
+  text-transform: uppercase; 
 }
 
 /* ==========================================
-   FUNDO PROFISSIONAL (MESH GRADIENT)
-   ========================================== */
-.mesh-bg {
-  position: fixed; inset: 0; z-index: -1;
-  background-color: var(--bg-body);
-  background-image:
-    radial-gradient(at 20% 20%, var(--mesh-1) 0px, transparent 50%),
-    radial-gradient(at 80% 0%, var(--mesh-2) 0px, transparent 50%),
-    radial-gradient(at 50% 100%, var(--mesh-3) 0px, transparent 50%);
-  animation: breathe 12s ease-in-out infinite alternate;
-  transition: background-image 0.4s ease, background-color 0.4s ease;
-}
-@keyframes breathe {
-  0% { transform: scale(1); }
-  100% { transform: scale(1.05); }
-}
-
-/* ==========================================
-   HEADER & SPLASH
-   ========================================== */
-.theme-toggle {
-  position: absolute; top: 20px; right: 20px;
-  background: transparent; border: none;
-  color: var(--ios-blue); padding: 10px; border-radius: 50%;
-  cursor: pointer; display: flex; align-items: center; justify-content: center;
-  z-index: 100; transition: opacity 0.2s;
-}
-.theme-toggle:active { opacity: 0.5; }
-
-#splash-screen {
-  position: fixed; inset: 0; z-index: 10000;
-  background: var(--bg-body);
-  display: flex; flex-direction: column; align-items: center; justify-content: center;
-  transition: opacity 0.6s cubic-bezier(0.25, 1, 0.5, 1), visibility 0.6s;
-}
-#splash-screen.hidden { opacity: 0; visibility: hidden; }
-.splash-logos { display: flex; gap: 20px; align-items: center; justify-content: center; flex-wrap: wrap; margin-bottom: 20px; }
-.splash-logos img { height: 40px; max-width: 120px; object-fit: contain; }
-.splash-spinner {
-  width: 24px; height: 24px; border: 3px solid var(--divider-color);
-  border-top-color: var(--ios-blue); border-radius: 50%;
-  animation: spin 1s linear infinite; margin-top: 30px;
-}
-@keyframes spin { 100% { transform: rotate(360deg); } }
-
-/* ==========================================
-   LAYOUT PRINCIPAL
-   ========================================== */
-#main-content {
-  display: flex; flex-direction: column; align-items: center; 
-  padding: 60px 20px 20px; max-width: 600px; margin: 0 auto;
-  opacity: 0; transform: translateY(10px); transition: all 0.6s ease;
-}
-#main-content.active { opacity: 1; transform: translateY(0); }
-
-.hub-header { text-align: center; margin-bottom: 35px; width: 100%; }
-.hub-header h2 { margin: 0; font-size: 2rem; font-weight: 700; letter-spacing: -0.5px; }
-.hub-header p { color: var(--text-secondary); font-size: 1.05rem; line-height: 1.4; margin-top: 8px; font-weight: 400; }
-
-/* ESTILO DE LISTA AGRUPADA (iOS SETTINGS) */
-.menu-group {
-  width: 100%; background: var(--bg-card);
-  border-radius: 12px; overflow: hidden;
-  box-shadow: 0 1px 2px rgba(0,0,0,0.05);
-}
-
-.btn-menu {
-  display: flex; align-items: center;
-  width: 100%; padding: 0; margin: 0;
-  background: transparent; border: none;
-  cursor: pointer; transition: background-color 0.2s;
-  text-align: left;
-}
-.btn-menu:active { background-color: var(--divider-color); }
-
-.menu-icon-wrapper {
-  padding: 14px 16px; display: flex; align-items: center; justify-content: center;
-}
-.menu-icon {
-  width: 30px; height: 30px; border-radius: 8px;
-  display: flex; align-items: center; justify-content: center;
-  color: white;
-}
-.icon-blue { background: var(--ios-blue); }
-.icon-purple { background: #5E5CE6; }
-
-.menu-content {
-  flex: 1; display: flex; align-items: center; justify-content: space-between;
-  padding: 16px 16px 16px 0;
-  border-bottom: 0.5px solid var(--divider-color);
-}
-.btn-menu:last-child .menu-content { border-bottom: none; }
-
-.menu-text { display: flex; flex-direction: column; gap: 3px; }
-.menu-title { color: var(--text-main); font-size: 1.05rem; font-weight: 500; letter-spacing: -0.2px; }
-.menu-subtitle { color: var(--text-secondary); font-size: 0.85rem; font-weight: 400; }
-
-.menu-chevron { color: var(--text-secondary); opacity: 0.5; }
-
-/* RODAPÉ */
-.footer-note { 
-  margin-top: 40px; text-align: center; color: var(--text-secondary); 
-  font-size: 0.8rem; font-weight: 500; letter-spacing: 0.5px;
-}
-.btn-reload {
-  margin-top: 15px; background: transparent; border: none; color: var(--ios-blue);
-  cursor: pointer; font-size: 0.9rem; font-weight: 500;
-  display: inline-flex; align-items: center; gap: 5px; transition: opacity 0.2s;
-}
-.btn-reload:active { opacity: 0.5; }
-
-/* ==========================================
-   MODAL DE SENHA (NATIVO iOS ALERT)
-   ========================================== */
-.modal-overlay {
-  position: fixed; inset: 0; z-index: 9999;
-  background: rgba(0,0,0,0.4);
-  display: none; align-items: center; justify-content: center; padding: 20px;
-  opacity: 0; transition: opacity 0.25s ease;
-}
-.modal-overlay.show { display: flex; opacity: 1; }
-.modal-content {
-  width: 270px; background: var(--bg-modal);
-  backdrop-filter: blur(20px); -webkit-backdrop-filter: blur(20px);
-  border-radius: 14px; text-align: center;
-  transform: scale(1.1); transition: transform 0.25s cubic-bezier(0.2, 0.8, 0.2, 1);
-  display: flex; flex-direction: column; overflow: hidden;
-  box-shadow: 0 10px 30px rgba(0,0,0,0.2);
-}
-.modal-overlay.show .modal-content { transform: scale(1); }
-
-.modal-header { padding: 20px 16px 15px; }
-.modal-content h4 { margin: 0 0 6px; font-size: 1.05rem; font-weight: 600; letter-spacing: -0.2px; }
-.modal-content p { font-size: 0.85rem; color: var(--text-main); margin: 0; font-weight: 400; line-height: 1.3; }
-
-.modal-input-container { padding: 0 16px 20px; }
-.modal-content input {
-  width: 100%; padding: 8px 10px; 
-  background: var(--bg-body); border: 0.5px solid var(--border-color);
-  color: var(--text-main); border-radius: 6px; font-size: 0.95rem;
-  font-family: inherit; transition: all 0.2s;
-}
-.modal-content input:focus { outline: none; border-color: var(--ios-blue); }
-.modal-content input.error { color: var(--ios-red); border-color: var(--ios-red); animation: shakeX 0.4s; }
-
-.modal-btns { 
-  display: flex; border-top: 0.5px solid var(--divider-color);
-}
-.btn-modal { 
-  flex: 1; padding: 12px; background: transparent; border: none;
-  color: var(--ios-blue); font-size: 1.05rem; font-family: inherit;
-  cursor: pointer; transition: background-color 0.2s;
-}
-.btn-modal:active { background-color: rgba(0,0,0,0.05); }
-.btn-cancel { font-weight: 400; border-right: 0.5px solid var(--divider-color); }
-.btn-confirm { font-weight: 600; }
-
-.hidden { display: none !important; }
-
-/* ==========================================
-   RESPONSIVIDADE E OFFLINE
+   TELA DE BLOQUEIO OFFLINE
    ========================================== */
 #offline-screen {
   position: fixed; inset: 0; z-index: 999999;
-  background: var(--bg-body); display: none; flex-direction: column; align-items: center; justify-content: center;
+  background: #000; display: none; flex-direction: column; align-items: center; justify-content: center;
   text-align: center; padding: 20px;
 }
-#offline-screen svg { color: var(--text-secondary); margin-bottom: 15px; }
+#offline-screen h3 { color: #fff; margin-bottom: 10px; font-size: 1.5rem; letter-spacing: 2px; }
+#offline-screen p { color: var(--text-secondary); font-size: 0.9rem; line-height: 1.5; }
+.wifi-icon { font-size: 3rem; margin-bottom: 20px; color: var(--red-ios); }
 
+/* ==========================================
+   FUNDO APPLE WALLPAPER
+   ========================================== */
+.apple-wallpaper {
+  position: fixed; inset: 0; z-index: -1; background-color: #000; overflow: hidden;
+  transform: translateZ(0);
+}
+.apple-wallpaper.paused .orb { animation-play-state: paused !important; }
+
+.orb {
+  position: absolute; border-radius: 50%; filter: blur(100px); opacity: 0.6;
+  animation: drift 20s infinite alternate cubic-bezier(0.5, 0, 0.5, 1);
+  will-change: transform; 
+}
+.orb-1 { background: #0A84FF; width: 400px; height: 400px; top: -10%; left: -10%; animation-duration: 25s; }
+.orb-2 { background: #5E5CE6; width: 350px; height: 350px; bottom: -15%; right: -10%; animation-duration: 22s; }
+.orb-3 { background: #FF375F; width: 300px; height: 300px; top: 30%; left: 40%; opacity: 0.3; animation-duration: 28s; }
+
+@keyframes drift {
+  0% { transform: translate(0, 0) scale(1); }
+  50% { transform: translate(50px, 50px) scale(1.05); }
+  100% { transform: translate(-50px, -50px) scale(0.95); }
+}
+
+/* ==========================================
+   ANIMAÇÕES GERAIS
+   ========================================== */
+@keyframes fadeScaleUp {
+  from { opacity: 0; transform: scale(0.92); filter: blur(10px); }
+  to { opacity: 1; transform: scale(1); filter: blur(0); }
+}
+@keyframes float {
+  0%, 100% { transform: translateY(0px); }
+  50% { transform: translateY(-10px); }
+}
+@keyframes shakeX {
+  0%, 100% { transform: translateX(0); }
+  15%, 45%, 75% { transform: translateX(-6px); }
+  30%, 60%, 90% { transform: translateX(6px); }
+}
+
+/* ==========================================
+   UTILITÁRIOS DE VIDRO
+   ========================================== */
+.glass-panel {
+  background: var(--glass-bg);
+  backdrop-filter: blur(25px) saturate(180%); 
+  -webkit-backdrop-filter: blur(25px) saturate(180%);
+  border: 1px solid var(--glass-border);
+  box-shadow: 0 25px 50px -12px rgba(0, 0, 0, 0.5);
+  overflow: hidden; isolation: isolate; border-radius: 24px;
+  transform: translateZ(0); 
+}
+
+/* ==========================================
+   TELA DE ABERTURA
+   ========================================== */
+#splash-screen {
+  position: fixed; inset: 0; z-index: 10000;
+  background: rgba(0,0,0,0.5); backdrop-filter: blur(10px); -webkit-backdrop-filter: blur(10px);
+  display: flex; flex-direction: column; align-items: center; justify-content: center;
+  transition: all 0.8s cubic-bezier(0.65, 0, 0.35, 1);
+}
+#splash-screen.hidden { opacity: 0; visibility: hidden; transform: scale(1.1); filter: blur(20px); }
+.splash-content-wrapper { animation: float 6s ease-in-out infinite; text-align: center; }
+.splash-logos { display: flex; gap: 20px; align-items: center; justify-content: center; flex-wrap: wrap; }
+.splash-logos img { height: 45px; max-width: 130px; object-fit: contain; filter: drop-shadow(0 10px 20px rgba(0,0,0,0.5)); }
+.splash-title { 
+  margin-top: 40px; font-size: 1.6rem; font-weight: 800; letter-spacing: 2px;
+  background: linear-gradient(to right, #fff, #a1a1a6); -webkit-background-clip: text; -webkit-text-fill-color: transparent;
+}
+.splash-tap {
+  position: absolute; bottom: 50px; width: 100%; text-align: center;
+  font-size: 0.85rem; color: var(--text-secondary); letter-spacing: 3px;
+  opacity: 0.7; animation: pulse 3s infinite ease-in-out; cursor: pointer;
+}
+@keyframes pulse { 50% { opacity: 0.3; } }
+
+/* ==========================================
+   CONTEÚDO PRINCIPAL (HUB)
+   ========================================== */
+#main-content {
+  display: flex; align-items: center; justify-content: center; min-height: 100vh;
+  padding: 20px; opacity: 0; visibility: hidden;
+}
+#main-content.active { animation: fadeScaleUp 0.9s cubic-bezier(0.2, 0.8, 0.2, 1) forwards; visibility: visible; }
+.hub-card { width: min(680px, 100%); padding: 40px 30px; }
+.hub-header { text-align: center; margin-bottom: 40px; }
+.hub-header h2 { margin: 0; font-size: 1.5rem; font-weight: 800; letter-spacing: 1px; }
+.hub-header p { color: var(--text-secondary); font-size: 0.9rem; line-height: 1.5; margin-top: 12px; letter-spacing: 1px; }
+
+/* BOTÕES DE MENU */
+.menu-list { display: flex; flex-direction: column; gap: 18px; }
+.btn-menu {
+  display: flex; align-items: center; justify-content: space-between;
+  width: 100%; padding: 25px 30px; border-radius: 18px; 
+  border: 1px solid rgba(255,255,255,0.05); background: rgba(255,255,255,0.03); 
+  color: var(--text-primary); font-family: var(--font-stack);
+  font-weight: 700; font-size: 1rem; letter-spacing: 2px;
+  cursor: pointer; transition: all 0.3s ease; position: relative; overflow: hidden;
+}
+.btn-menu.historico { background: rgba(10, 132, 255, 0.1); border-color: rgba(10, 132, 255, 0.3); }
+.btn-menu::before {
+  content: ''; position: absolute; top: 0; left: -100%; width: 100%; height: 100%;
+  background: linear-gradient(90deg, transparent, rgba(255,255,255,0.1), transparent);
+  transition: 0.5s;
+}
+.btn-menu:hover::before { left: 100%; }
+.btn-menu:hover { 
+  background: rgba(255,255,255,0.08); border-color: rgba(255,255,255,0.2);
+  transform: scale(1.02); box-shadow: 0 10px 30px -10px rgba(0,0,0,0.5);
+}
+.btn-menu.historico:hover { background: rgba(10, 132, 255, 0.2); border-color: rgba(10, 132, 255, 0.5); }
+.btn-menu:active { transform: scale(0.98); }
+.btn-menu .title { flex: 1; text-align: left; }
+.btn-menu .arrow { 
+  color: var(--text-secondary); font-size: 1.1rem; 
+  background: rgba(255,255,255,0.1); padding: 8px; border-radius: 50%;
+  transition: 0.3s;
+}
+.btn-menu:hover .arrow { background: var(--accent-blue); color: white; }
+
+/* RODAPÉ E BOTÃO DE RECARREGAR */
+.footer-note { margin-top: 40px; text-align: center; color: var(--text-secondary); font-size: 0.75rem; font-weight: 700; letter-spacing: 2px; opacity: 0.6;}
+
+.reload-wrapper { text-align: center; margin-top: 10px; }
+.btn-reload {
+  background: transparent; border: none; color: var(--text-secondary);
+  cursor: pointer; opacity: 0.3; transition: all 0.4s ease;
+  padding: 10px; display: inline-flex; align-items: center; justify-content: center;
+}
+.btn-reload:hover, .btn-reload:active {
+  opacity: 1; color: var(--text-primary); transform: rotate(180deg);
+}
+
+/* ==========================================
+   MODAIS (SENHA E HISTÓRICO)
+   ========================================== */
+.modal-overlay {
+  position: fixed; inset: 0; z-index: 9999;
+  background: rgba(0,0,0,0.6); backdrop-filter: blur(15px); -webkit-backdrop-filter: blur(15px);
+  display: none; align-items: center; justify-content: center; padding: 20px;
+  opacity: 0; transition: all 0.4s ease;
+  will-change: opacity; 
+}
+.modal-overlay.show { display: flex; opacity: 1; }
+.modal-content {
+  width: 100%; max-width: 400px; text-align: center; padding: 40px 30px;
+  transform: scale(0.9) translateY(20px); transition: all 0.4s cubic-bezier(0.2, 0.8, 0.2, 1);
+  box-shadow: 0 40px 80px rgba(0,0,0,0.6);
+  will-change: transform; display: flex; flex-direction: column;
+}
+.modal-content.wide { max-width: 550px; padding: 30px; max-height: 85vh; }
+.modal-overlay.show .modal-content { transform: scale(1) translateY(0); }
+
+/* Títulos do Modal */
+.modal-content h4 { margin: 0 0 10px; font-size: 1.3rem; letter-spacing: 1px; font-weight: 800; }
+.modal-content p { font-size: 0.85rem; color: var(--text-secondary); margin-bottom: 30px; letter-spacing: 1px; }
+
+/* Input de Senha */
+.input-wrapper { position: relative; width: 100%; margin-bottom: 25px; }
+.modal-content input {
+  width: 100%; padding: 20px; background: rgba(0,0,0,0.2); border: 2px solid var(--glass-border);
+  color: var(--text-primary); border-radius: 14px; font-size: 1.2rem;
+  text-align: center; letter-spacing: 6px; transition: all 0.3s; font-family: monospace; 
+}
+.modal-content input:focus { outline: none; border-color: var(--accent-blue); background: rgba(0,0,0,0.4); }
+.modal-content input.error { border-color: var(--red-ios); animation: shakeX 0.5s; color: var(--red-ios); }
+
+/* Botões do Modal */
+.modal-btns { display: flex; gap: 15px; margin-top: auto; }
+.btn-modal { 
+  flex: 1; padding: 18px; border-radius: 14px; font-weight: 800; letter-spacing: 1px; text-transform: uppercase;
+  cursor: pointer; transition: all 0.2s; font-size: 0.9rem; font-family: var(--font-stack);
+}
+.btn-cancel { border: none; background: rgba(255,255,255,0.05); color: var(--text-secondary); }
+.btn-cancel:hover { background: rgba(255,255,255,0.1); color: #fff; }
+.btn-confirm { border: none; background: var(--accent-blue); color: white; box-shadow: 0 4px 15px rgba(10, 132, 255, 0.3); }
+.btn-confirm:hover { background: #0071e3; transform: translateY(-2px); box-shadow: 0 8px 25px rgba(10, 132, 255, 0.5); }
+.btn-confirm:active { transform: translateY(1px); }
+
+/* ==========================================
+   ESTILIZAÇÃO DA LISTA DE HISTÓRICO
+   ========================================== */
+.history-scroll-area {
+  overflow-y: auto; text-align: left; padding-right: 10px; margin-bottom: 25px;
+  flex: 1; /* Faz a área crescer e empurrar o botão de fechar pro fim */
+}
+.history-scroll-area::-webkit-scrollbar { width: 6px; }
+.history-scroll-area::-webkit-scrollbar-track { background: transparent; }
+.history-scroll-area::-webkit-scrollbar-thumb { background: rgba(255,255,255,0.2); border-radius: 10px; }
+
+.history-category { margin-bottom: 25px; }
+.history-category h5 { 
+  color: var(--accent-blue); font-size: 0.9rem; letter-spacing: 2px; 
+  margin: 0 0 12px 0; border-bottom: 1px solid rgba(255,255,255,0.1); padding-bottom: 8px; 
+}
+.history-item {
+  display: flex; justify-content: space-between; align-items: center;
+  padding: 16px 20px; background: rgba(255,255,255,0.04); border-radius: 14px;
+  text-decoration: none; color: var(--text-primary); margin-bottom: 10px;
+  transition: all 0.3s ease; border: 1px solid transparent; cursor: pointer;
+}
+.history-item:hover {
+  background: rgba(255,255,255,0.08); border-color: rgba(255,255,255,0.15); transform: scale(1.02);
+}
+.history-item .date { font-weight: 700; font-size: 0.95rem; letter-spacing: 1px; }
+.history-item .icon { 
+  background: rgba(255,255,255,0.1); border-radius: 50%; width: 32px; height: 32px;
+  display: flex; align-items: center; justify-content: center; font-size: 1.1rem; transition: 0.3s;
+}
+.history-item:hover .icon { background: var(--accent-blue); color: #fff; }
+
+/* ==========================================
+   AJUSTES PARA CELULAR (RESPONSIVIDADE)
+   ========================================== */
 @media (max-width: 600px) {
-  #main-content { padding-top: 40px; }
-  .hub-header h2 { font-size: 1.8rem; }
+  .hub-card { padding: 30px 20px; }
+  .hub-header h2 { font-size: 1.3rem; }
+  .btn-menu { padding: 20px 15px; font-size: 0.85rem; letter-spacing: 1px; }
+  .modal-content { padding: 30px 20px; }
+  .modal-content input { padding: 16px; font-size: 1rem; letter-spacing: 4px; }
+  .btn-modal { padding: 15px; font-size: 0.8rem; }
+  .history-item { padding: 14px 15px; }
+  .history-item .date { font-size: 0.85rem; }
+  .apple-wallpaper .orb { filter: blur(70px); }
+  .glass-panel { backdrop-filter: blur(15px) saturate(180%); -webkit-backdrop-filter: blur(15px) saturate(180%); }
 }
 </style>
 </head>
 <body>
 
-<div class="mesh-bg"></div>
-
-<button class="theme-toggle" id="btn-theme" title="Alternar Tema">
-  <svg id="icon-sun" class="hidden" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="5"></circle><line x1="12" y1="1" x2="12" y2="3"></line><line x1="12" y1="21" x2="12" y2="23"></line><line x1="4.22" y1="4.22" x2="5.64" y2="5.64"></line><line x1="18.36" y1="18.36" x2="19.78" y2="19.78"></line><line x1="1" y1="12" x2="3" y2="12"></line><line x1="21" y1="12" x2="23" y2="12"></line><line x1="4.22" y1="19.78" x2="5.64" y2="18.36"></line><line x1="18.36" y1="5.64" x2="19.78" y2="4.22"></line></svg>
-  <svg id="icon-moon" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 12.79A9 9 0 1 1 11.21 3 7 7 0 0 0 21 12.79z"></path></svg>
-</button>
-
 <div id="offline-screen">
-  <svg width="48" height="48" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><line x1="1" y1="1" x2="23" y2="23"></line><path d="M16.72 11.06A10.94 10.94 0 0 1 19 12.55"></path><path d="M5 12.55a10.94 10.94 0 0 1 5.17-2.39"></path><path d="M10.71 5.05A16 16 0 0 1 22.58 9"></path><path d="M1.42 9a15.91 15.91 0 0 1 4.7-2.88"></path><path d="M8.53 16.11a6 6 0 0 1 6.95 0"></path><line x1="12" y1="20" x2="12.01" y2="20"></line></svg>
-  <p style="color: var(--text-main); font-weight: 600; font-size: 1.1rem; margin:0 0 5px;">Sem Conexão</p>
-  <p style="color: var(--text-secondary); margin:0;">O hub requer rede para acessar os módulos.</p>
+  <div class="wifi-icon">⚠️</div>
+  <h3>SEM CONEXÃO</h3>
+  <p>Verifique sua internet.<br>O sistema de auditoria requer rede para funcionar.</p>
 </div>
 
-<div id="splash-screen">
-  <div class="splash-logos">
-      <img src="divina.png" alt="Divina" onerror="this.style.display='none'" />
-      <img src="opy.png" alt="Opy" onerror="this.style.display='none'" />
-      <img src="cheppitos.png" alt="Cheppitos" onerror="this.style.display='none'" />
-      <img src="fornelle.png" alt="Fornelle" onerror="this.style.display='none'" />
+<div class="apple-wallpaper" id="bg-wallpaper">
+  <div class="orb orb-1"></div>
+  <div class="orb orb-2"></div>
+  <div class="orb orb-3"></div>
+</div>
+
+<div id="splash-screen" onclick="entrarNoHub()">
+  <div class="splash-content-wrapper">
+    <div class="splash-logos">
+        <img src="divina.png" alt="Divina" onerror="this.style.display='none'" />
+        <img src="opy.png" alt="Opy" onerror="this.style.display='none'" />
+        <img src="cheppitos.png" alt="Cheppitos" onerror="this.style.display='none'" />
+        <img src="fornelle.png" alt="Fornelle" onerror="this.style.display='none'" />
+    </div>
+    <div class="splash-title">Don Tallento</div>
   </div>
-  <div class="splash-spinner"></div>
+  <div class="splash-tap">Toque para iniciar</div>
 </div>
 
 <div id="main-content">
-  <div class="hub-header">
-    <h2>Central de Auditoria</h2>
-    <p>Selecione um módulo para iniciar a avaliação das unidades.</p>
-  </div>
-
-  <div class="menu-group" id="menu-list-container">
+  <div class="hub-card glass-panel">
+    <div class="hub-header">
+      <h2>Auditoria & Qualidade</h2>
+      <p>Central de controle e operações.</p>
     </div>
 
-  <div class="footer-note">
-    DON TALLENTO • 2026<br>
-    <button class="btn-reload" onclick="window.location.reload(true)">
-      <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="23 4 23 10 17 10"></polyline><path d="M20.49 15a9 9 0 1 1-2.12-9.36L23 10"></path></svg>
-      Sincronizar
-    </button>
+    <div class="menu-list" id="menu-list-container"></div>
+
+    <div class="footer-note">SISTEMA INTEGRADO • 2026</div>
+    
+    <div class="reload-wrapper">
+      <button class="btn-reload" onclick="window.location.reload(true)" aria-label="Recarregar">
+        <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+          <polyline points="23 4 23 10 17 10"></polyline>
+          <path d="M20.49 15a9 9 0 1 1-2.12-9.36L23 10"></path>
+        </svg>
+      </button>
+    </div>
   </div>
 </div>
 
 <div id="password-modal" class="modal-overlay">
-  <div class="modal-content">
-    <div class="modal-header">
-      <h4 id="modal-title">Autenticação</h4>
-      <p>Insira a senha para acessar este módulo.</p>
-    </div>
+  <div class="modal-content glass-panel">
+    <h4 id="modal-title">Acesso Restrito</h4>
+    <p>Digite a credencial de acesso para este setor.</p>
     
-    <div class="modal-input-container">
-      <input type="password" id="pass-input" placeholder="Senha" onkeyup="checkEnter(event)" autocomplete="off"/>
+    <div class="input-wrapper">
+      <input type="password" id="pass-input" placeholder="••••••••" onkeyup="checkEnter(event)" />
     </div>
     
     <div class="modal-btns">
-      <button class="btn-modal btn-cancel" onclick="fecharModal()">Cancelar</button>
+      <button class="btn-modal btn-cancel" onclick="fecharModalSenha()">Cancelar</button>
       <button class="btn-modal btn-confirm" onclick="validarSenha()">Acessar</button>
     </div>
   </div>
 </div>
 
+<div id="history-modal" class="modal-overlay">
+  <div class="modal-content wide glass-panel">
+    <h4>Arquivos e Relatórios</h4>
+    <p>Faça o download das auditorias anteriores.</p>
+    
+    <div class="history-scroll-area" id="history-container">
+      </div>
+    
+    <div class="modal-btns">
+      <button class="btn-modal btn-cancel" style="flex: none; width: 100%;" onclick="fecharModalHistorico()">Fechar Histórico</button>
+    </div>
+  </div>
+</div>
+
 <script>
-// --- THEME TOGGLE LOGIC ---
-const themeToggle = document.getElementById('btn-theme');
-const iconSun = document.getElementById('icon-sun');
-const iconMoon = document.getElementById('icon-moon');
-
-function setTheme(isDark) {
-  if (isDark) {
-    document.documentElement.setAttribute('data-theme', 'dark');
-    iconMoon.classList.add('hidden');
-    iconSun.classList.remove('hidden');
-    localStorage.setItem('apple_theme', 'dark');
-  } else {
-    document.documentElement.removeAttribute('data-theme');
-    iconSun.classList.add('hidden');
-    iconMoon.classList.remove('hidden');
-    localStorage.setItem('apple_theme', 'light');
-  }
-}
-
-const savedTheme = localStorage.getItem('apple_theme');
-if (savedTheme === 'dark' || (!savedTheme && window.matchMedia('(prefers-color-scheme: dark)').matches)) { setTheme(true); } else { setTheme(false); }
-themeToggle.addEventListener('click', () => { const isDark = document.documentElement.getAttribute('data-theme') === 'dark'; setTheme(!isDark); });
-
 /* ==========================================
-   SISTEMA DE DETECÇÃO DE INTERNET
+   SISTEMA DE DETECÇÃO DE INTERNET (OFFLINE)
    ========================================== */
 function checkConnection() {
   const offlineScreen = document.getElementById('offline-screen');
@@ -346,107 +383,182 @@ window.addEventListener('offline', checkConnection);
 checkConnection(); 
 
 /* ==========================================
-   CONFIGURAÇÃO DOS MÓDULOS
-   ========================================== */
-const questionarios = [
-  { 
-    id: "operacional",
-    nome: "Controle Operacional", 
-    desc: "Qualidade, estrutura e higiene.",
-    arquivo: "checklistoperacional.html", 
-    senha: "@Qualidade01",
-    colorClass: "icon-blue",
-    icon: `<svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M16 4h2a2 2 0 0 1 2 2v14a2 2 0 0 1-2 2H6a2 2 0 0 1-2-2V6a2 2 0 0 1 2-2h2"></path><rect x="8" y="2" width="8" height="4" rx="1" ry="1"></rect><polyline points="9 14 11 16 15 12"></polyline></svg>`
+   ÁREA PARA ADICIONAR LINKS DE HISTÓRICO
+   ==========================================
+   COMO USAR: 
+   Sempre que quiser adicionar uma nova data, basta copiar a linha "{ data: 'XX/XX/XXXX', link: 'SEU_LINK_DO_DRIVE_AQUI' }," e colar dentro da categoria correta.
+   Para o Google Drive baixar direto, mude o link de "view?usp=sharing" para "uc?export=download&id=SEU_ID_AQUI" (opcional, mas recomendado).
+*/
+const dadosHistorico = [
+  {
+    categoria: "Controle de Qualidade",
+    arquivos: [
+      { data: "20/03/2026", link: "https://drive.google.com" },
+      { data: "13/03/2026", link: "https://drive.google.com" }
+    ]
   },
-  { 
-    id: "divina",
-    nome: "Checklist Divina", 
-    desc: "Padrão de produção.",
-    arquivo: "checklistdivina.html", 
-    senha: "@Operações01",
-    colorClass: "icon-purple",
-    icon: `<svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M3 9l9-7 9 7v11a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z"></path><polyline points="9 22 9 12 15 12 15 22"></polyline></svg>`
+  {
+    categoria: "Controle de Operações",
+    arquivos: [
+      { data: "21/03/2026", link: "https://drive.google.com" }
+    ]
   }
 ];
 
-let checklistSelecionado = null;
+/* ==========================================
+   CONFIGURAÇÃO DOS MÓDULOS PRINCIPAIS
+   ========================================== */
+const modulos = [
+  { 
+    id: "operacional",
+    nome: "Controle Qualidade", 
+    arquivo: "checklistoperacional.html", 
+    senha: "@Qualidade01",
+    tipo: "auditoria"
+  },
+  { 
+    id: "divina",
+    nome: "Controle Operações", 
+    arquivo: "checklistdivina.html", 
+    senha: "@Operações01",
+    tipo: "auditoria"
+  },
+  { 
+    id: "historico",
+    nome: "Histórico de Relatórios", 
+    senha: "@Historico01", // Senha para abrir a tela de downloads
+    tipo: "historico",
+    classeCSS: "historico" // Para dar um destaque visual no botão
+  }
+];
 
-// Animação de entrada do Splash
-window.onload = () => {
-  renderizarMenu();
+let moduloSelecionado = null;
+const bgWallpaper = document.getElementById('bg-wallpaper');
+const modalSenha = document.getElementById('password-modal');
+const modalHistorico = document.getElementById('history-modal');
+const inputSenha = document.getElementById('pass-input');
+const modalTitle = document.getElementById('modal-title');
+
+function entrarNoHub() {
+  const splash = document.getElementById('splash-screen');
+  const main = document.getElementById('main-content');
+  
+  splash.classList.add('hidden'); 
+  document.body.style.overflow = 'auto';
+  
   setTimeout(() => {
-    const splash = document.getElementById('splash-screen');
-    const main = document.getElementById('main-content');
-    
-    splash.classList.add('hidden'); 
-    setTimeout(() => {
-      splash.style.display = 'none';
-      main.classList.add('active');
-    }, 600);
-  }, 1200); // Fica 1.2s na tela de carregamento para parecer um app abrindo
-};
+    splash.style.display = 'none';
+    main.classList.add('active');
+  }, 700);
+}
 
 function renderizarMenu() {
   const container = document.getElementById('menu-list-container');
   container.innerHTML = '';
 
-  questionarios.forEach((q) => {
-    const btn = document.createElement('button'); 
-    btn.className = 'btn-menu';
-    btn.onclick = () => abrirModal(q);
+  modulos.forEach((mod, index) => {
+    const btn = document.createElement('div'); 
+    btn.className = `btn-menu ${mod.classeCSS || ''}`;
+    btn.style.animation = `fadeScaleUp 0.5s ease forwards ${index * 0.1}s`;
+    btn.style.opacity = '0'; 
+    btn.onclick = () => abrirModalSenha(mod);
     
+    // Se for histórico, usa ícone de download (↓), senão usa a seta (➔)
+    const icone = mod.tipo === 'historico' ? '⬇' : '➔';
+
     btn.innerHTML = `
-      <div class="menu-icon-wrapper">
-        <div class="menu-icon ${q.colorClass}">
-          ${q.icon}
-        </div>
-      </div>
-      <div class="menu-content">
-        <div class="menu-text">
-          <span class="menu-title">${q.nome}</span>
-          <span class="menu-subtitle">${q.desc}</span>
-        </div>
-        <div class="menu-chevron">
-          <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="9 18 15 12 9 6"></polyline></svg>
-        </div>
-      </div>
+      <span class="title">${mod.nome}</span>
+      <span class="arrow">${icone}</span>
     `;
     container.appendChild(btn);
   });
+  
+  renderizarConteudoHistorico();
 }
 
-const modal = document.getElementById('password-modal');
-const inputSenha = document.getElementById('pass-input');
-const modalTitle = document.getElementById('modal-title');
+/* ==========================================
+   LÓGICA DO HISTÓRICO
+   ========================================== */
+function renderizarConteudoHistorico() {
+  const container = document.getElementById('history-container');
+  container.innerHTML = '';
 
-function abrirModal(questionario) {
-  checklistSelecionado = questionario;
-  modalTitle.innerText = questionario.nome;
-  modal.classList.add('show');
+  dadosHistorico.forEach(cat => {
+    let htmlArquivos = '';
+    
+    cat.arquivos.forEach(arq => {
+      htmlArquivos += `
+        <a class="history-item" href="${arq.link}" target="_blank">
+          <span class="date">${arq.data}</span>
+          <span class="icon">↓</span>
+        </a>
+      `;
+    });
+
+    const divCategoria = document.createElement('div');
+    divCategoria.className = 'history-category';
+    divCategoria.innerHTML = `
+      <h5>${cat.categoria}</h5>
+      ${htmlArquivos}
+    `;
+    
+    container.appendChild(divCategoria);
+  });
+}
+
+function abrirModalHistorico() {
+  modalHistorico.classList.add('show');
+  bgWallpaper.classList.add('paused');
+}
+
+function fecharModalHistorico() {
+  modalHistorico.classList.remove('show');
+  bgWallpaper.classList.remove('paused');
+}
+
+/* ==========================================
+   LÓGICA DE SENHAS
+   ========================================== */
+function abrirModalSenha(modulo) {
+  moduloSelecionado = modulo;
+  modalTitle.innerText = modulo.nome;
+  modalSenha.classList.add('show');
   inputSenha.value = ''; 
   inputSenha.classList.remove('error');
+  
+  bgWallpaper.classList.add('paused');
   
   setTimeout(() => inputSenha.focus(), 100); 
 }
 
-function fecharModal() {
-  modal.classList.remove('show');
-  setTimeout(() => { checklistSelecionado = null; }, 250);
+function fecharModalSenha() {
+  modalSenha.classList.remove('show');
+  bgWallpaper.classList.remove('paused');
+  setTimeout(() => { moduloSelecionado = null; }, 400);
 }
 
 function validarSenha() {
-  if (!checklistSelecionado) return;
+  if (!moduloSelecionado) return;
 
-  if (inputSenha.value === checklistSelecionado.senha) {
-    inputSenha.style.borderColor = "var(--ios-blue)";
-    inputSenha.style.color = "var(--ios-blue)";
+  if (inputSenha.value === moduloSelecionado.senha) {
+    inputSenha.style.borderColor = "var(--accent-blue)";
+    inputSenha.style.color = "var(--accent-blue)";
+    
     setTimeout(() => {
-        window.location.replace(checklistSelecionado.arquivo);
-    }, 200);
+        if (moduloSelecionado.tipo === "auditoria") {
+            // Se for questionário comum, redireciona
+            window.location.replace(moduloSelecionado.arquivo);
+        } else if (moduloSelecionado.tipo === "historico") {
+            // Se for histórico, fecha a senha e abre a lista
+            fecharModalSenha();
+            setTimeout(() => abrirModalHistorico(), 400);
+        }
+    }, 300);
     
   } else {
+    // Animação de erro na senha
     inputSenha.classList.remove('error');
-    void inputSenha.offsetWidth; // Trigger reflow
+    void inputSenha.offsetWidth; 
     inputSenha.classList.add('error');
     inputSenha.value = '';
     inputSenha.focus();
@@ -456,6 +568,7 @@ function validarSenha() {
 
 function checkEnter(event) { if (event.key === "Enter") validarSenha(); }
 
+window.onload = renderizarMenu;
 </script>
 
 </body>
